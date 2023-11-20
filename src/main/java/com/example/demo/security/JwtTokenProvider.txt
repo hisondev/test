@@ -1,0 +1,32 @@
+import io.jsonwebtoken.*;
+
+@Service
+public class JwtTokenProvider {
+    private String secretKey = "verySecretKey"; // 실제 환경에서는 보안을 위해 외부에서 주입받거나 더 복잡하게 설정
+
+    // JWT 생성
+    public String createToken(String username, List<String> roles) {
+        Claims claims = Jwts.claims().setSubject(username);
+        claims.put("roles", roles);
+
+        Date now = new Date();
+        Date validity = new Date(now.getTime() + 3600000); // 1시간 유효
+
+        return Jwts.builder()
+                .setClaims(claims)
+                .setIssuedAt(now)
+                .setExpiration(validity)
+                .signWith(SignatureAlgorithm.HS256, secretKey)
+                .compact();
+    }
+
+    // JWT 검증
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            throw new CustomException("Expired or invalid JWT token", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+}

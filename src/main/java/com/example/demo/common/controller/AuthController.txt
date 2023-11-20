@@ -1,0 +1,33 @@
+@RestController
+public class AuthController {
+
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
+    @Autowired
+    private SessionConfig sessionConfig;
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginDto loginDto, HttpServletRequest request) {
+        Authentication authentication = authenticationManager.authenticate(
+            new UsernamePasswordAuthenticationToken(
+                loginDto.getUsername(),
+                loginDto.getPassword()
+            )
+        );
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        // JWT 생성
+        String jwt = jwtTokenProvider.createToken(authentication.getName(), authentication.getAuthorities());
+
+        // 세션에 사용자 정보 저장
+        HttpSession session = request.getSession();
+        session.setAttribute(sessionConfig.getUserIdKey(), authentication.getName());
+        // 추가적인 정보 저장 (예: 부서, 권한 등)
+        session.setAttribute(sessionConfig.getDepartmentKey(), "사용자 부서");
+        session.setAttribute("sessionConfig.getAuthoritiesKey()", authentication.getAuthorities());
+
+        // JWT 반환
+        return ResponseEntity.ok(new JwtResponse(jwt));
+    }
+}

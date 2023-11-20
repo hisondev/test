@@ -1,0 +1,52 @@
+<dependencies>
+    <!-- Spring Boot 의존성 -->
+    <!-- 다른 필요한 의존성 -->
+
+    <!-- JWT 라이브러리 -->
+    <dependency>
+        <groupId>io.jsonwebtoken</groupId>
+        <artifactId>jjwt</artifactId>
+        <version>[적절한 버전]</version>
+    </dependency>
+</dependencies>
+
+@EnableWebSecurity
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
+    @Autowired
+    private ApiKeyConfig apiKeyConfig;
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        //API KEY활용
+        http.addFilterBefore(new ApiKeyAuthFilter(apiKeyConfig.getApiKey()),
+                             UsernamePasswordAuthenticationFilter.class);
+
+        //JWT, Session 활용
+        http
+            // CSRF 보호를 비활성화 (REST API의 경우 일반적)
+            .csrf().disable()
+
+            // 세션 정책 설정 (JWT 사용 시 STATELESS를 고려)
+            .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            .and()
+
+            // 요청에 대한 권한 설정
+            .authorizeRequests()
+                .antMatchers("/", "/home", "/public/**").permitAll() // 공개 경로 설정
+                .anyRequest().authenticated() // 나머지 경로는 인증 필요
+            .and()
+
+            // 로그인 설정
+            .formLogin()
+                .loginPage("/login").permitAll() // 사용자 정의 로그인 페이지 사용
+            .and()
+
+            // 로그아웃 설정
+            .logout()
+                .permitAll();
+    }
+}

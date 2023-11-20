@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="hison.js"></script>
+    <script src="dataModel.js"></script>
+    <script src="dataLink.js"></script>
+    <script>
+        Hison.data.convertObject = function(object) {
+            if (object instanceof Date) {
+                var year = object.getFullYear();
+                var month = object.getMonth() + 1;
+                var day = object.getDate();
+                month = month < 10 ? '0' + month : month;
+                day = day < 10 ? '0' + day : day;
+                return year + '. ' + month + '. ' + day;
+            }
+            return object;
+        }
+
+        // JavaScript fetch API
+        async function test1() {
+            // private Long id;
+            // private String deptcode;
+            // private String membername;
+            // private String email;
+            // private LocalDateTime regdate;
+            const testData = {
+                "key1" : [
+                    {
+                        id : 1,
+                        membername: "hani2",
+                        email: "hani2@example.com",
+                        deptcode: "FN",
+                        regdate : "2023-10-17 18:00:00",
+                    },
+                    {
+                        id : 2,
+                        membername: "hani3",
+                        email: "hani3@example.com",
+                        deptcode: "HR",
+                        regdate : "2023-10-18 18:00:00",
+                        test : "1111",
+                    },
+                    {
+                        id : 3,
+                        membername: "hani3",
+                        email: "hani4@example.com",
+                        deptcode: "HR",
+                        regdate : "2023-10-18 18:00:00",
+                        test : "2222",
+                    },
+                    {
+                        id : 4,
+                        membername: "hani4",
+                        email: "hani5@example.com",
+                        deptcode: "HR",
+                        regdate : "2023-10-18 18:00:00",
+                    },
+                    {
+                        id : 5,
+                        membername: "hani5",
+                        email: "hani6@example.com",
+                        deptcode: "HR",
+                        regdate : "2023-10-18 18:00:00",
+                        test : null,
+                    },
+                ],
+                "datamodel" : newDataModel([
+                    {
+                        id : 5,
+                        membername: "hani10",
+                        email: "hani2@example.com",
+                        deptcode: "FN",
+                        regdate : "2023-10-17 18:00:00",
+                        test1 : new Date(),
+                        test2 : [1,2,3,4,5]
+                    },
+                    {
+                        id : 2,
+                        membername: "hani2",
+                        email: "hani3@example",
+                        deptcode: "HR",
+                        regdate : "2023-10-18 18:00:00",
+                        test1 : new Date(),
+                        test2 : [6,7,8,9,10]
+                    }
+                ]),
+                "key2" : "test",
+                "key3" : 0.2,
+                "key4" : null,
+                "key5" : true,
+                "cmd" : "MemberService.getMember",
+            };
+
+            const requestOptions = {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(testData)
+            };
+
+            const response = await fetch("http://localhost:8081/api", requestOptions);
+            const data = await response.json();
+
+            console.log("response is : ", data);
+        }
+
+        async function test2() {
+            
+            // private Long id;
+            // private String deptcode;
+            // private String membername;
+            // private String email;
+            // private LocalDateTime regdate;
+            const testData1 = {
+                "key1" : newDataModel([
+                    {
+                        id : 5,
+                        membername: "hani10",
+                        email: "hani2@example.com",
+                        deptcode: "FN",
+                        regdate : "2023-10-17 18:00:00",
+                        test1 : new Date(),
+                        test2 : [1,2,3,4,5]
+                    },
+                    {
+                        id : 2,
+                        membername: "hani2",
+                        email: "hani3@example",
+                        deptcode: "HR",
+                        regdate : "2023-10-18 18:00:00",
+                        test1 : new Date(),
+                        test2 : [6,7,8,9,10]
+                    }
+                ]),
+                "key2" : "test",
+                // "key3" : new Date(),
+            }
+            var dw1 = newDataWrapper(testData1);
+            console.log('dw1 : ',dw1.show());
+            var dm1 = newDataModel(dw1.getDataModel("key1"));
+            dm1.addRow({
+                id : null,
+                membername: "hani4",
+                email: "hani4@123",
+                deptcode: "HR",
+                regdate : "2023-10-20 18:00:00",
+                test1 : new Date(),
+                test2 : [2,4,6,8,10],
+            });
+            dm1.addRow({
+                id : '1',
+                membername: "hani2",
+                email: "hani4@@example.com",
+                deptcode: "HR",
+                regdate : "2023-10-20 18:00:00",
+                test1 : new Date(),
+                test2 : [2,4,6,8,10],
+            });
+            dm1.addRow({
+                id : '10',
+                membername: "hani6",
+                email: "hani4@example.com",
+                deptcode: "HR",
+                regdate : "2023-10-20 18:00:00",
+                test1 : new Date(),
+                test2 : [2,4,6,8,10],
+            });
+            var dm2 = dm1.clone();
+
+            var isValidEmail = function(row) {
+                var emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+                return row.email && emailRegex.test(row.email);
+            }
+
+            console.log('dm1 show : ',dm1.show());
+            // console.log('dm2 show : ',dm2.show());
+            console.log('dm1 sortRowReverse : ',dm1.sortRowReverse().show());
+            console.log('dm1 sortRowAscending : ',dm1.sortRowAscending('membername').show());
+            console.log('dm1 sortRowDescending : ',dm1.sortRowDescending('membername').show());
+            // console.log('dm1 sortColumnDescending : ',dm1.sortColumnDescending().show());
+
+            return;
+        }
+    </script>
+</head>
+<body>
+    <h2>Hello Spring Boot</h2>
+    <br>
+    <button onclick="test1()">test go1</button>
+    <button onclick="test2()">test go2</button>
+    <button onclick="test3()">test go3</button>
+</body>
+</html>

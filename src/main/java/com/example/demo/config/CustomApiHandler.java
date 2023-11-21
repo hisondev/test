@@ -6,7 +6,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.example.demo.common.controller.ApiControlHandlerDefault;
+import com.example.demo.common.controller.ApiHandlerDefault;
 import com.example.demo.common.data.DataModel;
 import com.example.demo.common.data.DataWrapper;
 
@@ -15,7 +15,7 @@ public class CustomApiHandler extends ApiHandlerDefault{
     private static LogHandler logHandler = new LogHandler();
 
     @Override
-    protected DataModel beforeHandleRequest(DataWrapper dw, HttpServletRequest req) {
+    public DataModel beforeHandleRequest(DataWrapper dw, HttpServletRequest req) {
         HashMap<String, Object> hm = new HashMap<String, Object>();
         hm.put("PASS", "Y");
         
@@ -27,7 +27,7 @@ public class CustomApiHandler extends ApiHandlerDefault{
     }
 
     @Override
-    protected DataModel HandleAuthority(DataWrapper dw, HttpServletRequest req) {
+    public DataModel HandleAuthority(DataWrapper dw, HttpServletRequest req) {
         HashMap<String, Object> hm = new HashMap<String, Object>();
         hm.put("PASS", "Y");
         DataModel dm = new DataModel(hm);
@@ -35,12 +35,12 @@ public class CustomApiHandler extends ApiHandlerDefault{
     }
 
     @Override
-    protected void handleLog(DataWrapper dw, HttpServletRequest req) {
+    public void handleLog(DataWrapper dw, HttpServletRequest req) {
         logHandler.handleLogging(dw, req);
     }
 
     @Override
-    protected DataWrapper handleError(Exception e, DataWrapper dw, HttpServletRequest req) {
+    public DataWrapper handleError(Exception e, DataWrapper dw, HttpServletRequest req) {
         e.printStackTrace();
 
         DataWrapper result = new DataWrapper();

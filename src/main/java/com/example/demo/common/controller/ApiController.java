@@ -43,17 +43,9 @@ public class ApiController {
     @Autowired
     private ApplicationContext applicationContext;
 
-    private static ApiControlHandler handler = loadHandler();
-    private static ApiControlHandler loadHandler() {
-        Properties properties = new Properties();
-        try (InputStream input = DataModel.class.getClassLoader().getResourceAsStream("application.properties")) {
-            properties.load(input);
-            String handlerClassName = properties.getProperty("apiController.customHandler.class", "com.example.demo.common.controller.ApiControlHandlerDefault");
-            return (ApiControlHandler) Class.forName(handlerClassName).getDeclaredConstructor().newInstance();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ApiControlHandlerDefault(); // 기본 컨버터 반환
-        }
+    private final ApiHandler handler;
+    public ApiController(ApiHandler handler) {
+        this.handler = handler;
     }
 
     @GetMapping

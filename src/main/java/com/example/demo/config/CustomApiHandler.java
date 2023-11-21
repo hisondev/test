@@ -10,7 +10,7 @@ import com.example.demo.common.controller.ApiControlHandlerDefault;
 import com.example.demo.common.data.DataModel;
 import com.example.demo.common.data.DataWrapper;
 
-public class CustomApiHandler extends ApiControlHandlerDefault{
+public class CustomApiHandler extends ApiHandlerDefault{
     @Autowired
     private static LogHandler logHandler = new LogHandler();
 

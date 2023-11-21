@@ -49,7 +49,7 @@ public class ApiController {
         try (InputStream input = DataModel.class.getClassLoader().getResourceAsStream("application.properties")) {
             properties.load(input);
             String handlerClassName = properties.getProperty("apiController.customHandler.class", "com.example.demo.common.controller.ApiControlHandlerDefault");
-            return (ApiControlHandler) Class.forName(handlerClassName).newInstance();
+            return (ApiControlHandler) Class.forName(handlerClassName).getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             e.printStackTrace();
             return new ApiControlHandlerDefault(); // 기본 컨버터 반환

@@ -7,8 +7,8 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.example.demo.common.controller.ApiHandlerDefault;
-import com.example.demo.common.data.DataModel;
-import com.example.demo.common.data.DataWrapper;
+import com.example.demo.common.data.model.DataModel;
+import com.example.demo.common.data.wrapper.DataWrapper;
 
 public class CustomApiHandler extends ApiHandlerDefault{
     @Autowired
@@ -16,6 +16,7 @@ public class CustomApiHandler extends ApiHandlerDefault{
 
     @Override
     public DataModel beforeHandleRequest(DataWrapper dw, HttpServletRequest req) {
+        System.out.println("### This is a CustomApiControlHandler beforeHandleRequest ###");
         HashMap<String, Object> hm = new HashMap<String, Object>();
         hm.put("PASS", "Y");
         
@@ -27,7 +28,8 @@ public class CustomApiHandler extends ApiHandlerDefault{
     }
 
     @Override
-    public DataModel HandleAuthority(DataWrapper dw, HttpServletRequest req) {
+    public DataModel handleAuthority(DataWrapper dw, HttpServletRequest req) {
+        System.out.println("### This is a CustomApiControlHandler handleAuthority ###");
         HashMap<String, Object> hm = new HashMap<String, Object>();
         hm.put("PASS", "Y");
         DataModel dm = new DataModel(hm);
@@ -36,11 +38,13 @@ public class CustomApiHandler extends ApiHandlerDefault{
 
     @Override
     public void handleLog(DataWrapper dw, HttpServletRequest req) {
+        System.out.println("### This is a CustomApiControlHandler handleLog ###");
         logHandler.handleLogging(dw, req);
     }
 
     @Override
     public DataWrapper handleError(Exception e, DataWrapper dw, HttpServletRequest req) {
+        System.out.println("### This is a CustomApiControlHandler handleError ###");
         e.printStackTrace();
 
         DataWrapper result = new DataWrapper();

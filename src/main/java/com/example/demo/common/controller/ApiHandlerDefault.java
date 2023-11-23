@@ -4,8 +4,8 @@ import java.util.HashMap;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.example.demo.common.data.DataModel;
-import com.example.demo.common.data.DataWrapper;
+import com.example.demo.common.data.model.DataModel;
+import com.example.demo.common.data.wrapper.DataWrapper;
 
 public class ApiHandlerDefault implements ApiHandler{
     @Override
@@ -17,7 +17,7 @@ public class ApiHandlerDefault implements ApiHandler{
     }
 
     @Override
-    public DataModel HandleAuthority(DataWrapper dw, HttpServletRequest req) {
+    public DataModel handleAuthority(DataWrapper dw, HttpServletRequest req) {
         HashMap<String, Object> hm = new HashMap<String, Object>();
         hm.put("PASS", "Y");
         DataModel dm = new DataModel(hm);

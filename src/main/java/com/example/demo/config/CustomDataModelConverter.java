@@ -1,42 +1,51 @@
 package com.example.demo.config;
 
-import com.example.demo.common.data.DataModelConverterDefault;
+import com.example.demo.common.data.converter.DataConverterDefault;
 
-public class CustomDataModelConverter extends DataModelConverterDefault{
+public class CustomDataConverter extends DataConverterDefault{
     @Override
-    protected Object convertDataModelToEntity(Object value, Class<?> targetType) {
+    public Object convertDataModelToEntity(Object value, Class<?> targetType) {
+        System.out.println("### This is a CustomDataModelConverter convertDataModelToEntity ###");
         return super.convertDataModelToEntity(value, targetType);
     }
     @Override
-    protected Object convertDataModelToEntityValueIsBoolean(Object value, Class<?> targetType) {
+    public Object convertDataModelToEntityValueIsBoolean(Object value, Class<?> targetType) {
+        System.out.println("### This is a CustomDataModelConverter convertDataModelToEntityValueIsBoolean ###");
         return super.convertDataModelToEntityValueIsBoolean(value, targetType);
     }
     @Override
-    protected Object convertDataModelToEntityValueIsNull(Object value, Class<?> targetType) {
+    public Object convertDataModelToEntityValueIsNull(Object value, Class<?> targetType) {
+        System.out.println("### This is a CustomDataModelConverter convertDataModelToEntityValueIsNull ###");
         return super.convertDataModelToEntityValueIsNull(value, targetType);
     }
     @Override
-    protected Object convertDataModelToEntityValueIsNumber(Object value, Class<?> targetType) {
+    public Object convertDataModelToEntityValueIsNumber(Object value, Class<?> targetType) {
+        System.out.println("### This is a CustomDataModelConverter convertDataModelToEntityValueIsNumber ###");
         return super.convertDataModelToEntityValueIsNumber(value, targetType);
     }
     @Override
-    protected Object convertDataModelToEntityValueIsString(Object value, Class<?> targetType) {
+    public Object convertDataModelToEntityValueIsString(Object value, Class<?> targetType) {
+        System.out.println("### This is a CustomDataModelConverter convertDataModelToEntityValueIsString ###");
         return super.convertDataModelToEntityValueIsString(value, targetType);
     }
     @Override
-    protected Object convertEntityToDataModel(Object value) {
+    public Object convertEntityToDataModel(Object value) {
+        System.out.println("### This is a CustomDataModelConverter convertEntityToDataModel ###");
         return super.convertEntityToDataModel(value);
     }
     @Override
-    protected String getDateFormatEntityToDataModel() {
+    public String getDateFormatEntityToDataModel() {
+        System.out.println("### This is a CustomDataModelConverter getDateFormatEntityToDataModel ###");
         return super.getDateFormatEntityToDataModel();
     }
     @Override
-    protected String[] getDateFormatsDataModelToEntity() {
+    public String[] getDateFormatsDataModelToEntity() {
+        System.out.println("### This is a CustomDataModelConverter getDateFormatsDataModelToEntity ###");
         return super.getDateFormatsDataModelToEntity();
     }
     @Override
-    protected boolean isEntity(Object obj) {
+    public boolean isEntity(Object obj) {
+        System.out.println("### This is a CustomDataModelConverter isEntity ###");
         return super.isEntity(obj);
     }
 }

@@ -4,10 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.bind.annotation.*;
 
-import com.example.demo.common.data.DataModel;
-import com.example.demo.common.data.DataWrapper;
+import com.example.demo.common.data.model.DataModel;
+import com.example.demo.common.data.wrapper.DataWrapper;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import javax.servlet.http.HttpServletRequest;
@@ -77,9 +76,6 @@ public class ApiController {
     }
 
     private DataWrapper handleRequest(DataWrapper dw, HttpServletRequest req) {
-        System.out.println("################# handleRequest #################");
-        System.out.println("### dw :" + dw.toString());
-        System.out.println("### req :" + req);
         DataWrapper rtn = new DataWrapper();
         // 1. beforeHandleRequest
         DataModel resultBeforeHandleRequest = beforeHandleRequest(dw, req);
@@ -93,7 +89,7 @@ public class ApiController {
         //beforeHandleRequest의 정보를 dataModel로 하단 로직에 전송?
 
         // 2. 인증 및 권한 체크 로직
-        DataModel resultCheckAuthority = HandleAuthority(dw, req);
+        DataModel resultCheckAuthority = handleAuthority(dw, req);
         if(resultCheckAuthority != null
             && resultCheckAuthority.hasColumn("PASS")
             && !("Y".equals(resultCheckAuthority.getValue(0, "PASS")))) {
@@ -123,8 +119,8 @@ public class ApiController {
         return handler.beforeHandleRequest(dw, req);
     }
 
-    protected DataModel HandleAuthority(DataWrapper dw, HttpServletRequest req) {
-        return handler.HandleAuthority(dw, req);
+    protected DataModel handleAuthority(DataWrapper dw, HttpServletRequest req) {
+        return handler.handleAuthority(dw, req);
     }
 
     protected void handleLog(DataWrapper dw, HttpServletRequest req) {
@@ -167,19 +163,14 @@ public class ApiController {
             throw new Exception("Method not found: " + methodName);
         }
 
-        try {
-            Object result = targetMethod.invoke(service, dw);
+        Object result = targetMethod.invoke(service, dw);
 
-            if (result instanceof DataWrapper) {
-                return (DataWrapper) result;
-            } else {
-                DataWrapper responseWrapper = new DataWrapper();
-                responseWrapper.put("result", result);
-                return responseWrapper;
-            }
-        } catch (InvocationTargetException e) {
-            //e.getCause().printStackTrace();
-            throw new Exception("There was an error in the service method. method: " + methodName);
+        if (result instanceof DataWrapper) {
+            return (DataWrapper) result;
+        } else {
+            DataWrapper responseWrapper = new DataWrapper();
+            responseWrapper.put("result", result);
+            return responseWrapper;
         }
     }
 

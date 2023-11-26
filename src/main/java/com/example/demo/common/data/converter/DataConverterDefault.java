@@ -12,6 +12,7 @@ import javax.persistence.Entity;
 
 import com.example.demo.common.data.exception.DataException;
 
+
 public class DataConverterDefault implements DataConverter{
     /**
      * Converts provided values to a consistent format that can be stored in the DataModelBase.

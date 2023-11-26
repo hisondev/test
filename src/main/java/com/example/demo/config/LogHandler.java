@@ -1,6 +1,6 @@
 package com.example.demo.config;
 
-import com.example.demo.common.data.DataWrapper;
+import com.example.demo.common.data.wrapper.DataWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;

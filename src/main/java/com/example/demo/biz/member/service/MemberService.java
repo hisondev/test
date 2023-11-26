@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import com.example.demo.biz.member.domain.Member;
 import com.example.demo.biz.member.repository.MemberRepository;
-import com.example.demo.common.data.DataModel;
-import com.example.demo.common.data.DataWrapper;
+import com.example.demo.common.data.model.DataModel;
+import com.example.demo.common.data.wrapper.DataWrapper;
 
 import java.util.List;
 

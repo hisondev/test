@@ -10,7 +10,7 @@ import com.example.demo.common.controller.ApiHandlerDefault;
 import com.example.demo.common.data.model.DataModel;
 import com.example.demo.common.data.wrapper.DataWrapper;
 
-public class CustomApiHandler extends ApiHandlerDefault{
+public class CustomApiHandler extends ApiHandlerDefault {
     @Autowired
     private static LogHandler logHandler = new LogHandler();
 
@@ -43,14 +43,29 @@ public class CustomApiHandler extends ApiHandlerDefault{
     }
 
     @Override
-    public DataWrapper handleError(Exception e, DataWrapper dw, HttpServletRequest req) {
+    public DataWrapper handleExceptionError(Exception e, DataWrapper dw, HttpServletRequest req) {
         System.out.println("### This is a CustomApiControlHandler handleError ###");
         e.printStackTrace();
 
         DataWrapper result = new DataWrapper();
         result.put("errorMessage", e.getMessage());
-        result.put("errorCause", e.getCause().toString());
-        result.put("errorType", e.getClass().getName());
+        result.put("errorCause", e.getCause() != null ? e.getCause().toString() : null);
+        result.put("errorType", e.getClass() != null ? e.getClass().getName() : null);
         return result;
     }
+
+    @Override
+    public DataWrapper handleThrowableError(Throwable t, DataWrapper dw, HttpServletRequest req) {
+        System.out.println("### This is a CustomApiControlHandler handleError ###");
+        t.printStackTrace();
+
+        DataWrapper result = new DataWrapper();
+        result.put("errorMessage", t.getMessage());
+        result.put("errorCause", t.getCause() != null ? t.getCause().toString() : null);
+        result.put("errorType", t.getClass() != null ? t.getClass().getName() : null);
+        return result;
+    }
+
+    @Override
+    public void afterHandleRequest(DataWrapper requestDw, DataWrapper responesDw, HttpServletRequest req) {};
 }

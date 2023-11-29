@@ -62,6 +62,14 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
  *         {"key1": "value"}
  *     ]
  * }
+ * //insert a row
+ * //or
+ * [
+ * {"column1":"value","column2":"value"...},
+ * {"column1":"value","column2":"value"...},
+ * {"column1":"value","column2":"value"...}...
+ * ]
+ * //insert rows
  * </pre>
  *
  * <p>Usage:</p>

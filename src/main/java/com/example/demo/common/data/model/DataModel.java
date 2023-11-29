@@ -1,10 +1,5 @@
 package com.example.demo.common.data.model;
 
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -30,46 +25,57 @@ import com.example.demo.common.data.condition.Condition;
 import com.example.demo.common.data.converter.DataConverter;
 import com.example.demo.common.data.converter.DataConverterProvider;
 import com.example.demo.common.data.exception.DataException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.NullNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 /**
- * Represents the base structure for data models designed for structured data communication
- * between the client and the server. This class provides a mechanism to handle data as key-value pairs
- * where the values are maintained as strings. It facilitates data conversion and formatting, especially 
- * when dealing with entities and date-time formats.
- * 
- * <p><strong>Notes:</strong></p>
+ * Represents a structured data model primarily used for data communication between client and server. 
+ * It organizes data in a tabular structure, facilitating easy management and manipulation of data. 
+ * This model is capable of handling complex data structures, including nested objects and arrays, 
+ * represented as key-value pairs in a table-like format.
+ *
+ * <p>Features:</p>
  * <ul>
- *     <li>For JSON communication, always wrap with {@code DataWrapper}.</li>
- *     <li>The values inside {@code DataModelBase} are managed as strings.</li>
- *     <li>It's recommended to create a {@code DataModel.java} and extend {@code DataModelBase} for usage. Protected members can be overridden through inheritance.</li>
- *     <li>By default, date formatting for entities is defined only for {@code LocalDateTime}.</li>
- *     <li>When deserialized with {@code DataWrapper}, the JavaScript object format follows the rule: 
- *     <pre>
- *     {
- *         key1 : "value", 
- *         key2 : [
- *             {key1 : "value"},
- *             {key1 : "value"}
- *         ]
- *     }
- *     </pre>
- *     This translates to key1 having the string value "value" and key2 having a {@code DataModelBase} value with {key1 : "value"}.
- *     </li>
+ *     <li>Facilitates the conversion and management of data between JSON format and DataModel, 
+ *         as well as between Entity class data and DataModel.</li>
+ *     <li>Utilizes {@link DataConverter} for customizable data conversion. 
+ *         The default implementation can be overridden using Spring's dependency injection, 
+ *         allowing for custom data handling strategies.</li>
+ *     <li>Supports JSON data structure consisting of key-value pairs for easy server communication. 
+ *         The structure is flexible to accommodate various data types including nested objects and arrays.</li>
+ *     <li>Integrates seamlessly with 'hison' API-controller artifact and associated JavaScript libraries 
+ *         (dataModel.js, dataLink.js) for streamlined data exchange without additional coding requirements.</li>
+ *     <li>Relies on several key dependencies including Spring Context, Spring Boot Autoconfigure, 
+ *         Jackson Databind, JPA API, and Servlet API to function effectively within a Spring-based application environment.</li>
  * </ul>
- * 
+ *
+ * <p>Example JSON structure for server communication:</p>
+ * <pre>
+ * {
+ *     "key1": "value", 
+ *     "key2": [
+ *         {"key1": "value"},
+ *         {"key1": "value"}
+ *     ]
+ * }
+ * </pre>
+ *
+ * <p>Usage:</p>
+ * <ul>
+ *     <li>For custom conversion logic, define a new {@link DataConverter} and configure it as a Spring bean.</li>
+ *     <li>When extending this class, override necessary methods to adapt the data model to specific application needs.</li>
+ * </ul>
+ *
  * @author Hani son
  * @version 1.0.0
  */
 @JsonDeserialize(using = DataModelDeserializer.class)
 @JsonSerialize(using = DataModelSerializer.class)
-public class DataModel implements Cloneable{
+public final class DataModel implements Cloneable{
     private LinkedHashSet<String> cols;
     private ArrayList<HashMap<String, Object>> rows;
     
@@ -94,7 +100,7 @@ public class DataModel implements Cloneable{
             } else if (valueNode.isObject()) {
                 value = parseJsonObjectToDataModel(valueNode);
             } else {
-                value = valueNode.asText();
+                value = getConverter().getConvertJsonValueNodeToDataModelRowValue(valueNode);
             }
 
             row.put(key, value);
@@ -112,7 +118,7 @@ public class DataModel implements Cloneable{
             } else if (elementNode.isObject()) {
                 array.add(parseJsonObjectToDataModel(elementNode));
             } else {
-                array.add(elementNode.asText());
+                array.add(getConverter().getConvertJsonValueNodeToDataModelRowValue(elementNode));
             }
         }
         return array;
@@ -127,35 +133,23 @@ public class DataModel implements Cloneable{
         }
     }
 
-    private HashMap<String, Object> entityTransferHashMap(Object obj) {
-        if (!isEntity(obj)) {
-            throw new DataException("The provided object is not a entity.");
-        }
-        try {
-            HashMap<String, Object> row = new HashMap<String, Object>();
-            PropertyDescriptor[] props = Introspector.getBeanInfo(obj.getClass(), Object.class).getPropertyDescriptors();
-            for (PropertyDescriptor pd : props) {
-                String propName = pd.getName();
-                Method getterMethod = pd.getReadMethod();
-                // Object value = getterMethod.invoke(obj).toString();
-                row.put(propName, convertEntityToDataModel(getterMethod.invoke(obj)));
+    private List<Map<String, Object>> getConvertedEntitiesToMaps(List<Object> entities) {
+        List<Map<String, Object>> maps = new ArrayList<>();
+        ObjectMapper mapper = getConverter().getObjectMapperForConvertEntitiesToDataModel();
+    
+        for (Object entity : entities) {
+            if (!getConverter().isEntity(entity)) {
+                throw new DataException("The provided object is not an entity.");
             }
-            return row;
-        } catch (Exception e) {
-            throw new DataException("Failed to convert object to map", e);
+            try {
+                String json = mapper.writeValueAsString(entity);
+                HashMap<String, Object> map = mapper.readValue(json, new TypeReference<HashMap<String, Object>>() {});
+                maps.add(map);
+            } catch (Exception e) {
+                throw new DataException("Failed to convert entity to map", e);
+            }
         }
-    }
-
-    private Object convertEntityToDataModel(Object value) {
-        return getConverter().convertEntityToDataModel(value);
-    }
-
-    private Object convertDataModelToEntity(Object value, Class<?> targetType){
-        return getConverter().convertDataModelToEntity(value, targetType);
-    }
-
-    private boolean isEntity(Object obj) {
-        return getConverter().isEntity(obj);
+        return maps;
     }
 
     /**
@@ -314,15 +308,22 @@ public class DataModel implements Cloneable{
     }
 
     /**
-     * Constructor for the DataModelBase class with an initial row represented as a {@link JsonNode}.
+     * Constructs a new DataModel instance initialized with data from a {@link JsonNode}. This constructor 
+     * can handle both single JSON objects and arrays of JSON objects, converting them into one or more rows 
+     * of the DataModel. It leverages the {@link #addRow(JsonNode)} method for the conversion and addition of rows.
      *
-     * <p>Initializes the columns (cols) based on the keys from the provided {@link JsonNode} and ensures 
-     * order of insertion and uniqueness using a {@link LinkedHashSet}. The rows are initialized 
-     * as an {@link ArrayList} of {@link HashMap}. The provided row (as a {@link JsonNode}) is then converted 
-     * and added to the rows.</p>
+     * <p>Process:</p>
+     * <ul>
+     *     <li>Initializes the columns (cols) as a {@link LinkedHashSet} and rows as an {@link ArrayList} of {@link HashMap}s.</li>
+     *     <li>Uses the {@link #addRow(JsonNode)} method to convert the provided JsonNode into DataModel rows.</li>
+     *     <li>Handles both single JSON objects and JSON arrays, adding each as individual rows to the DataModel.</li>
+     * </ul>
      *
-     * @param node A {@link JsonNode} representing the initial row with key-value pairs corresponding to 
-     *             column names and their respective values.
+     * <p>This constructor is particularly useful for initializing a new DataModel directly from JSON data, 
+     * making it a versatile option for JSON data processing and manipulation.</p>
+     *
+     * @param node a {@link JsonNode} representing either a single row (as a JSON object) or multiple rows (as a JSON array)
+     *             to initialize the DataModel
      */
     public DataModel (JsonNode node) {
         this.cols = new LinkedHashSet<String>();
@@ -332,22 +333,23 @@ public class DataModel implements Cloneable{
     }
 
     /**
-     * Constructor for the DataModelBase class with an initial row represented as an entity object.
+     * Constructs a new DataModel instance initialized with a single row derived from an entity object.
+     * This constructor facilitates the creation of a DataModel from an entity, converting the entity's fields
+     * into columns and values of the DataModel's first row. It leverages {@link #addRow(Object)} to handle the
+     * conversion and integration of the entity into the DataModel's structure.
      *
-     * <p>Initializes the columns (cols) based on the properties of the provided entity object and ensures 
-     * order of insertion and uniqueness using a {@link LinkedHashSet}. The rows are initialized 
-     * as an {@link ArrayList} of {@link HashMap}. The provided entity is then converted 
-     * into a {@link HashMap} using the {@code entityTransferHashMap} method, and the resulting map 
-     * is added as a row.</p>
-     * 
-     * <p><b>Note:</b> This constructor supports providing entity objects as parameters. However, 
-     * it employs {@link java.lang.reflect} operations, such as introspection, to transform them into 
-     * {@link HashMap}s. As a result, the performance might be suboptimal in certain contexts due 
-     * to these reflective operations. For optimal performance, it's recommended to directly provide 
-     * data in {@link HashMap} format whenever feasible.</p>
+     * <p>Key Steps:</p>
+     * <ul>
+     *     <li>Checks if the provided entity is not null. Throws a {@link DataException} if null.</li>
+     *     <li>Initializes the columns (cols) and rows of the DataModel as empty collections.</li>
+     *     <li>Uses {@link #addRow(Object)} to convert the entity to a DataModel row and add it to the DataModel.</li>
+     * </ul>
      *
-     * @param entity An entity object that is converted into a row in the DataModelBase.
-     * @throws DataException If the provided object is not recognized as an entity or if there's an error during conversion.
+     * <p>This constructor is particularly useful for initializing a new DataModel with data from an existing entity,
+     * ensuring that the entity's data is accurately represented within the DataModel's tabular format.</p>
+     *
+     * @param entity An object representing the initial row to be added to the DataModel
+     * @throws DataException if the provided entity is null
      */
     public DataModel(Object entity) {
         if(entity == null) {
@@ -356,30 +358,32 @@ public class DataModel implements Cloneable{
         this.cols = new LinkedHashSet<String>();
         this.rows = new ArrayList<HashMap<String, Object>>();
 
-        HashMap<String, Object> hm = entityTransferHashMap(entity);
-        addRow(hm);
+        addRow(entity);
     }
 
     /**
-     * Constructor for the DataModelBase class that accepts a list of generic type <code>T</code>.
+     * Constructs a new DataModel instance initialized with a list of rows. The type of the first item in the list
+     * determines how the rows are added to the DataModel. This constructor supports initialization with various data
+     * types including lists of strings (as column names), maps, tuples, or objects (entities).
      *
-     * <p>Based on the type of the first element in the provided list, the constructor performs 
-     * the following operations:</p>
+     * <p>Process:</p>
      * <ul>
-     *     <li>If {@link String}: Initializes the columns (cols) with the provided strings.</li>
-     *     <li>If {@link Map}: Calls the <code>addRows</code> method to add the provided rows.</li>
-     *     <li>If {@link Tuple}: Converts each tuple into a {@link HashMap} using its elements and aliases, and then adds them as rows.</li>
-     *     <li>If {@link Object}: Converts each object into a {@link HashMap} using the <code>entityTransferHashMap</code> method, and then adds it as a row.</li>
+     *     <li>Initializes the columns (cols) as a {@link LinkedHashSet} and rows as an {@link ArrayList} of {@link HashMap}s.</li>
+     *     <li>Checks the type of the first item in the newRows list and applies the appropriate method:</li>
+     *     <ul>
+     *         <li>If the items are Strings, sets them as column names using {@link #setColumns(List)}.</li>
+     *         <li>If the items are Maps or Tuples, adds them as rows using {@link #addRows(List)}.</li>
+     *         <li>If the items are Objects (entities), converts them to rows and adds them using {@link #addRows(List)}.</li>
+     *     </ul>
      * </ul>
-     * 
-     * <p><b>Note:</b> This constructor supports providing entity objects within the list as parameters. However, 
-     * when converting these entities into {@link HashMap}s, it employs {@link java.lang.reflect} operations, 
-     * such as introspection. The performance might be suboptimal in certain contexts due to these reflective operations. 
-     * For optimal performance, direct provision of data in {@link HashMap} format is recommended whenever feasible.</p>
      *
-     * @param <T>   the generic type of the elements in the provided list, which can be either 
-     *              {@link String}, {@link Map}, {@link Tuple}, or other {@link Object} instances.
-     * @param newRows a list of <code>T</code> type instances for the initialization.
+     * <p>This constructor offers a versatile way to initialize a DataModel with different types of data, making it suitable 
+     * for various use cases where the data format may vary.</p>
+     *
+     * @param <T> the type of the elements in the newRows list
+     * @param newRows a list representing the initial data with which to populate the DataModel. The data type of the list 
+     *                elements determines how they are processed and added to the DataModel.
+     * @throws DataException if there's an error in setting columns or adding rows
      */
     @SuppressWarnings("unchecked")
     public <T> DataModel(List<T> newRows) {
@@ -389,25 +393,14 @@ public class DataModel implements Cloneable{
         if (!newRows.isEmpty()) {
             T t = newRows.get(0);
             if (t instanceof String) {
-                List<String> newColumns = (List<String>) newRows;
-                for(String col : newColumns) {
-                    this.cols.add(col);
-                }
+                setColumns((List<String>) newRows);
             } else if (t instanceof Map) {
-                List<Map<String, Object>> list = (List<Map<String, Object>>) newRows;
-                addRows(list);
+                addRows((List<Map<String, Object>>) newRows);
             } else if (t instanceof Tuple) {
-                List<Tuple> tuples = (List<Tuple>) newRows;
-                for(Tuple tuple : tuples) {
-                    addRow(tuple);
-                }
+                addRows((List<Tuple>) newRows);
                 
             } else if (t instanceof Object){
-                List<Object> entities = (List<Object>) newRows;
-                for (Object entity : entities) {
-                    HashMap<String, Object> hm = entityTransferHashMap(entity);
-                    addRow(hm);
-                }
+                addRows((List<Object>) newRows);
             }
         }
     }
@@ -581,92 +574,52 @@ public class DataModel implements Cloneable{
     }
 
     /**
-     * Converts the current DataModelBase instance to a JSON node.
-     * 
-     * <p>This method produces a JSON representation of the current instance, converting both columns and rows 
-     * into appropriate JSON structures. It also adds metadata, specifically the column and row counts.</p>
-     * 
-     * <p><b>Note:</b> The method configures the {@link com.fasterxml.jackson.databind.ObjectMapper} to prevent self-referential cycles (recursion) 
-     * using the <code>SerializationFeature.FAIL_ON_SELF_REFERENCES</code> configuration. This is important to prevent potential 
-     * stack overflow errors when dealing with objects that reference themselves.</p>
-     * 
-     * <p><b>Caution:</b> If the rows contain data types not directly supported by {@link com.fasterxml.jackson.databind.ObjectMapper}, 
-     * such as <code>LocalDateTime</code>, the conversion will fail and raise an error. Ensure that the data within the rows is 
-     * compatible with ObjectMapper's default serialization capabilities, or consider providing custom serializers.</p>
-     * 
-     * @return The {@link com.fasterxml.jackson.databind.JsonNode} representation of the current instance.
-     * @throws DataException If any error occurs during the conversion process.
+     * Converts the current DataModel instance to a {@link JsonNode}, representing the DataModel's structure in JSON format.
+     * This method leverages the {@link DataConverter#getConvertedJson(DataModel)} method, which can be customized by the user,
+     * allowing for flexible and user-defined JSON conversion strategies.
+     *
+     * <p>Process:</p>
+     * <ul>
+     *     <li>Utilizes a customized {@link ObjectMapper} obtained from {@link DataConverter#getObjectMapperForConvertDataModelToJson()}
+     *         to serialize the DataModel's columns, rows, and metadata into JSON.</li>
+     *     <li>Includes the number of columns and rows as part of the JSON output.</li>
+     *     <li>Handles potential exceptions during the conversion, encapsulating them in a {@link DataException}.</li>
+     * </ul>
+     *
+     * <p>This method is essential for transforming the DataModel into a JSON representation, making it suitable for data exchange,
+     * storage, or further processing. The flexibility in customization allows it to cater to various JSON structure requirements.</p>
+     *
+     * @return a {@link JsonNode} representing the DataModel in JSON format
+     * @throws DataException if any issues occur during the conversion to JSON
      */
-    public JsonNode getConvertJson() {
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.configure(SerializationFeature.FAIL_ON_SELF_REFERENCES, false);
-            
-            ObjectNode rootNode = mapper.createObjectNode();
-            
-            rootNode.set("columns", mapper.valueToTree(cols));
-            rootNode.set("rows", mapper.valueToTree(rows));
-            rootNode.put("columnCount", getColumnCount());
-            rootNode.put("rowCount", getRowCount());
-            
-            return rootNode;
-        } catch (Exception e) {
-            throw new DataException("Failed to convert DataModel to Json in getConvertJson", e);
-        }
+    public JsonNode getConvertedJson() {
+        return getConverter().getConvertedJson(this);
     }
 
     /**
-     * Converts the rows of the current DataModelBase instance into a list of entities of the specified class.
-     * 
-     * <p>This method iterates over each row of data in the current instance and constructs an entity of the 
-     * given class by using reflection to set the fields of the entity based on the keys in the row.</p>
-     * 
-     * <p><b>Note:</b> This method leverages Java reflection to dynamically instantiate entities and set their fields. 
-     * Using reflection can introduce performance overheads, especially if invoked repeatedly or with large data sets.
-     * Due to the performance considerations associated with reflection, when converting DataModel instances to entities, 
-     * it might be more efficient to first extract the information into {@link HashMap}s and then convert these to entities
-     *  using domain-specific logic rather than relying on reflective operations of this method</p>
-     * 
-     * @param entityClass The class type of the entities to be created.
-     * @return A list of entities constructed from the rows of data in the current instance.
-     * @throws DataException If any error occurs during the conversion process.
+     * Converts the rows of the DataModel into a list of entities of the specified class. This method uses the
+     * {@link DataConverter#getConvertedEntities(Class, DataModel)} method, which can be customized by the user,
+     * allowing for flexible and user-defined entity conversion strategies.
+     *
+     * <p>Process:</p>
+     * <ul>
+     *     <li>Utilizes a customized {@link ObjectMapper} obtained from {@link DataConverter#getObjectMapperForConvertDataModelToEntities()}
+     *         to deserialize the DataModel rows into entities of the specified class.</li>
+     *     <li>Supports conversion of complex data structures represented in the DataModel rows into corresponding entity objects.</li>
+     *     <li>Handles potential exceptions during the conversion, encapsulating them in a {@link DataException}.</li>
+     * </ul>
+     *
+     * <p>This method is essential for transforming the structured data in the DataModel back into entity objects, making it 
+     * suitable for business logic processing or data manipulation. The customization ability ensures that it can cater to 
+     * various entity structure requirements.</p>
+     *
+     * @param <T> the class type of the entities to be created
+     * @param entityClass the class of the entities to which the rows are to be converted
+     * @return a list of entities of the specified class, each corresponding to a row in the DataModel
+     * @throws DataException if any error occurs during the conversion process
      */
-    public List<Object> getConvertEntities(Class<?> entityClass) {
-        // DataMode => Entity
-        List<Object> entities = new ArrayList<>();
-        Field[] fields = entityClass.getDeclaredFields();
-    
-        for (HashMap<String, Object> row : rows) {
-            try {
-                Object entity = entityClass.getConstructor().newInstance();
-    
-                for (Field field : fields) {
-                    String fieldName = field.getName();
-                    Method setterMethod;
-                    try {
-                        // Assuming setter methods are named in a standard way: "set[FieldName]"
-                        String methodName = "set" + Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
-                        setterMethod = entityClass.getMethod(methodName, field.getType());
-                    } catch (NoSuchMethodException e) {
-                        continue; // No setter method, skip this field
-                    }
-    
-                    if (row.containsKey(fieldName)) {
-                        Object value = row.get(fieldName);
-                        if (value != null && !(value instanceof NullNode)) {
-                            // Convert value type if necessary
-                            value = convertDataModelToEntity(value, field.getType());
-                            // Set the value using the setter method
-                            setterMethod.invoke(entity, value);
-                        }
-                    }
-                }
-                entities.add(entity);
-            } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-                throw new DataException("Failed to convert object to hashMap", e);
-            }
-        }
-        return entities;
+    public <T> List<T> getConvertedEntities(Class<T> entityClass) {
+        return getConverter().getConvertedEntities(entityClass, this);
     }
 
     /**
@@ -829,23 +782,35 @@ public class DataModel implements Cloneable{
     }
 
     /**
-     * Adds a new row of data to this DataModelBase instance.
-     * 
-     * <p>If the {@code DataModelBase} has no columns defined yet, the keys from the provided 
-     * {@code newRow} map will define the columns. Otherwise, only the columns already defined 
-     * will be taken into account when adding the new row.</p>
-     * 
-     * <p>This method also performs type validation. It ensures that new data being added to a 
-     * column matches the data type of existing entries in that column.</p>
-     * 
-     * <p><b>Note:</b> This method uses {@code convertEntityToDataModel} to convert and possibly normalize 
-     * the data being added. By default, {@code convertEntityToDataModel} will convert certain Java primitive 
-     * types to their corresponding String representations. Users can override this method to customize 
-     * its behavior.</p>
-     * 
-     * @param newRow A map containing the new row of data to be added.
-     * @return The current DataModelBase instance with the added row.
-     * @throws DataException If there's a type mismatch between the new data and existing data in a column.
+     * Adds a new row to the DataModel, converting and integrating the provided data into the existing structure.
+     * Each key in the newRow map corresponds to a column in the DataModel, and the values are processed
+     * using {@link DataConverter#getConvertValueToDataModelRowValue(Object)} to ensure they are in the appropriate format.
+     *
+     * <p>Key Aspects:</p>
+     * <ul>
+     *     <li>Initializes columns (cols) if they are not already set, using the keys from the newRow map.</li>
+     *     <li>Converts each value in the newRow map to the appropriate format for the DataModel using the 
+     *         configured DataConverter.</li>
+     *     <li>Checks for type consistency in each column. If a type mismatch is detected, a {@link DataException} is thrown.</li>
+     *     <li>Null values are added for any columns present in DataModel but missing in the newRow map.</li>
+     * </ul>
+     *
+     * <p>This method is central to the dynamic construction of the DataModel, allowing rows of data 
+     * to be added progressively while maintaining type integrity and structure consistency.</p>
+     *
+     * <p><b>Example:</b></p>
+     * <pre>
+     * DataModel dataModel = new DataModel();
+     * Map<String, Object> newRow = new HashMap<>();
+     * newRow.put("column1", "value1");
+     * newRow.put("column2", 123);
+     * dataModel.addRow(newRow);
+     * // The DataModel now contains a row with "value1" in "column1" and 123 in "column2".
+     * </pre>
+     *
+     * @param newRow a map representing the new row to be added, where keys are column names and values are the corresponding data
+     * @return the current instance of DataModel, with the new row added
+     * @throws DataException if a column in newRow does not exist in DataModel, or if there's a type mismatch in any column
      */
     public DataModel addRow(Map<String, Object> newRow){
         if (cols.isEmpty()) {
@@ -864,7 +829,7 @@ public class DataModel implements Cloneable{
         HashMap<String, Object> hm = new HashMap<String, Object>();
         for (String key : cols) {
             if(newRow.containsKey(key)) {
-                Object value = convertEntityToDataModel(newRow.get(key));
+                Object value = getConverter().getConvertValueToDataModelRowValue(newRow.get(key));
                 if(!rows.isEmpty()) {
                     if(rows.get(rows.size() - 1).get(key) != null && value != null) {
                         if(rows.get(rows.size() - 1).get(key).getClass() != value.getClass()) {
@@ -1056,27 +1021,31 @@ public class DataModel implements Cloneable{
     }
 
     /**
-     * Adds rows of data to this DataModelBase instance based on the provided {@code JsonNode}.
-     * 
-     * <p>This method processes the JsonNode, which can represent either a JSON object or an array. If the JsonNode represents a JSON object,
-     * the data is added as a single row to the DataModelBase. If the JsonNode represents a JSON array, each element of the array is treated 
-     * as an individual JSON object and added as separate rows to the DataModelBase.</p>
+     * Adds a new row or multiple rows to the DataModel from a {@link JsonNode}. This method can handle both
+     * single JSON objects and arrays of JSON objects. Each JSON object is converted into a DataModel row.
+     * The conversion process utilizes {@link DataConverter#getConvertJsonValueNodeToDataModelRowValue(JsonNode)}
+     * for appropriate value formatting, allowing for customization of the conversion logic.
+     *
+     * <p>Process:</p>
+     * <ul>
+     *     <li>If the JsonNode is an object, it is directly converted to a DataModel row using {@link #parseJsonObjectToDataModel(JsonNode)}.</li>
+     *     <li>If the JsonNode is an array, each element is converted to a separate DataModel row.</li>
+     *     <li>Uses a customized {@link DataConverter} for converting JSON values to DataModel row values, enabling user-defined conversion strategies.</li>
+     * </ul>
+     *
+     * <p>This method is essential for creating a DataModel from JSON data, particularly when the JSON structure is dynamic or complex.</p>
      *
      * <p><b>Example:</b></p>
      * <pre>
-     * // Given a JsonNode representing a JSON object
-     * String jsonStr = "{ \"name\": \"John\", \"age\": 30 }";
-     * JsonNode node = new ObjectMapper().readTree(jsonStr);
-     * dataModelBase.addRow(node);
-     * 
-     * // Given a JsonNode representing a JSON array
-     * String jsonArrayStr = "[ { \"name\": \"John\", \"age\": 30 }, { \"name\": \"Doe\", \"age\": 25 } ]";
-     * JsonNode arrayNode = new ObjectMapper().readTree(jsonArrayStr);
-     * dataModelBase.addRow(arrayNode);
+     * DataModel dataModel = new DataModel();
+     * String json = "{ 'column1': 'value1', 'column2': 100 }";
+     * JsonNode jsonNode = new ObjectMapper().readTree(json);
+     * dataModel.addRow(jsonNode);
+     * // The DataModel now contains a row with 'value1' in 'column1' and 100 in 'column2'.
      * </pre>
      *
-     * @param node A JsonNode instance, which can be a JSON object or an array.
-     * @return The current DataModelBase instance with the added rows.
+     * @param node a {@link JsonNode} representing either a single row (as a JSON object) or multiple rows (as a JSON array)
+     * @return the current instance of DataModel, with the new row(s) added
      */
     public DataModel addRow(JsonNode node) {
         if (node.isObject()) {
@@ -1091,62 +1060,78 @@ public class DataModel implements Cloneable{
     }
         
     /**
-     * Adds a row of data to this DataModelBase instance based on the provided entity object.
-     * 
-     * <p>This method uses the {@code entityTransferHashMap} function to convert the given entity object into a HashMap. 
-     * As a result, there might be potential performance implications due to the use of reflection in the conversion process.</p>
+     * Adds a new row to the DataModel using an entity object. The entity is first converted to a Map representation,
+     * with each field of the entity corresponding to a column in the DataModel. This conversion process utilizes
+     * a customized {@link ObjectMapper} obtained from {@link #getObjectMapperForConvertEntitiesToDataModel()},
+     * allowing for user-defined data conversion strategies.
      *
-     * <p><b>Note:</b> This constructor supports providing entity objects as parameters. However, 
-     * it employs {@link java.lang.reflect} operations, such as introspection, to transform them into 
-     * {@link HashMap}s. As a result, the performance might be suboptimal in certain contexts due 
-     * to these reflective operations. For optimal performance, it's recommended to directly provide 
-     * data in {@link HashMap} format whenever feasible.</p>
+     * <p>Process:</p>
+     * <ul>
+     *     <li>Validates that the provided entity is not null.</li>
+     *     <li>Converts the entity to a Map using {@link #getConvertedEntitiesToMaps(List)}, which handles the conversion
+     *         of each entity field to the corresponding DataModel column value.</li>
+     *     <li>Adds the converted Map as a new row to the DataModel.</li>
+     * </ul>
+     *
+     * <p>This method is ideal for adding rows to the DataModel where the data source is an entity object. It ensures
+     * that the entity's data is accurately represented within the DataModel's tabular structure.</p>
      *
      * <p><b>Example:</b></p>
      * <pre>
+     * DataModel dataModel = new DataModel();
      * MyEntity entity = new MyEntity();
-     * // set properties for the entity
-     * dataModelBase.addRow(entity);
+     * entity.setField1("value1");
+     * entity.setField2(123);
+     * dataModel.addRow(entity);
+     * // The DataModel now contains a row with "value1" in the field1 column and 123 in the field2 column.
      * </pre>
      *
-     * @param entity An object representing an entity.
-     * @return The current DataModelBase instance with the added row.
+     * @param entity An object representing the data to be added as a new row in the DataModel
+     * @return the current instance of DataModel, with the new row added
+     * @throws DataException if the provided object is null, not an entity, or if there's an error during the conversion process
      */
     public DataModel addRow(Object entity){
         if(entity == null) {
             throw new DataException("You can not insert null.");
         }
-        HashMap<String, Object> hm = entityTransferHashMap(entity);
-        return addRow(hm);
+        List<Object> entities = new ArrayList<Object>();
+        entities.add(entity);
+
+        List<Map<String, Object>> map = getConvertedEntitiesToMaps(entities);
+        return addRow(map.get(0));
     }
 
     /**
-     * Adds multiple rows to the DataModel.
+     * Adds multiple rows to the DataModel from a list of entities, maps, or tuples. This method intelligently 
+     * determines the type of the items in the list and processes them accordingly. It supports direct addition 
+     * of maps and tuples, as well as conversion of entity objects to DataModel rows.
      *
-     * <p>This method accepts a list of generic type <code>T</code> which can be either 
-     * {@link HashMap}&lt;String, Object&gt;, {@link Tuple}, or any other <code>Object</code> instances.</p>
+     * <p>Process:</p>
      * <ul>
-     *     <li>If {@link HashMap}: Adds the passed <code>HashMap</code> directly to the <code>DataModel</code>.</li>
-     *     <li>If {@link Tuple}: Converts each <code>Tuple</code> to a <code>HashMap</code> where keys are the aliases 
-     *     of the tuple elements, and then adds them to the <code>DataModel</code>.</li>
-     *     <li>If {@link Object}: Converts the <code>Object</code> to a <code>HashMap</code> using <code>entityTransferHashMap</code>
-     *     method and then adds it to the <code>DataModel</code>.</li>
+     *     <li>Checks if the provided list is not null and not empty.</li>
+     *     <li>Determines the type of the first item in the list and applies the appropriate conversion logic for each type:</li>
+     *     <ul>
+     *         <li>If the items are Maps, each map is added as a new row.</li>
+     *         <li>If the items are Tuples, each tuple is converted to a Map and then added as a new row.</li>
+     *         <li>If the items are entities, they are first converted to Maps using {@link #getConvertedEntitiesToMaps(List)}
+     *             and then added as rows.</li>
+     *     </ul>
      * </ul>
-     * 
-     * <p><b>Note:</b> The type checking is performed during runtime, based on the first item in the list. 
-     * Therefore, it is assumed that all objects in the list are of the same type as the first item. 
-     * Inconsistencies in type within the list may lead to runtime errors.</p>
      *
-     * <p><b>Note:</b> This constructor supports providing entity objects as parameters. However, 
-     * it employs {@link java.lang.reflect} operations, such as introspection, to transform them into 
-     * {@link HashMap}s. As a result, the performance might be suboptimal in certain contexts due 
-     * to these reflective operations. For optimal performance, it's recommended to directly provide 
-     * data in {@link HashMap} format whenever feasible.</p>
-     * 
-     * @param <T>   the generic type of the elements to be added which can be either 
-     *              {@link HashMap}&lt;String, Object&gt;, {@link Tuple}, or other {@link Object} instances.
-     * @param newRows a list of <code>T</code> type instances to be added to the <code>DataModel</code>.
-     * @return the <code>DataModel</code> instance with the added rows.
+     * <p>This method provides a flexible way to add multiple rows of various types to the DataModel, making it versatile for different data sources.</p>
+     *
+     * <p><b>Example:</b></p>
+     * <pre>
+     * DataModel dataModel = new DataModel();
+     * List<MyEntity> entityList = Arrays.asList(new MyEntity("value1", 123), new MyEntity("value2", 456));
+     * dataModel.addRows(entityList);
+     * // The DataModel now contains rows corresponding to the entities in the list.
+     * </pre>
+     *
+     * @param <T> the type of the elements in the newRows list
+     * @param newRows a list of entities, maps, or tuples representing the rows to be added
+     * @return the current instance of DataModel, with the new rows added
+     * @throws DataException if any error occurs during the conversion or addition process
      */
     @SuppressWarnings("unchecked")
     public <T> DataModel addRows(List<T> newRows) {
@@ -1163,10 +1148,8 @@ public class DataModel implements Cloneable{
                     addRow(tuple);
                 }
             } else if (first instanceof Object){
-                for (T entity : newRows) {
-                    HashMap<String, Object> hm = entityTransferHashMap(entity);
-                    addRow(hm);
-                }
+                List<Map<String, Object>> maps = getConvertedEntitiesToMaps((List<Object>) newRows);
+                addRows(maps);
             }
         }
     
@@ -1436,29 +1419,33 @@ public class DataModel implements Cloneable{
     }
 
     /**
-     * Sets the value in the specified column and row index in the DataModel.
+     * Sets or updates the value of a specific cell in the DataModel. The cell is identified by its row index and column name.
+     * The value is processed using {@link DataConverter#getConvertValueToDataModelRowValue(Object)} to ensure it is in the appropriate format.
+     *
+     * <p>Key Aspects:</p>
+     * <ul>
+     *     <li>Validates the rowIndex to ensure it falls within the current range of rows in the DataModel.</li>
+     *     <li>Checks if the specified column exists. If not, throws a {@link DataException}.</li>
+     *     <li>Converts the value to the appropriate format for the DataModel using the configured DataConverter.</li>
+     *     <li>Ensures type consistency within the column. If the new value's type does not match the existing data types in the column, a {@link DataException} is thrown.</li>
+     * </ul>
+     *
+     * <p>This method is crucial for modifying the contents of the DataModel on a cell-by-cell basis, allowing for precise control over the data contained within.</p>
      *
      * <p><b>Example:</b></p>
      * <pre>
-     * DataModelBase dataModel = new DataModelBase();
+     * DataModel dataModel = new DataModel();
      * // ... [Populate the data model with rows of data]
-     * dataModel.setValue(2, "columnName", "newValue");  // Set a new value in the third row and a column named "columnName"
+     * dataModel.setValue(2, "columnName", "New Value");  // Setting a new value in the third row and a column named "columnName"
+     * Object updatedValue = dataModel.getValue(2, "columnName");  // Retrieving the updated value from the same cell
+     * System.out.println("Updated value in rowIndex 2 and column 'columnName': " + updatedValue);
      * </pre>
      *
-     * <p><b>Note:</b></p>
-     * <ul>
-     * <li>Row index starts from 0. Make sure to provide a valid row index. If the rows are empty or the provided row index 
-     * is out of range (i.e., less than 0 or greater than the number of rows minus one), a DataException will be thrown.</li>
-     * <li>If you haven't customized the <code>DataModelBase</code>, the default type for incoming Object values is <code>String</code>. It's advisable to maintain the String data type.</li>
-     * <li>It's important to ensure that the value being set has the same data type as other values in the same column. Mismatched data types will result in a <code>DataException</code>.</li>
-     * <li>Values are internally passed through the <code>convertEntityToDataModel(value)</code> function to ensure proper conversion and consistency within the DataModel.</li>
-     * </ul>
-     *
-     * @param rowIndex The index of the row (0-based) where the value should be set.
-     * @param column The name of the column where the value should be set.
-     * @param value The new value to be set in the specified column and row.
-     * @return The current DataModelBase instance with the updated value.
-     * @throws DataException if the column does not exist, the rows are empty, the row index is out of range, or if there's a type mismatch with the provided value.
+     * @param rowIndex the index of the row in which the value is to be set
+     * @param column the name of the column in which the value is to be set
+     * @param value the new value to set in the specified cell
+     * @return the current instance of DataModel, with the updated value in the specified cell
+     * @throws DataException if the column does not exist or if there's a type mismatch in the column
      */
     public DataModel setValue(int rowIndex, String column, Object value) {
         checkRowsRange(rowIndex);
@@ -1466,7 +1453,7 @@ public class DataModel implements Cloneable{
             throw new DataException("Column does not exist.");
         }
 
-        value = convertEntityToDataModel(value);
+        value = getConverter().getConvertValueToDataModelRowValue(value);
 
         for(int i = 0; i < rows.size(); i++) {
             if(rowIndex == i) continue;

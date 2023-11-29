@@ -161,7 +161,7 @@ public final class DataModel implements Cloneable{
     }
 
     /**
-     * Default constructor for the DataModelBase class.
+     * Default constructor for the dataModel class.
      *
      * <p>Initializes the columns (cols) as a {@link LinkedHashSet} to maintain the order 
      * of insertion and ensure uniqueness of columns. The rows are initialized as an 
@@ -174,7 +174,7 @@ public final class DataModel implements Cloneable{
     }
 
     /**
-     * Constructor for the DataModelBase class with variable column names.
+     * Constructor for the dataModel class with variable column names.
      *
      * <p>Initializes the columns (cols) with the provided column names, ensuring order 
      * of insertion and uniqueness using a {@link LinkedHashSet}. The rows are initialized 
@@ -182,7 +182,7 @@ public final class DataModel implements Cloneable{
      * key-value pairs corresponding to column names and their respective values.</p>
      *
      * @param newColumns A varargs parameter allowing the user to input any number of column 
-     *                   names when creating a new instance of DataModelBase.
+     *                   names when creating a new instance of dataModel.
      */
     public DataModel(String... newColumns) {
         this.cols = new LinkedHashSet<String>();
@@ -194,14 +194,14 @@ public final class DataModel implements Cloneable{
     }
 
     /**
-     * Constructor for the DataModelBase class with a set of column names.
+     * Constructor for the dataModel class with a set of column names.
      *
      * <p>Initializes the columns (cols) with the provided set of column names, maintaining the 
      * order of insertion and ensuring uniqueness using a {@link LinkedHashSet}. The rows are 
      * initialized as an {@link ArrayList} of {@link HashMap} where each HashMap represents a row 
      * with key-value pairs corresponding to column names and their respective values.</p>
      *
-     * @param newColumns A set containing the column names to be initialized in the DataModelBase instance.
+     * @param newColumns A set containing the column names to be initialized in the dataModel instance.
      */
     public DataModel(Set<String> newColumns) {
         this.cols = new LinkedHashSet<String>();
@@ -213,7 +213,7 @@ public final class DataModel implements Cloneable{
     }
 
     /**
-     * Constructor for the DataModelBase class with an initial row represented as a map.
+     * Constructor for the dataModel class with an initial row represented as a map.
      *
      * <p>Initializes the columns (cols) based on the keys from the provided map and ensures 
      * order of insertion and uniqueness using a {@link LinkedHashSet}. The rows are initialized 
@@ -414,7 +414,7 @@ public final class DataModel implements Cloneable{
     }
         
     /**
-     * Constructor for the DataModelBase class that initializes the DataModel with the results 
+     * Constructor for the dataModel class that initializes the DataModel with the results 
      * of a database query and a corresponding array of column names.
      *
      * <p>This constructor is particularly useful when you want to convert the results of a 
@@ -425,7 +425,7 @@ public final class DataModel implements Cloneable{
      * <p>For example, when executing a native query like:<br>
      * <code>Query query = entityManager.createNativeQuery("SELECT name, age FROM Person");</code><br>
      * <code>List&lt;Object[]&gt; results = query.getResultList();</code><br>
-     * <code>DataModelBase dataModelBase = new DataModelBase(results, new String[]{"name", "age"});</code></p>
+     * <code>dataModel dataModel = new dataModel(results, new String[]{"name", "age"});</code></p>
      * 
      * <p><b>Notice:</b> The length of the <code>columnNames</code> array should match the number 
      * of columns in each object array within the <code>queryResults</code>. If there's a mismatch, 
@@ -519,7 +519,7 @@ public final class DataModel implements Cloneable{
      * <p>This method removes all the defined columns and their associated data rows from the DataModel. 
      * After invoking this method, the DataModel will be empty.</p>
      *
-     * @return the <code>DataModelBase</code> instance with cleared columns and rows.
+     * @return the <code>dataModel</code> instance with cleared columns and rows.
      */
     public DataModel clear() {
         cols.clear();
@@ -529,9 +529,9 @@ public final class DataModel implements Cloneable{
     }
 
     /**
-     * Creates a deep copy of the current DataModelBase instance.
+     * Creates a deep copy of the current dataModel instance.
      * 
-     * <p>This method returns a new instance of <code>DataModelBase</code> with the same column definitions and data rows 
+     * <p>This method returns a new instance of <code>dataModel</code> with the same column definitions and data rows 
      * as the current instance. The returned instance is entirely independent of the original, and changes to 
      * the original won't affect the cloned instance and vice versa.</p>
      * 
@@ -539,11 +539,11 @@ public final class DataModel implements Cloneable{
      * and the clone are completely isolated from each other.</p>
      *
      * <p><b>Example:</b><br>
-     * DataModelBase original = new DataModelBase(...);
-     * DataModelBase copy = original.clone();
+     * dataModel original = new dataModel(...);
+     * dataModel copy = original.clone();
      * // Modifications to 'original' won't affect 'copy' and vice versa.</p>
      * 
-     * @return a new <code>DataModelBase</code> instance that's a deep copy of the current instance.
+     * @return a new <code>dataModel</code> instance that's a deep copy of the current instance.
      */
     public DataModel clone() {
         DataModel newModel = new DataModel(this.cols);
@@ -562,22 +562,22 @@ public final class DataModel implements Cloneable{
     }
 
     /**
-     * Inserts rows from the provided DataModelBase instance into the current instance.
+     * Inserts rows from the provided dataModel instance into the current instance.
      * 
-     * <p>This method extracts rows from the given <code>DataModelBase</code> and appends them to the current instance.
+     * <p>This method extracts rows from the given <code>dataModel</code> and appends them to the current instance.
      * Columns from the provided data model that don't exist in the current instance will be added. The order of rows
      * from the provided data model will be preserved when they are added to the current instance.</p>
      * 
      * <p><b>Example:</b><br>
-     * DataModelBase dm1 = new DataModelBase(...); // Contains some rows
-     * DataModelBase dm2 = new DataModelBase(...); // Contains some other rows
+     * dataModel dm1 = new dataModel(...); // Contains some rows
+     * dataModel dm2 = new dataModel(...); // Contains some other rows
      * dm1.insert(dm2); // Now, 'dm1' contains rows from both 'dm1' and 'dm2'</p>
      * 
-     * @param dataModelBase the <code>DataModelBase</code> instance from which rows will be extracted and added to the current instance.
-     * @return the <code>DataModelBase</code> instance (i.e., the current instance) after inserting the new rows.
+     * @param dataModel the <code>dataModel</code> instance from which rows will be extracted and added to the current instance.
+     * @return the <code>dataModel</code> instance (i.e., the current instance) after inserting the new rows.
      */
-    public DataModel insert(DataModel dataModelBase){
-        List<HashMap<String, Object>> newRows = dataModelBase.getRows();
+    public DataModel insert(DataModel dataModel){
+        List<HashMap<String, Object>> newRows = dataModel.getRows();
         return addRows(newRows);
     }
 
@@ -631,16 +631,16 @@ public final class DataModel implements Cloneable{
     }
 
     /**
-     * Defines the columns for this DataModelBase instance using the specified column names.
+     * Defines the columns for this dataModel instance using the specified column names.
      * 
-     * <p>This method sets the column names for the current DataModelBase instance. If columns have 
+     * <p>This method sets the column names for the current dataModel instance. If columns have 
      * already been defined for this instance, invoking this method will result in a {@link DataException}.</p>
      * 
      * <p><b>Note:</b> It's recommended to ensure that columns are not previously defined 
      * before invoking this method to prevent exceptions.</p>
      * 
-     * @param columns Varargs of column names to be set for this DataModelBase instance.
-     * @return The current DataModelBase instance with the columns set.
+     * @param columns Varargs of column names to be set for this dataModel instance.
+     * @return The current dataModel instance with the columns set.
      * @throws DataException If columns have already been defined for this instance.
      */
     public DataModel setColumns(String... columns) {
@@ -655,17 +655,17 @@ public final class DataModel implements Cloneable{
     }
 
     /**
-     * Defines the columns for this DataModelBase instance using the specified set of column names.
+     * Defines the columns for this dataModel instance using the specified set of column names.
      * 
-     * <p>This method sets the column names for the current DataModelBase instance using a {@link Set} of 
+     * <p>This method sets the column names for the current dataModel instance using a {@link Set} of 
      * column names. If columns have already been defined for this instance, invoking this method 
      * will result in a {@link DataException}.</p>
      * 
      * <p><b>Note:</b> It's recommended to ensure that columns are not previously defined 
      * before invoking this method to prevent exceptions.</p>
      * 
-     * @param columns A set of column names to be set for this DataModelBase instance.
-     * @return The current DataModelBase instance with the columns set.
+     * @param columns A set of column names to be set for this dataModel instance.
+     * @return The current dataModel instance with the columns set.
      * @throws DataException If columns have already been defined for this instance.
      */
     public DataModel setColumns(Set<String> columns) {
@@ -680,17 +680,17 @@ public final class DataModel implements Cloneable{
     }
 
     /**
-     * Defines the columns for this DataModelBase instance using the specified list of column names.
+     * Defines the columns for this dataModel instance using the specified list of column names.
      * 
-     * <p>This method sets the column names for the current DataModelBase instance using a {@link List} of 
+     * <p>This method sets the column names for the current dataModel instance using a {@link List} of 
      * column names. If columns have already been defined for this instance, invoking this method 
      * will result in a {@link DataException}.</p>
      * 
      * <p><b>Note:</b> It's recommended to ensure that columns are not previously defined 
      * before invoking this method to prevent exceptions.</p>
      * 
-     * @param columns A list of column names to be set for this DataModelBase instance.
-     * @return The current DataModelBase instance with the columns set.
+     * @param columns A list of column names to be set for this dataModel instance.
+     * @return The current dataModel instance with the columns set.
      * @throws DataException If columns have already been defined for this instance.
      */
     public DataModel setColumns(List<String> columns) {
@@ -705,10 +705,10 @@ public final class DataModel implements Cloneable{
     }
 
     /**
-     * Sets the same value for a specified column across all rows of this DataModelBase instance.
+     * Sets the same value for a specified column across all rows of this dataModel instance.
      * 
      * <p>This method assigns a uniform value to a specific column for all rows in the current
-     * DataModelBase instance. If the column does not exist within the DataModelBase, this method
+     * dataModel instance. If the column does not exist within the dataModel, this method
      * does nothing and simply returns the current instance.</p>
      * 
      * <p><b>Note:</b> It's advisable to first check if the column exists using the {@code hasColumn}
@@ -716,7 +716,7 @@ public final class DataModel implements Cloneable{
      * 
      * <p><b>Example:</b><br>
      * {@code
-     * DataModelBase model = new DataModelBase();
+     * dataModel model = new dataModel();
      * model.setColumns("Name", "Age");
      * model.addRow(new HashMap<String, Object>(){{ put("Name", "John"); put("Age", 30); }});
      * model.addRow(new HashMap<String, Object>(){{ put("Name", "Jane"); put("Age", 25); }});
@@ -726,7 +726,7 @@ public final class DataModel implements Cloneable{
      * 
      * @param column The name of the column for which the value is to be uniformly set.
      * @param value The value to be set across all rows for the specified column.
-     * @return The current DataModelBase instance with updated values for the specified column.
+     * @return The current dataModel instance with updated values for the specified column.
      */
     public DataModel setColumnSameValue(String column, Object value) {
         if(!hasColumn(column)) return this;
@@ -745,7 +745,7 @@ public final class DataModel implements Cloneable{
      * row, and an error message is printed.</p>
      * 
      * <p>Before applying the formatter, this method checks if the specified column exists within 
-     * the DataModelBase instance. If the column doesn't exist, a message indicating the non-existence 
+     * the dataModel instance. If the column doesn't exist, a message indicating the non-existence 
      * of the column is printed and the method returns without making any modifications.</p>
      * 
      * <p><b>Note:</b> Ensure that the formatter function can handle all potential data types 
@@ -763,13 +763,13 @@ public final class DataModel implements Cloneable{
      * };
      * 
      * // Example method call.
-     * dataModelBase.setColumnSameFormat("key1", formatter);
+     * dataModel.setColumnSameFormat("key1", formatter);
      * }
      * </p>
      * 
      * @param column The name of the column whose values are to be formatted.
      * @param formatter The function to format values within the specified column.
-     * @return The current DataModelBase instance with formatted values for the specified column.
+     * @return The current dataModel instance with formatted values for the specified column.
      */
     public DataModel setColumnSameFormat(String column, Function<Object, Object> formatter) {
         if (!cols.contains(column)) {
@@ -857,7 +857,7 @@ public final class DataModel implements Cloneable{
     }
 
     /**
-     * Adds a new row of data to this DataModelBase instance based on the provided Tuple.
+     * Adds a new row of data to this dataModel instance based on the provided Tuple.
      * 
      * <p>The method will extract elements from the {@code Tuple} and map them into a row using the
      * aliases of the Tuple elements as column names.</p>
@@ -866,7 +866,7 @@ public final class DataModel implements Cloneable{
      * 
      * @param tuple A Tuple containing data to be added as a new row. 
      *              Each TupleElement's alias will be used as the column name for that data.
-     * @return The current DataModelBase instance with the added row.
+     * @return The current dataModel instance with the added row.
      *
      * <p><b>Example:</b></p>
      * <pre>
@@ -878,10 +878,10 @@ public final class DataModel implements Cloneable{
      * Query query = em.createQuery("SELECT name AS nameAlias, age AS ageAlias FROM Person", Tuple.class);
      * List<Tuple> results = query.getResultList();
      * 
-     * // Create a new DataModelBase and add each tuple as a row
-     * DataModelBase dataModelBase = new DataModelBase();
+     * // Create a new dataModel and add each tuple as a row
+     * dataModel dataModel = new dataModel();
      * for (Tuple tuple : results) {
-     *     dataModelBase.addRow(tuple);
+     *     dataModel.addRow(tuple);
      * }
      * }
      * </pre>
@@ -901,16 +901,16 @@ public final class DataModel implements Cloneable{
     }
     
     /**
-     * Adds a new row of data to this DataModelBase instance based on the provided array of objects and the array of column names.
+     * Adds a new row of data to this dataModel instance based on the provided array of objects and the array of column names.
      * 
      * <p>The method maps the elements from the {@code queryResult} to the respective column names in {@code columnNames} 
-     * and then adds them as a new row to the DataModelBase instance.</p>
+     * and then adds them as a new row to the dataModel instance.</p>
      * 
      * <p>If the sizes of the two provided arrays do not match, or if any of the arrays is null, the method will throw a DataException.</p>
      * 
      * @param queryResult An array of objects containing data to be added as a new row.
      * @param columnNames An array of strings where each string represents the column name for the respective data in {@code queryResult}.
-     * @return The current DataModelBase instance with the added row.
+     * @return The current dataModel instance with the added row.
      * 
      * <p><b>Notice:</b> The length of the <code>columnNames</code> array should match the number 
      * of columns in each object array within the <code>queryResults</code>. If there's a mismatch, 
@@ -923,8 +923,8 @@ public final class DataModel implements Cloneable{
      * List<Object[]> results = memberRepository.findAllProjectedBy();
      * String[] columnNames = new String[]{"name", "age", "profession"};
      * 
-     * // Create a new DataModelBase and add the result as a row
-     * DataModelBase dataModelBase = new DataModelBase();
+     * // Create a new dataModel and add the result as a row
+     * dataModel dataModel = new dataModel();
      * for (Object[] result : results) {
      *     dataModel.addRow(result, columnNames);
      * }
@@ -944,12 +944,12 @@ public final class DataModel implements Cloneable{
     }
 
     /**
-     * Adds a new row of data to this DataModelBase instance based on the attributes found in the provided {@code HttpSession}.
+     * Adds a new row of data to this dataModel instance based on the attributes found in the provided {@code HttpSession}.
      * 
      * <p>The method extracts each attribute's name and value from the {@code HttpSession} and maps them as key-value pairs in a new row.</p>
      * 
      * @param session An HttpSession instance containing attributes that should be added as a new row.
-     * @return The current DataModelBase instance with the added row.
+     * @return The current dataModel instance with the added row.
      *
      * <p><b>Example:</b></p>
      * <pre>
@@ -959,9 +959,9 @@ public final class DataModel implements Cloneable{
      * session.setAttribute("username", "JohnDoe");
      * session.setAttribute("lastLogin", new Date());
      * 
-     * // Create a new DataModelBase and add the session's attributes as a row
-     * DataModelBase dataModelBase = new DataModelBase();
-     * dataModelBase.addRow(session);
+     * // Create a new dataModel and add the session's attributes as a row
+     * dataModel dataModel = new dataModel();
+     * dataModel.addRow(session);
      * }
      * </pre>
      */
@@ -980,12 +980,12 @@ public final class DataModel implements Cloneable{
     }
 
     /**
-     * Adds rows of data to this DataModelBase instance based on the data found in the provided {@code ResultSet}.
+     * Adds rows of data to this dataModel instance based on the data found in the provided {@code ResultSet}.
      * 
-     * <p>This method fetches data from the ResultSet, which typically contains the result of a SQL query executed using JDBC, and transforms this data into rows in the DataModelBase format.</p>
+     * <p>This method fetches data from the ResultSet, which typically contains the result of a SQL query executed using JDBC, and transforms this data into rows in the dataModel format.</p>
      * 
      * @param rs A ResultSet instance containing data from a database query.
-     * @return The current DataModelBase instance with the added rows.
+     * @return The current dataModel instance with the added rows.
      *
      * <p><b>Example:</b></p>
      * <pre>
@@ -996,9 +996,9 @@ public final class DataModel implements Cloneable{
      *     String sql = "SELECT id, name, age FROM users";
      *     ResultSet rs = stmt.executeQuery(sql);
      *     
-     *     // Create a new DataModelBase and add rows from the ResultSet
-     *     DataModelBase dataModelBase = new DataModelBase();
-     *     dataModelBase.addRow(rs);
+     *     // Create a new dataModel and add rows from the ResultSet
+     *     dataModel dataModel = new dataModel();
+     *     dataModel.addRow(rs);
      *     
      *     // Close resources
      *     rs.close();
@@ -1165,10 +1165,10 @@ public final class DataModel implements Cloneable{
     }
 
     /**
-     * Adds multiple rows of data to this DataModelBase instance based on the provided list of query results and corresponding column names.
+     * Adds multiple rows of data to this dataModel instance based on the provided list of query results and corresponding column names.
      * 
      * <p>This method is useful when fetching multiple records from a database using JPA, 
-     * and you want to convert the results into a DataModelBase representation.</p>
+     * and you want to convert the results into a dataModel representation.</p>
      * 
      * <p><b>Notice:</b> The length of the <code>columnNames</code> array should match the number 
      * of columns in each object array within the <code>queryResults</code>. If there's a mismatch, 
@@ -1183,13 +1183,13 @@ public final class DataModel implements Cloneable{
      * 
      * List&lt;Object[]&gt; results = memberRepository.findAllMember();
      * String[] columnNames = {"id", "deptcode", "email", "membername", "regdate"};
-     * DataModelBase dataModelBase = new DataModelBase();
-     * dataModelBase.addRows(results, columnNames);
+     * dataModel dataModel = new dataModel();
+     * dataModel.addRows(results, columnNames);
      * </pre>
      *
      * @param queryResults A list of object arrays, each representing a row of data fetched from the database.
      * @param columnNames An array of strings representing the names of the columns for the fetched data.
-     * @return The current DataModelBase instance with the added rows.
+     * @return The current dataModel instance with the added rows.
      */
     public DataModel addRows(List<Object[]> queryResults, String[] columnNames) {
         for(Object[] result : queryResults) {
@@ -1199,27 +1199,27 @@ public final class DataModel implements Cloneable{
     }
     
     /**
-     * Retrieves the count of columns currently in this DataModelBase instance.
+     * Retrieves the count of columns currently in this dataModel instance.
      *
      * <p>This method provides a quick way to determine how many columns are present 
      * in the current data model, which can be useful in various data processing scenarios.</p>
      *
      * <p><b>Example:</b></p>
      * <pre>
-     * DataModelBase dataModel = new DataModelBase();
+     * dataModel dataModel = new dataModel();
      * // ... [Add rows or columns to the data model]
      * int count = dataModel.getColumnCount();
      * System.out.println("Number of columns: " + count);
      * </pre>
      *
-     * @return The number of columns currently present in this DataModelBase instance.
+     * @return The number of columns currently present in this dataModel instance.
      */
     public int getColumnCount() {
         return cols.size();
     }
 
     /**
-     * Retrieves the count of rows currently in this DataModelBase instance.
+     * Retrieves the count of rows currently in this dataModel instance.
      *
      * <p>This method provides a convenient way to determine the number of rows present 
      * in the current data model. Such information can be helpful in various data processing 
@@ -1227,20 +1227,20 @@ public final class DataModel implements Cloneable{
      *
      * <p><b>Example:</b></p>
      * <pre>
-     * DataModelBase dataModel = new DataModelBase();
+     * dataModel dataModel = new dataModel();
      * // ... [Add rows to the data model]
      * int count = dataModel.getRowCount();
      * System.out.println("Number of rows: " + count);
      * </pre>
      *
-     * @return The number of rows currently present in this DataModelBase instance.
+     * @return The number of rows currently present in this dataModel instance.
      */
     public int getRowCount() {
         return rows.size();
     }
 
     /**
-     * Retrieves the list of columns currently in this DataModelBase instance.
+     * Retrieves the list of columns currently in this dataModel instance.
      *
      * <p>This method offers a convenient means to access the column names stored 
      * in the current data model. It returns a new list to ensure the original column 
@@ -1248,47 +1248,47 @@ public final class DataModel implements Cloneable{
      *
      * <p><b>Example:</b></p>
      * <pre>
-     * DataModelBase dataModel = new DataModelBase();
+     * dataModel dataModel = new dataModel();
      * // ... [Define columns for the data model]
      * List<String> columns = dataModel.getColumns();
      * System.out.println("Columns: " + columns);
      * </pre>
      *
-     * @return A new list containing the names of columns present in this DataModelBase instance.
+     * @return A new list containing the names of columns present in this dataModel instance.
      */
     public List<String> getColumns() {
         return (List<String>) new ArrayList<String>(cols);
     }
 
     /**
-     * Retrieves the set of columns currently in this DataModelBase instance.
+     * Retrieves the set of columns currently in this dataModel instance.
      *
      * <p>This method is particularly useful when users wish to ensure uniqueness in column names. 
      * It returns a new set to prevent any unintended modifications to the original column data.</p>
      *
      * <p><b>Example:</b></p>
      * <pre>
-     * DataModelBase dataModel = new DataModelBase();
+     * dataModel dataModel = new dataModel();
      * // ... [Define columns for the data model]
      * Set<String> columnsSet = dataModel.getColumnsWithSet();
      * System.out.println("Unique Columns: " + columnsSet);
      * </pre>
      *
-     * @return A new set containing the names of columns present in this DataModelBase instance.
+     * @return A new set containing the names of columns present in this dataModel instance.
      */
     public Set<String> getColumnsWithSet() {
         return new LinkedHashSet<>(cols);
     }
 
     /**
-     * Retrieves all values associated with the specified column in this DataModelBase instance.
+     * Retrieves all values associated with the specified column in this dataModel instance.
      *
      * <p>This method allows users to fetch all the values for a given column name. 
      * If the specified column doesn't exist in the data model, an empty list will be returned.</p>
      *
      * <p><b>Example:</b></p>
      * <pre>
-     * DataModelBase dataModel = new DataModelBase();
+     * dataModel dataModel = new dataModel();
      * // ... [Populate the data model with rows of data]
      * List<Object> ageValues = dataModel.getColumnValues("age");
      * System.out.println("All age values: " + ageValues);
@@ -1310,14 +1310,14 @@ public final class DataModel implements Cloneable{
     }
 
     /**
-     * Checks if the specified column exists in this DataModelBase instance.
+     * Checks if the specified column exists in this dataModel instance.
      *
      * <p>This method can be used to verify the presence of a specific column 
      * in the data model before performing operations on it.</p>
      *
      * <p><b>Example:</b></p>
      * <pre>
-     * DataModelBase dataModel = new DataModelBase();
+     * dataModel dataModel = new dataModel();
      * // ... [Populate the data model with rows of data]
      * if (dataModel.hasColumn("age")) {
      *     System.out.println("Age column exists in the data model.");
@@ -1340,7 +1340,7 @@ public final class DataModel implements Cloneable{
      *
      * <p><b>Example:</b></p>
      * <pre>
-     * DataModelBase dataModel = new DataModelBase();
+     * dataModel dataModel = new dataModel();
      * // ... [Populate the data model with rows of data]
      * HashMap<String, Object> row = dataModel.getRow(0);
      * System.out.println(row.get("columnName"));
@@ -1357,20 +1357,20 @@ public final class DataModel implements Cloneable{
     }
 
     /**
-     * Retrieves a specific row as a {@code DataModelBase} based on the given row index.
+     * Retrieves a specific row as a {@code dataModel} based on the given row index.
      * 
      * <p><b>Note:</b> The row index starts from 0.</p>
      *
      * <p><b>Example:</b></p>
      * <pre>
-     * DataModelBase dataModel = new DataModelBase();
+     * dataModel dataModel = new dataModel();
      * // ... [Populate the data model with rows of data]
-     * DataModelBase singleRowModel = dataModel.getRowAsDataModel(0);
+     * dataModel singleRowModel = dataModel.getRowAsDataModel(0);
      * System.out.println(singleRowModel.getColumnValues("columnName"));
      * </pre>
      *
      * @param rowIndex The index of the row to be retrieved.
-     * @return The row at the specified index wrapped in a new {@code DataModelBase} instance.
+     * @return The row at the specified index wrapped in a new {@code dataModel} instance.
      * @throws IndexOutOfBoundsException If the rowIndex is out of bounds of the rows.
      */
     public DataModel getRowAsDataModel(int rowIndex) {
@@ -1385,7 +1385,7 @@ public final class DataModel implements Cloneable{
      *
      * <p><b>Example:</b></p>
      * <pre>
-     * DataModelBase dataModel = new DataModelBase();
+     * dataModel dataModel = new dataModel();
      * // ... [Populate the data model with rows of data]
      * List<HashMap<String, Object>> allRows = dataModel.getRows();
      * for (HashMap<String, Object> row : allRows) {
@@ -1404,7 +1404,7 @@ public final class DataModel implements Cloneable{
      * 
      * <p><b>Example:</b></p>
      * <pre>
-     * DataModelBase dataModel = new DataModelBase();
+     * dataModel dataModel = new dataModel();
      * // ... [Populate the data model with rows of data]
      * Object value = dataModel.getValue(2, "columnName");  // Assume you want the value from the third row and a column named "columnName"
      * System.out.println("Value from rowIndex 2 and column 'columnName': " + value);
@@ -1487,7 +1487,7 @@ public final class DataModel implements Cloneable{
      * 
      * <p><b>Example:</b></p>
      * <pre>
-     * DataModelBase dataModel = new DataModelBase();
+     * dataModel dataModel = new dataModel();
      * // ... [Populate the data model with rows of data]
      * HashMap<String, Object> removedRow = dataModel.removeRow(2); // Removes and returns the third row from the data model
      * </pre>
@@ -1512,7 +1512,7 @@ public final class DataModel implements Cloneable{
      * 
      * <p><b>Example:</b></p>
      * <pre>
-     * DataModelBase dataModel = new DataModelBase();
+     * dataModel dataModel = new dataModel();
      * // ... [Populate the data model with columns and rows of data]
      * dataModel.removeColumn("age");  // Removes the "age" column from the data model
      * </pre>
@@ -1523,7 +1523,7 @@ public final class DataModel implements Cloneable{
      * </ul>
      *
      * @param column The name of the column to be removed.
-     * @return The current DataModelBase instance with the column removed.
+     * @return The current dataModel instance with the column removed.
      * @throws DataException if the specified column does not exist in the DataModel.
      */
     public DataModel removeColumn(String column) {
@@ -1542,7 +1542,7 @@ public final class DataModel implements Cloneable{
      *
      * <p><b>Example:</b></p>
      * <pre>
-     * DataModelBase dataModel = new DataModelBase();
+     * dataModel dataModel = new dataModel();
      * // ... [Populate the data model with columns and rows of data]
      * dataModel.removeColumns("age", "name");  // Removes the "age" and "name" columns from the data model
      * </pre>
@@ -1553,7 +1553,7 @@ public final class DataModel implements Cloneable{
      * </ul>
      *
      * @param columns The names of the columns to be removed.
-     * @return The current DataModelBase instance with the specified columns removed.
+     * @return The current dataModel instance with the specified columns removed.
      * @throws DataException if any of the specified columns do not exist in the DataModel.
      */
     public DataModel removeColumns(String... columns) {
@@ -1577,7 +1577,7 @@ public final class DataModel implements Cloneable{
      * <p>Functionally identical to {@link #removeColumns(String...)}, but accepts a List of column names.</p>
      *
      * @param columns The list of column names to be removed.
-     * @return The current DataModelBase instance with the specified columns removed.
+     * @return The current dataModel instance with the specified columns removed.
      * @throws DataException if any of the specified columns do not exist in the DataModel.
      */
     public DataModel removeColumns(List<String> columns) {
@@ -1601,7 +1601,7 @@ public final class DataModel implements Cloneable{
      * <p>Functionally identical to {@link #removeColumns(String...)}, but accepts a Set of column names.</p>
      *
      * @param columns The set of column names to be removed.
-     * @return The current DataModelBase instance with the specified columns removed.
+     * @return The current dataModel instance with the specified columns removed.
      * @throws DataException if any of the specified columns do not exist in the DataModel.
      */
     public DataModel removeColumns(Set<String> columns) {
@@ -1624,7 +1624,7 @@ public final class DataModel implements Cloneable{
      *
      * <p><b>Example:</b></p>
      * <pre>
-     * DataModelBase dataModel = new DataModelBase();
+     * dataModel dataModel = new dataModel();
      * // ... [Populate the data model with columns and rows of data]
      * dataModel.validColumns("age", "name");  // Keeps only the "age" and "name" columns in the data model
      * </pre>
@@ -1635,7 +1635,7 @@ public final class DataModel implements Cloneable{
      * </ul>
      *
      * @param columns The names of the columns to be retained.
-     * @return The current DataModelBase instance retaining only the specified columns.
+     * @return The current dataModel instance retaining only the specified columns.
      * @throws DataException if any of the specified columns do not exist in the DataModel.
      */
     public DataModel setValidColumns(String... columns) {
@@ -1649,7 +1649,7 @@ public final class DataModel implements Cloneable{
      * <p>Functionally identical to {@link #validColumns(String...)}, but accepts a List of column names.</p>
      * 
      * @param columns The list of column names to be retained.
-     * @return The current DataModelBase instance retaining only the specified columns.
+     * @return The current dataModel instance retaining only the specified columns.
      * @throws DataException if any of the specified columns do not exist in the DataModel.
      */
     public DataModel setValidColumns(List<String> columns) {
@@ -1663,7 +1663,7 @@ public final class DataModel implements Cloneable{
      * <p>Functionally identical to {@link #validColumns(String...)}, but accepts a Set of column names.</p>
      * 
      * @param columns The set of column names to be retained.
-     * @return The current DataModelBase instance retaining only the specified columns.
+     * @return The current dataModel instance retaining only the specified columns.
      * @throws DataException if any of the specified columns do not exist in the DataModel.
      */
     public DataModel setValidColumns(Set<String> columns) {
@@ -1684,7 +1684,7 @@ public final class DataModel implements Cloneable{
      *
      * <p><b>Example:</b></p>
      * <pre>
-     * DataModelBase dataModel = new DataModelBase();
+     * dataModel dataModel = new dataModel();
      * // ... [Populate the data model with columns and rows of data]
      * boolean allNonNull = dataModel.isNotNullColumn("age");  // Returns true if all rows have non-null "age" values
      * </pre>
@@ -1716,7 +1716,7 @@ public final class DataModel implements Cloneable{
      *
      * <p><b>Example:</b></p>
      * <pre>
-     * DataModelBase dataModel = new DataModelBase();
+     * dataModel dataModel = new dataModel();
      * // ... [Populate the data model with columns and rows of data]
      * HashMap<String, Object> firstNullRow = dataModel.findFirstRowNullColumn("age");  
      * // Returns the first row with a null "age" value, or null if no such row exists
@@ -1749,7 +1749,7 @@ public final class DataModel implements Cloneable{
      *
      * <p><b>Example:</b></p>
      * <pre>
-     * DataModelBase dataModel = new DataModelBase();
+     * dataModel dataModel = new dataModel();
      * // ... [Populate the data model with columns and rows of data]
      * boolean allUnique = dataModel.isNotDuplColumn("name");  // Returns true if all rows have unique "name" values
      * </pre>
@@ -1786,7 +1786,7 @@ public final class DataModel implements Cloneable{
      *
      * <p><b>Example:</b></p>
      * <pre>
-     * DataModelBase dataModel = new DataModelBase();
+     * dataModel dataModel = new dataModel();
      * // ... [Populate the data model with columns and rows of data]
      * HashMap<String, Object> firstDuplRow = dataModel.findFirstRowDuplColumn("name");  
      * // Returns the first row with a duplicated "name" value, or null if no such row exists
@@ -1831,7 +1831,7 @@ public final class DataModel implements Cloneable{
      *     return stringValue.matches(emailPattern);
      * };
      * 
-     * DataModelBase dataModel = new DataModelBase();
+     * dataModel dataModel = new dataModel();
      * // ... [Populate the data model with columns and rows of data]
      * if (dataModel.isValidValue("emailColumn", isEmail)) {
      *     System.out.println("All emails are valid.");
@@ -1875,7 +1875,7 @@ public final class DataModel implements Cloneable{
      *     return stringValue.matches(emailPattern);
      * };
      * 
-     * DataModelBase dataModel = new DataModelBase();
+     * dataModel dataModel = new dataModel();
      * // ... [Populate the data model with columns and rows of data]
      * HashMap&lt;String, Object&gt; firstInvalidRow = dataModel.findFirstRowInvalidValue("emailColumn", isEmail);
      * if (firstInvalidRow != null) {
@@ -1918,7 +1918,7 @@ public final class DataModel implements Cloneable{
      * Condition cond1 = new Condition("column1", "value1");
      * Condition cond2 = new Condition("column2", "value2");
      * 
-     * DataModelBase dataModel = new DataModelBase();
+     * dataModel dataModel = new dataModel();
      * // ... [Populate the data model with columns and rows of data]
      * List&lt;Integer&gt; matchedIndexes = dataModel.searchRowIndexes(cond1, cond2);
      * System.out.println("Matching row indexes: " + matchedIndexes);
@@ -1950,7 +1950,7 @@ public final class DataModel implements Cloneable{
      * Condition cond1 = new Condition("column1", "value1");
      * Condition cond2 = new Condition("column2", "value2");
      * 
-     * DataModelBase dataModel = new DataModelBase();
+     * dataModel dataModel = new dataModel();
      * // ... [Populate the data model with columns and rows of data]
      * List&lt;Integer&gt; matchedIndexes = dataModel.searchRowIndexes(true, cond1, cond2);
      * System.out.println("Matching row indexes: " + matchedIndexes);
@@ -2014,7 +2014,7 @@ public final class DataModel implements Cloneable{
      * Condition cond1 = new Condition("column1", "value1");
      * Condition cond2 = new Condition("column2", "value2");
      * 
-     * DataModelBase dataModel = new DataModelBase();
+     * dataModel dataModel = new dataModel();
      * // ... [Populate the data model with columns and rows of data]
      * List&lt;HashMap&lt;String, Object&gt;&gt; matchedRows = dataModel.searchRows(cond1, cond2);
      * System.out.println("Matching rows: " + matchedRows);
@@ -2046,7 +2046,7 @@ public final class DataModel implements Cloneable{
      * Condition cond1 = new Condition("column1", "value1");
      * Condition cond2 = new Condition("column2", "value2");
      * 
-     * DataModelBase dataModel = new DataModelBase();
+     * dataModel dataModel = new dataModel();
      * // ... [Populate the data model with columns and rows of data]
      * List&lt;HashMap&lt;String, Object&gt;&gt; matchedRows = dataModel.searchRows(true, cond1, cond2);
      * System.out.println("Matching rows: " + matchedRows);
@@ -2110,9 +2110,9 @@ public final class DataModel implements Cloneable{
      * Condition cond1 = new Condition("column1", "value1");
      * Condition cond2 = new Condition("column2", "value2");
      * 
-     * DataModelBase dataModel = new DataModelBase();
+     * dataModel dataModel = new dataModel();
      * // ... [Populate the data model with columns and rows of data]
-     * DataModelBase matchedDataModel = dataModel.searchRowsAsDataModel(cond1, cond2);
+     * dataModel matchedDataModel = dataModel.searchRowsAsDataModel(cond1, cond2);
      * System.out.println("Matched DataModel: " + matchedDataModel);
      * </pre>
      * 
@@ -2143,9 +2143,9 @@ public final class DataModel implements Cloneable{
      * Condition cond1 = new Condition("column1", "value1");
      * Condition cond2 = new Condition("column2", "value2");
      * 
-     * DataModelBase dataModel = new DataModelBase();
+     * dataModel dataModel = new dataModel();
      * // ... [Populate the data model with columns and rows of data]
-     * DataModelBase matchedDataModel = dataModel.searchRowsAsDataModel(true, cond1, cond2);
+     * dataModel matchedDataModel = dataModel.searchRowsAsDataModel(true, cond1, cond2);
      * System.out.println("Matched DataModel: " + matchedDataModel);
      * </pre>
      * 
@@ -2207,7 +2207,7 @@ public final class DataModel implements Cloneable{
      * Condition cond1 = new Condition("column1", "value1");
      * Condition cond2 = new Condition("column2", "value2");
      * 
-     * DataModelBase dataModel = new DataModelBase();
+     * dataModel dataModel = new dataModel();
      * // ... [Populate the data model with columns and rows of data]
      * dataModel.searchAndModify(cond1, cond2);
      * System.out.println("Filtered DataModel: " + dataModel);
@@ -2241,7 +2241,7 @@ public final class DataModel implements Cloneable{
      * Condition cond1 = new Condition("column1", "value1");
      * Condition cond2 = new Condition("column2", "value2");
      * 
-     * DataModelBase dataModel = new DataModelBase();
+     * dataModel dataModel = new dataModel();
      * // ... [Populate the data model with columns and rows of data]
      * dataModel.searchAndModify(true, cond1, cond2);
      * System.out.println("Filtered DataModel: " + dataModel);
@@ -2360,7 +2360,7 @@ public final class DataModel implements Cloneable{
      *     }
      *     return false;
      * };
-     * DataModelBase filteredDm = originalDm.filterRowsAsDataModel(ageFilter);
+     * dataModel filteredDm = originalDm.filterRowsAsDataModel(ageFilter);
      * </pre>
      *
      * @param filter The filter predicate to test each row.

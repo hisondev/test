@@ -25,7 +25,7 @@ public class DataWrapperSerializer extends JsonSerializer<DataWrapper> {
                 gen.writeStringField(key, (String)data.get(key));
             } else if (data.get(key) instanceof DataModel) {
                 gen.writeFieldName(key);
-                gen.writeTree(((DataModel)data.get(key)).getConvertJson());
+                gen.writeTree(((DataModel)data.get(key)).getConvertedJson());
             }
         }
 

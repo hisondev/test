@@ -6,6 +6,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.Entity;
 
@@ -15,9 +16,9 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 
 /**
  * Default implementation of the {@link DataConverter} interface, providing standard methods for 
@@ -59,6 +60,23 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
  * enhancing the adaptability of the DataModel to various data processing scenarios.
  */
 public class DataConverterDefault implements DataConverter{
+    /**
+     * Determines whether the given object is an entity by checking for the presence of the {@link Entity} annotation.
+     * This method is used in the context of the DataModel to verify if an object conforms to the entity structure
+     * expected within the data conversion process.
+     *
+     * <p>Usage:</p>
+     * This method is typically invoked before converting an object to a DataModel row, ensuring that the object
+     * is a valid entity. It is an integral part of the validation process in methods like 
+     * {@link #getConvertedEntitiesToMaps(List)} to ascertain that only entities are processed for conversion.
+     *
+     * @param obj the object to be checked for entity status
+     * @return true if the object is an entity (i.e., annotated with {@link Entity}), false otherwise
+     */
+    @Override
+    public boolean isEntity(Object obj) {
+        return obj != null && obj.getClass().isAnnotationPresent(Entity.class);
+    }
 
     /**
      * Converts a JsonNode value to a string representation suitable for a DataModel row. 
@@ -99,54 +117,28 @@ public class DataConverterDefault implements DataConverter{
     }
 
     /**
-     * Determines whether the given object is an entity by checking for the presence of the {@link Entity} annotation.
-     * This method is used in the context of the DataModel to verify if an object conforms to the entity structure
-     * expected within the data conversion process.
-     *
-     * <p>Usage:</p>
-     * This method is typically invoked before converting an object to a DataModel row, ensuring that the object
-     * is a valid entity. It is an integral part of the validation process in methods like 
-     * {@link #getConvertedEntitiesToMaps(List)} to ascertain that only entities are processed for conversion.
-     *
-     * @param obj the object to be checked for entity status
-     * @return true if the object is an entity (i.e., annotated with {@link Entity}), false otherwise
-     */
-    @Override
-    public boolean isEntity(Object obj) {
-        return obj != null && obj.getClass().isAnnotationPresent(Entity.class);
-    }
-
-    /**
-     * Converts a DataModel object into a {@link JsonNode} using a customized {@link ObjectMapper}. 
-     * This method is essential for transforming the DataModel's structured data (columns and rows) 
-     * into a JSON representation. The ObjectMapper is configured to handle specific data types, 
-     * like {@link LocalDateTime}, and to ensure compatibility with various JSON structures.
+     * Converts the rows of a DataModel object into a JSON array using a customized {@link ObjectMapper}. 
+     * This method focuses on transforming the DataModel's row data into a JSON array representation, 
+     * ideal for situations where only row data is required in JSON format.
      *
      * <p>Functionality:</p>
      * <ul>
      *     <li>Uses a custom ObjectMapper, configured through {@link #getObjectMapperForConvertDataModelToJson()},
-     *         to serialize the DataModel's columns and rows into JSON.</li>
-     *     <li>Includes metadata such as the column count and row count in the JSON output.</li>
-     *     <li>Ensures that special data types like LocalDateTime are correctly serialized according 
+     *         to serialize only the DataModel's rows into a JSON array.</li>
+     *     <li>Ensures that special data types like {@link LocalDateTime} are correctly serialized according 
      *         to the format specified by {@link #getDateFormat()}.</li>
      *     <li>Handles potential exceptions during the conversion process, encapsulating them in a {@link DataException}.</li>
      * </ul>
      *
-     * @param dm the DataModel instance to be converted to JSON
-     * @return a {@link JsonNode} representing the DataModel's structure in JSON format
+     * @param dm the DataModel instance whose rows are to be converted to a JSON array
+     * @return a {@link JsonNode} representing the rows of the DataModel in JSON array format
      * @throws DataException if any issues occur during the conversion process
      */
     @Override
     public JsonNode getConvertedJson(DataModel dm) {
         ObjectMapper mapper = getObjectMapperForConvertDataModelToJson();
         try {
-            ObjectNode rootNode = mapper.createObjectNode();
-            rootNode.set("columns", mapper.valueToTree(dm.getColumns()));
-            rootNode.set("rows", mapper.valueToTree(dm.getRows()));
-            rootNode.put("columnCount", dm.getColumnCount());
-            rootNode.put("rowCount", dm.getRowCount());
-
-            return rootNode;
+            return mapper.valueToTree(dm.getRows());
         } catch (Exception e) {
             throw new DataException("Failed to convert DataModel to Json in getConvertedJson", e);
         }
@@ -160,7 +152,7 @@ public class DataConverterDefault implements DataConverter{
      * <p>Key Configurations:</p>
      * <ul>
      *     <li>Registers the {@link JavaTimeModule} to handle Java 8 date-time types, particularly customizing 
-     *         the deserialization of {@link LocalDateTime} to the format specified by {@link #getDateFormat()}.</li>
+     *         the deserialization and serialization of {@link LocalDateTime} to the format specified by {@link #getDateFormat()}.</li>
      *     <li>Disables {@link DeserializationFeature#FAIL_ON_UNKNOWN_PROPERTIES} to ignore unknown properties 
      *         during deserialization, providing flexibility in JSON data structure handling.</li>
      *     <li>Configures {@link SerializationFeature#FAIL_ON_SELF_REFERENCES} to false to prevent issues with 
@@ -177,6 +169,7 @@ public class DataConverterDefault implements DataConverter{
         ObjectMapper mapper = new ObjectMapper();
         JavaTimeModule javaTimeModule = new JavaTimeModule();
         javaTimeModule.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(DateTimeFormatter.ofPattern(getDateFormat())));
+        javaTimeModule.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(DateTimeFormatter.ofPattern(getDateFormat())));
         mapper.registerModule(javaTimeModule);
         mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         mapper.configure(SerializationFeature.FAIL_ON_SELF_REFERENCES, false);
@@ -225,7 +218,7 @@ public class DataConverterDefault implements DataConverter{
      * <p>Configurations:</p>
      * <ul>
      *     <li>Includes the {@link JavaTimeModule} to properly deserialize Java 8 date-time types.</li>
-     *     <li>Configures the deserialization of {@link LocalDateTime} to a specific format ('yyyy-MM-dd HH:mm:ss').</li>
+     *     <li>Configures the deserialization and serialization of {@link LocalDateTime} to a specific format ('yyyy-MM-dd HH:mm:ss').</li>
      *     <li>Disables {@link DeserializationFeature#FAIL_ON_UNKNOWN_PROPERTIES} to prevent errors 
      *         on encountering unknown JSON properties, providing robustness in JSON parsing.</li>
      *     <li>Sets {@link SerializationFeature#FAIL_ON_SELF_REFERENCES} to false to avoid serialization 
@@ -242,6 +235,7 @@ public class DataConverterDefault implements DataConverter{
         ObjectMapper mapper = new ObjectMapper();
         JavaTimeModule javaTimeModule = new JavaTimeModule();
         javaTimeModule.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        javaTimeModule.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(DateTimeFormatter.ofPattern(getDateFormat())));
         mapper.registerModule(javaTimeModule);
         mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         mapper.configure(SerializationFeature.FAIL_ON_SELF_REFERENCES, false);
@@ -257,7 +251,7 @@ public class DataConverterDefault implements DataConverter{
      * <p>Configurations:</p>
      * <ul>
      *     <li>Incorporates the {@link JavaTimeModule} to facilitate the serialization of Java 8 date-time types, 
-     *         particularly customizing the serialization of {@link LocalDateTime} to the format specified by 
+     *         particularly customizing the deserializer and serialization of {@link LocalDateTime} to the format specified by 
      *         {@link #getDateFormat()}.</li>
      *     <li>Disables {@link DeserializationFeature#FAIL_ON_UNKNOWN_PROPERTIES} to allow more flexibility in dealing 
      *         with varying JSON structures without causing errors during deserialization.</li>
@@ -275,7 +269,8 @@ public class DataConverterDefault implements DataConverter{
     public ObjectMapper getObjectMapperForConvertEntitiesToDataModel() {
         ObjectMapper mapper = new ObjectMapper();
         JavaTimeModule javaTimeModule = new JavaTimeModule();
-        javaTimeModule.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        javaTimeModule.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(DateTimeFormatter.ofPattern(getDateFormat())));
+        javaTimeModule.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(DateTimeFormatter.ofPattern(getDateFormat())));
         mapper.registerModule(javaTimeModule);
         mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         mapper.configure(SerializationFeature.FAIL_ON_SELF_REFERENCES, false);
@@ -327,7 +322,8 @@ public class DataConverterDefault implements DataConverter{
         if (primitiveWrappers.contains(value.getClass())) {
             return value.toString();
         } else {
-            return value;
+            System.out.println(value.toString());
+            throw new DataException("This is an invalid type. : " + value.getClass().getName());
         }
     }
 
@@ -347,7 +343,6 @@ public class DataConverterDefault implements DataConverter{
      * @return the configured time zone ID as a string, or null if the system's default time zone is to be used
      */
     public String getTimeZoneId() {
-        // return "Asia/Seoul";
         return null;
     }
 

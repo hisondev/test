@@ -738,22 +738,20 @@ public final class DataModel implements Cloneable{
     }
 
     /**
-     * Formats values in a specified column using the provided formatter function.
-     * 
-     * <p>This method applies the given formatter function to every value in the specified column.
-     * If an error occurs while formatting a value, the original value remains unchanged for that particular
-     * row, and an error message is printed.</p>
-     * 
-     * <p>Before applying the formatter, this method checks if the specified column exists within 
-     * the dataModel instance. If the column doesn't exist, a message indicating the non-existence 
-     * of the column is printed and the method returns without making any modifications.</p>
-     * 
-     * <p><b>Note:</b> Ensure that the formatter function can handle all potential data types 
-     * present in the specified column to avoid unexpected behavior or errors.</p>
-     * 
+     * Formats values in a specified column using the provided formatter function. This method applies the formatter
+     * to every value in the column, and if an error occurs during the formatting, it throws a {@link DataException}.
+     *
+     * <p>Key Aspects:</p>
+     * <ul>
+     *     <li>Checks if the specified column exists. If not, it throws a {@link DataException}.</li>
+     *     <li>Applies the formatter function to each value in the specified column.</li>
+     *     <li>If an error occurs while formatting a specific value, a {@link DataException} is thrown.</li>
+     * </ul>
+     *
+     * <p><b>Note:</b> Ensure that the formatter function can handle all potential data types present in the column to avoid errors.</p>
+     *
      * <p><b>Example:</b><br>
      * {@code
-     * // Define a formatter function that truncates strings to the first three characters.
      * Function<Object, Object> formatter = value -> {
      *     if (value instanceof String) {
      *         return ((String) value).substring(0, Math.min(3, ((String) value).length()));
@@ -761,20 +759,18 @@ public final class DataModel implements Cloneable{
      *         return value;
      *     }
      * };
-     * 
-     * // Example method call.
      * dataModel.setColumnSameFormat("key1", formatter);
      * }
      * </p>
-     * 
+     *
      * @param column The name of the column whose values are to be formatted.
      * @param formatter The function to format values within the specified column.
-     * @return The current dataModel instance with formatted values for the specified column.
+     * @return The current DataModel instance with formatted values in the specified column.
+     * @throws DataException If the column does not exist or an error occurs during formatting.
      */
     public DataModel setColumnSameFormat(String column, Function<Object, Object> formatter) {
         if (!cols.contains(column)) {
-            System.out.println("Column does not exist: " + column);
-            return this;
+            throw new DataException("Column does not exist: " + column);
         }
 
         for (HashMap<String, Object> row : rows) {
@@ -783,7 +779,7 @@ public final class DataModel implements Cloneable{
                 Object formattedValue = formatter.apply(originalValue);
                 row.put(column, formattedValue);
             } catch (Exception e) {
-                System.out.println("Error formatting value: " + originalValue + ". Leaving it as is.");
+                throw new DataException("Error formatting value: " + originalValue + ". Leaving it as is.");
             }
         }
         return this;
@@ -1470,7 +1466,7 @@ public final class DataModel implements Cloneable{
                     break;
                 }
                 else {
-                    throw new DataException(" Please enter the same type. Column: " + column);    
+                    throw new DataException(" Please enter the same type. Column: " + column);
                 }
             }
         }

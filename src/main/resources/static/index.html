@@ -34,14 +34,14 @@
                         membername: "hani2",
                         email: "hani2@example.com",
                         deptcode: "FN",
-                        regdate : "2023-10-17 18:00:00",
+                        regdate : new Date(),
                     },
                     {
                         id : 2,
                         membername: "hani3",
                         email: "hani3@example.com",
                         deptcode: "HR",
-                        regdate : "2023-10-18 18:00:00",
+                        regdate : new Date(),
                         test : "1111",
                     },
                     {
@@ -49,7 +49,7 @@
                         membername: "hani3",
                         email: "hani4@example.com",
                         deptcode: "HR",
-                        regdate : "2023-10-18 18:00:00",
+                        regdate : new Date(),
                         test : "2222",
                     },
                     {
@@ -57,14 +57,14 @@
                         membername: "hani4",
                         email: "hani5@example.com",
                         deptcode: "HR",
-                        regdate : "2023-10-18 18:00:00",
+                        regdate : new Date(),
                     },
                     {
                         id : 5,
                         membername: "hani5",
                         email: "hani6@example.com",
                         deptcode: "HR",
-                        regdate : "2023-10-18 18:00:00",
+                        regdate : new Date(),
                         test : null,
                     },
                 ],
@@ -94,6 +94,8 @@
                 "key5" : true,
                 "cmd" : "MemberService.getMember",
             };
+            console.log(new Date());
+            console.log(testData);
 
             const requestOptions = {
                 method: "POST",
@@ -140,49 +142,11 @@
                 "key2" : "test",
                 // "key3" : new Date(),
             }
-            var dw1 = newDataWrapper(testData1);
-            console.log('dw1 : ',dw1.show());
-            var dm1 = newDataModel(dw1.getDataModel("key1"));
-            dm1.addRow({
-                id : null,
-                membername: "hani4",
-                email: "hani4@123",
-                deptcode: "HR",
-                regdate : "2023-10-20 18:00:00",
-                test1 : new Date(),
-                test2 : [2,4,6,8,10],
-            });
-            dm1.addRow({
-                id : '1',
-                membername: "hani2",
-                email: "hani4@@example.com",
-                deptcode: "HR",
-                regdate : "2023-10-20 18:00:00",
-                test1 : new Date(),
-                test2 : [2,4,6,8,10],
-            });
-            dm1.addRow({
-                id : '10',
-                membername: "hani6",
-                email: "hani4@example.com",
-                deptcode: "HR",
-                regdate : "2023-10-20 18:00:00",
-                test1 : new Date(),
-                test2 : [2,4,6,8,10],
-            });
-            var dm2 = dm1.clone();
 
-            var isValidEmail = function(row) {
-                var emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
-                return row.email && emailRegex.test(row.email);
-            }
-
-            console.log('dm1 show : ',dm1.show());
-            // console.log('dm2 show : ',dm2.show());
-            console.log('dm1 sortRowReverse : ',dm1.sortRowReverse().show());
-            console.log('dm1 sortRowAscending : ',dm1.sortRowAscending('membername').show());
-            console.log('dm1 sortRowDescending : ',dm1.sortRowDescending('membername').show());
-            // console.log('dm1 sortColumnDescending : ',dm1.sortColumnDescending().show());
+            var dw0 = new DataWrapper();
+            dw0.put("key1","test1");
+            dw0.put("key2","test2");
+            console.log(dw0.show());
 
             return;
         }

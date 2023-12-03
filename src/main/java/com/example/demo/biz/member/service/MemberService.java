@@ -28,7 +28,7 @@ public class MemberService {
         DataModel dm = new DataModel("id", "deptcode", "membername", "email", "regdate");
         dm.insert(dw.getDataModel("key1"));
         System.out.println("dm1 : \n"+dm);
-        System.out.println(dm.getConvertEntities(Member.class).toString());
+        System.out.println(dm.getConvertedEntities(Member.class).toString());
         
         DataWrapper rtnDw = new DataWrapper("result","completed");
         rtnDw.putDataModel("test", dm);

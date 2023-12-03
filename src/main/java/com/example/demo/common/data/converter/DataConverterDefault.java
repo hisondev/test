@@ -218,7 +218,7 @@ public class DataConverterDefault implements DataConverter{
      * <p>Configurations:</p>
      * <ul>
      *     <li>Includes the {@link JavaTimeModule} to properly deserialize Java 8 date-time types.</li>
-     *     <li>Configures the deserialization and serialization of {@link LocalDateTime} to a specific format ('yyyy-MM-dd HH:mm:ss').</li>
+     *     <li>Configures the deserialization and serialization of {@link LocalDateTime} to a specific format from getDateFormat().</li>
      *     <li>Disables {@link DeserializationFeature#FAIL_ON_UNKNOWN_PROPERTIES} to prevent errors 
      *         on encountering unknown JSON properties, providing robustness in JSON parsing.</li>
      *     <li>Sets {@link SerializationFeature#FAIL_ON_SELF_REFERENCES} to false to avoid serialization 
@@ -234,7 +234,7 @@ public class DataConverterDefault implements DataConverter{
     public ObjectMapper getObjectMapperForConvertDataModelToEntities() {
         ObjectMapper mapper = new ObjectMapper();
         JavaTimeModule javaTimeModule = new JavaTimeModule();
-        javaTimeModule.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        javaTimeModule.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(DateTimeFormatter.ofPattern(getDateFormat())));
         javaTimeModule.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(DateTimeFormatter.ofPattern(getDateFormat())));
         mapper.registerModule(javaTimeModule);
         mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);

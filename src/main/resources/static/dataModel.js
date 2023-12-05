@@ -57,7 +57,9 @@ var newDataWrapper = (function() {
         };
 
         var _put = function(key, value) {
-            if (typeof value === 'string') {
+            if (typeof key !== 'string') {
+                throw new Error("Keys must always be strings.");
+            } else if (typeof value === 'string') {
                 _data[key] = value;
             } else if (typeof value === 'number' || typeof value === 'boolean' || typeof value === 'bigint') {
                 _data[key] = String(value);
@@ -107,10 +109,9 @@ var newDataWrapper = (function() {
             var data = {};
             
             for (var key in _data) {
-                console.log(key);
                 if (_data.hasOwnProperty(key)) {
                     // DataModel 객체인 경우
-                    if (_data[key].getType && _data[key].getType() === 'datamodel') {
+                    if (_data[key] && _data[key].getType && _data[key].getType() === 'datamodel') {
                         data[key] = _data[key].getRows();
                     } else {
                         // 그 외의 경우는 정상적으로 값을 할당
@@ -184,14 +185,14 @@ var newDataWrapper = (function() {
                 throw new Error("Please insert key and value or object which key-value pairs.");
             }
     
-            if (!value) {
+            if (!value && value !== null) {
                 if (typeof keyOrObject !== 'object' || Array.isArray(keyOrObject)) {
                     throw new Error("Please insert an object with only its own key-value pairs.");
                 }
                 for (var key in keyOrObject) {
                     _put(key, keyOrObject[key]);
                 }
-            } else if (keyOrObject && value) {
+            } else if (keyOrObject && (value || value === null)) {
                 _put(keyOrObject, value);
             }
 
@@ -226,7 +227,7 @@ var newDataWrapper = (function() {
          * @throws {Error} If the provided value is not of data-model type.
          */
         this.putDataModel = function(key, value) {
-            if(!value.getType || value.getType() !== 'datamodel') {
+            if(value !== null && (!value.getType || value.getType() !== 'datamodel')) {
                 throw new Error("Please insert only values of data-model type.");
             }
             _put(key, value);
@@ -238,17 +239,17 @@ var newDataWrapper = (function() {
          * inspection of _data's contents, which are not directly accessible due to closure.
          * 
          * Note: The deep copy ensures no reference to the original _data, preventing accidental mutations.
-         * For 'datamodel' type objects, a deep copy is created using their 'show' method.
+         * For 'datamodel' type objects, a deep copy is created using their 'getObject' method.
          * 
          * Use Case: Useful for logging or debugging _data's contents safely.
          * 
          * @returns {Object} A deep copied object of _data, enabling safe inspection while preserving the original data's integrity.
          */
-        this.show = function() {
+        this.getObject = function() {
             var result = {};
             for(var key in _data) {
-                if(_data[key].getType && _data[key].getType() === 'datamodel') {
-                    result[key] = _data[key].show();
+                if(_data[key] && _data[key].getType && _data[key].getType() === 'datamodel') {
+                    result[key] = _data[key].getObject();
                 } else {
                     result[key] = _deepCopy(_data[key]);
                 }
@@ -795,7 +796,7 @@ var newDataModel = (function() {
          *                   information such as column count, row count, and the declaration status of the object.
          *                   This enables a comprehensive yet safe overview of the object's current state.
          */
-        this.show = function() {
+        this.getObject = function() {
             var result = {};
             var copyCol = _deepCopy(_cols);
             var copyRow = _deepCopy(_rows);

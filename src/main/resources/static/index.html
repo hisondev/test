@@ -8,7 +8,7 @@
     <script src="dataModel.js"></script>
     <script src="dataLink.js"></script>
     <script>
-        Hison.data.convertObject = function(object) {
+        Hison.custom.data.convertObject = function(object) {
             if (object instanceof Date) {
                 var year = object.getFullYear();
                 var month = object.getMonth() + 1;
@@ -75,27 +75,18 @@
                         ];
             const dm = newDataModel(arr);
             const dw = newDataWrapper("key1", dm);
-            dw.putString("key2", "!!!test!!!");
-            dw.putString("cmd", "MemberService.getMember",);
-            
-            console.log(dm.show());
-            console.log(dw.show());
-
-            const requestOptions = {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: dw.getSerialized()
-                // body: dm.getSerialized()
-            };
-            console.log('asdf',dw.getSerialized());
-
-            const response = await fetch("http://localhost:8081/api", requestOptions);
-            // const response = await fetch("http://localhost:8081/api/members", requestOptions);
-            const data = await response.json();
-            const result = newDataModel(data["result"]);
-            console.log("result is : ", result.show());
+            dw.put("key2", null);
+            dw.put({"key3":"test!!"});
+            var dl = newDataLink("MemberService.getMember")
+            dl.post(dw,
+            function(resultDw, requestDw) {
+                console.log("requestDw is : ", requestDw.getObject());
+                console.log("resultDw is : ", resultDw.getObject());
+            },
+            function (error, requestDw) {
+                console.log("requestDw is : ", requestDw.getObject());
+                console.log("error is : ", error);
+            });
         }
 
         async function test2() {
@@ -133,7 +124,7 @@
             var dw0 = new DataWrapper();
             dw0.put("key1","test1");
             dw0.put("key2","test2");
-            console.log(dw0.show());
+            console.log(dw0.getObject());
 
             return;
         }

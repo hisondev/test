@@ -1,5 +1,6 @@
 var Hison ={};
 (function() {
+    Hison.custom = {};
     Hison.custom.data = {};
     Hison.custom.data.convertObject = function(object) {
         return object;

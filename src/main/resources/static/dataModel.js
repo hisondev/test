@@ -1,4 +1,3 @@
-//서버 전송시 데이터 변환 기능 만들기
 /******************************************
  * DATA WRAPPER
  ******************************************/
@@ -93,6 +92,25 @@ var newDataWrapper = (function() {
         this.clear = function() {
             _data = {};
             return this;
+        };
+
+
+        this.getSerialized = function() {
+            var data = {};
+            
+            for (var key in _data) {
+                console.log(key);
+                if (_data.hasOwnProperty(key)) {
+                    // DataModel 객체인 경우
+                    if (_data[key].getType && _data[key].getType() === 'datamodel') {
+                        data[key] = _data[key].getRows();
+                    } else {
+                        // 그 외의 경우는 정상적으로 값을 할당
+                        data[key] = _data[key];
+                    }
+                }
+            }
+            return JSON.stringify(data);
         };
 
         /**
@@ -301,7 +319,6 @@ var newDataWrapper = (function() {
     };
 })();
 
-//서버 전송시 데이터 변환 기능 만들기
 /******************************************
  * DATA MODEL
  ******************************************/
@@ -325,7 +342,7 @@ var newDataModel = (function() {
                 return object;
             }
             if (object.constructor !== Object && object.constructor !== Array) {
-                return Hison.data.convertObject ? Hison.data.convertObject(object) : object;
+                return Hison.custom.data.convertObject ? Hison.custom.data.convertObject(object) : object;
             }
             if (!visited) visited = [];
             for (var i = 0; i < visited.length; i++) {
@@ -561,6 +578,10 @@ var newDataModel = (function() {
             _cols = [];
             _rows = [];
             return this;
+        }
+
+        this.getSerialized = function() {
+            return JSON.stringify(_rows);
         }
 
         /**
@@ -1442,7 +1463,7 @@ var newDataModel = (function() {
  *
  * @example
  * // Overriding the function to handle Date objects
- * Hison.data.convertObject = function(object) {
+ * Hison.custom.data.convertObject = function(object) {
  *     if (object instanceof Date) {
  *         var year = object.getFullYear();
  *         var month = object.getMonth() + 1; // getMonth()는 0부터 시작
@@ -1454,17 +1475,18 @@ var newDataModel = (function() {
  *     return object; // Default behavior for other objects
  * };
  */
-console.log('Hison : ',Hison);
 if(Hison) {
-    Hison.data.convertObject = function(object) {
+    Hison.custom.data.convertObject = function(object) {
         return object;
-    }
+    };
 } else {
     var Hison = {
-        data : {
-            convertObject : function(object) {
-                return object;
-            }
-        }
-    }
+        custom : {
+            data : {
+                convertObject : function(object) {
+                    return object;
+                }
+            },
+        },
+    };
 }

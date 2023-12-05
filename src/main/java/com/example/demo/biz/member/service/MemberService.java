@@ -24,16 +24,15 @@ public class MemberService {
 
     public DataWrapper getMember(@RequestBody DataWrapper dw) {
         System.out.println("########################## getMember ##########################");
+        System.out.println("dw : " + dw.toString());
 
-        DataModel dm = new DataModel("id", "deptcode", "membername", "email", "regdate");
+        DataWrapper rtdw = new DataWrapper();
+        DataModel dm = new DataModel("regdate","deptcode","membername");
         dm.insert(dw.getDataModel("key1"));
-        System.out.println("dm1 : \n"+dm);
-        System.out.println(dm.getConvertedEntities(Member.class).toString());
+        rtdw.putDataModel("result", dm);
         
-        DataWrapper rtnDw = new DataWrapper("result","completed");
-        rtnDw.putDataModel("test", dm);
         System.out.println("########################## getMember ##########################");
-        return rtnDw;
+        return rtdw;
     }
 
     // @Transactional

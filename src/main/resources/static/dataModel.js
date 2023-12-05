@@ -94,7 +94,15 @@ var newDataWrapper = (function() {
             return this;
         };
 
-
+        /**
+         * Serializes the DataWrapper object into a JSON string.
+         * This method is used for generating JSON data for server communication.
+         *
+         * Note: Directly using JSON.stringify on the DataWrapper object may not correctly serialize the data.
+         * To serialize a DataWrapper object into JSON, always use the getSerialized method.
+         * 
+         * @returns {string} A JSON string representation of the DataWrapper's data.
+         */
         this.getSerialized = function() {
             var data = {};
             
@@ -580,6 +588,15 @@ var newDataModel = (function() {
             return this;
         }
 
+        /**
+         * Serializes the DataModel object's rows into a JSON string.
+         * This method is specifically used for converting the 'rows' data of the DataModel into a JSON format suitable for server communication.
+         *
+         * Note: Directly using JSON.stringify on the DataModel object itself may not yield the desired result for the 'rows' data.
+         * To serialize the 'rows' of a DataModel object into JSON, always use the getSerialized method.
+         *
+         * @returns {string} A JSON string representation of the DataModel's rows.
+         */
         this.getSerialized = function() {
             return JSON.stringify(_rows);
         }

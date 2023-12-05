@@ -63,18 +63,13 @@ import javax.servlet.http.HttpServletRequest;
  */
 @RestController
 @RequestMapping("/api")
-public class ApiController {
+public final class ApiController {
     @Autowired
     private ApplicationContext applicationContext;
 
     private final ApiHandler handler;
     public ApiController(ApiHandler handler) {
         this.handler = handler;
-    }
-
-    @GetMapping
-    public DataWrapper handleGet(@RequestBody DataWrapper dw, HttpServletRequest req) {
-        return respones(dw, req);
     }
 
     @PostMapping
@@ -124,7 +119,11 @@ public class ApiController {
             }
             dw.putDataModel("resultCheckAuthority", resultCheckAuthority);
             handler.handleLog(dw, req);
+            if(!dw.containsKey("cmd")) {
+                throw new Exception("There is no cmd");
+            }
             String _cmd = (String) dw.getString("cmd");
+
             result = callService(_cmd, dw);
             return result;
         } catch (Exception e) {

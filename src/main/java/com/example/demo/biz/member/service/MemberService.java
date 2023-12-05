@@ -29,6 +29,8 @@ public class MemberService {
         DataWrapper rtdw = new DataWrapper();
         DataModel dm = new DataModel("regdate","deptcode","membername");
         dm.insert(dw.getDataModel("key1"));
+        List<Member> mList = dm.getConvertedEntities(Member.class);
+        System.out.println(mList.toString());
         rtdw.putDataModel("result", dm);
         
         System.out.println("########################## getMember ##########################");

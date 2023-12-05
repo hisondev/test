@@ -1,14 +1,17 @@
 package com.example.demo.biz.member.controller;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.biz.member.domain.Member;
 import com.example.demo.biz.member.service.MemberService;
+import com.example.demo.common.data.model.DataModel;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/members")
@@ -22,10 +25,13 @@ public class MemberController {
         return memberService.getAllMembers();
     }
     
-    // @PostMapping
-    // public Member createMember(@RequestBody MemberDTO memberDTO) {
-    //     return memberService.createMember(memberDTO);
-    // }
+    @PostMapping
+    public DataModel createMember(@RequestBody DataModel dm) {
+        System.out.println(dm);
+        Member member = dm.getConvertedEntities(Member.class).get(0);
+        DataModel rtDm = new DataModel(member);
+        return rtDm;
+    }
 
     // @PostMapping("/plural")
     // public List<Member> createMembers(@RequestBody Map<String, Object> test) {

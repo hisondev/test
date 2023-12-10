@@ -2,7 +2,7 @@ package com.example.demo.common.data.exception;
 
 /**
  * The {@code DataException} class represents exceptions specific to data processing
- * within the application. It is a custom exception that extends {@link NestedRuntimeException} 
+ * within the application. It is a custom exception that extends {@link RuntimeException} 
  * from Spring framework to provide context about data-related failures.
  * 
  * <p>This exception can be used to wrap other exceptions, providing a higher-level explanation

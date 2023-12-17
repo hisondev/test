@@ -1,7 +1,8 @@
 package com.example.demo.common.data.condition;
 
-import com.example.demo.common.data.model.DataModel;
 import java.util.HashMap;
+
+import com.example.demo.common.data.model.DataModel;
 
 /**
  * The {@code Condition} class provides a way to define search conditions for the {@link DataModel} methods.

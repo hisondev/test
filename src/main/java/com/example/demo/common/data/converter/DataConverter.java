@@ -2,9 +2,10 @@ package com.example.demo.common.data.converter;
 
 import java.util.List;
 
-import com.example.demo.common.data.model.DataModel;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import com.example.demo.common.data.model.DataModel;
 
 public interface DataConverter{
     boolean isEntity(Object obj);

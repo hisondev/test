@@ -351,7 +351,7 @@ var newDataModel = (function() {
                 return object;
             }
             if (object.constructor !== Object && object.constructor !== Array) {
-                return Hison.custom.data.convertObject ? Hison.custom.data.convertObject(object) : object;
+                return Hison.data.custom.convertObject ? Hison.data.custom.convertObject(object) : object;
             }
             if (!visited) visited = [];
             for (var i = 0; i < visited.length; i++) {
@@ -1481,7 +1481,7 @@ var newDataModel = (function() {
  *
  * @example
  * // Overriding the function to handle Date objects
- * Hison.custom.data.convertObject = function(object) {
+ * Hison.data.custom.convertObject = function(object) {
  *     if (object instanceof Date) {
  *         var year = object.getFullYear();
  *         var month = object.getMonth() + 1; // getMonth()는 0부터 시작
@@ -1494,13 +1494,13 @@ var newDataModel = (function() {
  * };
  */
 if(Hison) {
-    Hison.custom.data.convertObject = function(object) {
+    Hison.data.custom.convertObject = function(object) {
         return object;
     };
 } else {
     var Hison = {
-        custom : {
-            data : {
+        data : {
+            custom : {
                 convertObject : function(object) {
                     return object;
                 }

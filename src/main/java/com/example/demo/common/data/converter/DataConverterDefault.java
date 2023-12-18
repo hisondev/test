@@ -39,26 +39,30 @@ import com.example.demo.common.data.model.DataModel;
  *
  * <p>Customization:</p>
  * Developers using the DataModel.jar can customize the data conversion process by extending this class. 
- * Custom converters can be defined and injected as beans in the Spring context, allowing for tailored 
- * data handling strategies that fit specific application requirements.
+ * Custom converters can be defined by extending the `DataConverterDefault` class and registering the custom 
+ * converter using the `DataConverterFactory`. This allows for tailored data handling strategies that fit 
+ * specific application requirements.
  *
  * <pre>
- * &#64;Configuration
- * public class CustomDataConverterConfig {
- *     &#64;Bean
- *     &#64;Primary
- *     public DataConverter customDataConverter() {
- *         return new CustomDataConverter();
+ * public class CustomDataConverter extends DataConverterDefault {
+ *     public static void register() {
+ *         DataConverterFactory.setCustomConverter(new CustomDataConverter());
  *     }
+ *     // Custom logic...
  * }
  *
- * public class CustomDataConverter extends DataConverterDefault {
- *     // Custom logic...
+ * public class Application {
+ *     public static void main(String[] args) {
+ *         CustomDataConverter.register(); // Registering the custom converter
+ *     }
  * }
  * </pre>
  *
  * This approach provides flexibility and extensibility in data conversion within the application, 
  * enhancing the adaptability of the DataModel to various data processing scenarios.
+ * 
+ * @author Hani son
+ * @version 1.0.2
  */
 public class DataConverterDefault implements DataConverter{
     /**

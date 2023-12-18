@@ -20,23 +20,24 @@ import javax.servlet.http.HttpServletRequest;
  * 
  * <p>ApiController relies on the ApiHandler interface for customizing request handling. Users can create their own 
  * implementations of ApiHandler to define custom pre-processing, post-processing, authorization checks, logging, and 
- * error handling strategies. This is achieved by extending the default handler (ApiHandlerDefault) and overriding 
- * the necessary methods.</p>
+ * error handling strategies. This is achieved by extending the default handler (ApiHandlerDefault) and registering 
+ * the custom handler using the ApiHandlerFactory. Custom handlers can be registered at application startup, allowing for 
+ * tailored request handling strategies that fit specific application requirements.</p>
  * 
  * <p>Usage example:</p>
  * <pre>
  * {@code
- *  @Configuration
- *  public class CustomApiHandlerConfig {
- *      @Bean
- *      @Primary
- *      public ApiHandler customApiHandler() {
- *          return new CustomApiHandler();
+ *  public class CustomApiHandler extends ApiHandlerDefault {
+ *      public static void register() {
+ *          ApiHandlerFactory.setCustomHandler(new CustomApiHandler());
  *      }
+ *      // Custom implementation
  *  }
  *
- *  public class CustomApiHandler extends ApiHandlerDefault {
- *      // Custom implementation
+ *  public class Application {
+ *      public static void main(String[] args) {
+ *          CustomApiHandler.register(); // Registering the custom handler
+ *      }
  *  }
  * }
  * </pre>
@@ -59,7 +60,7 @@ import javax.servlet.http.HttpServletRequest;
  * method for handling various API requests.</p>
  * 
  * @author Hani son
- * @version 1.0.0
+ * @version 1.0.2
  */
 @RestController
 @RequestMapping("/api")
@@ -68,8 +69,9 @@ public final class ApiController {
     private ApplicationContext applicationContext;
 
     private final ApiHandler handler;
-    public ApiController(ApiHandler handler) {
-        this.handler = handler;
+
+    public ApiController() {
+        this.handler = ApiHandlerFactory.getHandler();
     }
 
     @PostMapping
@@ -120,32 +122,34 @@ public final class ApiController {
             dw.putDataModel("resultCheckAuthority", resultCheckAuthority);
             handler.handleLog(dw, req);
             if(!dw.containsKey("cmd")) {
-                throw new Exception("There is no cmd");
+                throw new ApiException("There is no cmd");
             }
             String _cmd = (String) dw.getString("cmd");
 
             result = callService(_cmd, dw);
             return result;
+        } catch (ApiException e) {
+            return handler.handleException(e, dw, req);
         } catch (Exception e) {
-            return handler.handleExceptionError(e, dw, req);
+            return handler.handleException(e, dw, req);
         } catch (Throwable t) {
-            return handler.handleThrowableError(t, dw, req);
+            return handler.handleThrowable(t, dw, req);
         }
     }
 
-    private DataWrapper callService(String cmd, DataWrapper dw) throws Throwable {
+    private DataWrapper callService(String cmd, DataWrapper dw) throws Throwable{
         String[] cmdParts = cmd.split("\\.");
         if (cmdParts.length != 2) {
-            throw new Exception("Invalid cmd format");
+            throw new ApiException("Invalid cmd format");
         }
         String serviceName = cmdParts[0];
         String methodName = cmdParts[1];
         Object service = applicationContext.getBean(decapitalizeFirstLetter(serviceName));
         if (service == null) {
-            throw new Exception("Service not found: " + serviceName);
+            throw new ApiException("Service not found: " + serviceName);
         }
         if (!(service instanceof MemberService)) {
-            throw new IllegalArgumentException("Service is not an instance of MemberService");
+            throw new ApiException("Service is not an instance of MemberService");
         }
         MemberService typedService = (MemberService) service;
         MethodHandle targetMethodHandle = MethodHandleUtil.getMethodHandle(

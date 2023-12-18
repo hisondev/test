@@ -8,7 +8,7 @@
     <script src="dataModel.js"></script>
     <script src="dataLink.js"></script>
     <script>
-        Hison.custom.data.convertObject = function(object) {
+        Hison.data.custom.convertObject = function(object) {
             if (object instanceof Date) {
                 var year = object.getFullYear();
                 var month = object.getMonth() + 1;
@@ -77,16 +77,21 @@
             const dw = newDataWrapper("key1", dm);
             dw.put("key2", null);
             dw.put({"key3":"test!!"});
-            var dl = newDataLink("MemberService.getMember")
-            dl.post(dw,
-            function(resultDw, requestDw) {
+            var dl = newDataLink("MemberService.getMember");
+            var rtn = dl.post(dw,
+            function(resultDw, response, requestDw) {
                 console.log("requestDw is : ", requestDw.getObject());
-                console.log("resultDw is : ", resultDw.getObject());
+                console.log("response is : ", response);
+                console.log("resultDw is : ", resultDw ? resultDw.getObject() : null);
             },
-            function (error, requestDw) {
+            function (error, response, requestDw) {
                 console.log("requestDw is : ", requestDw.getObject());
+                console.log("response is : ", response);
                 console.log("error is : ", error);
             });
+            var rtn = await dl.postAsync(dw);
+            console.log('Test!!!!');
+            console.log('rtn',rtn);
         }
 
         async function test2() {

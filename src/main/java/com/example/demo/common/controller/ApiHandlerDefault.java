@@ -14,8 +14,10 @@ import com.example.demo.common.data.wrapper.DataWrapper;
  * 
  * <p>Each method in this class can be overridden to provide specific functionalities as per the requirements of the 
  * API. The default implementations provided here are basic and intended to be a starting point for further customization.</p>
- * 
  * @see ApiHandler
+ * 
+ * @author Hani son
+ * @version 1.0.2
  */
 public class ApiHandlerDefault implements ApiHandler{
 
@@ -70,7 +72,7 @@ public class ApiHandlerDefault implements ApiHandler{
      * @return A DataWrapper containing the error response.
      */
     @Override
-    public DataWrapper handleExceptionError(Exception e, DataWrapper dw, HttpServletRequest req) {
+    public DataWrapper handleException(Exception e, DataWrapper dw, HttpServletRequest req) {
         e.printStackTrace();
         DataWrapper result = new DataWrapper();
         result.put("errorMessage", "An unexpected error occurred. Please try again later.");
@@ -87,7 +89,7 @@ public class ApiHandlerDefault implements ApiHandler{
      * @return A DataWrapper containing the error response.
      */
     @Override
-    public DataWrapper handleThrowableError(Throwable t, DataWrapper dw, HttpServletRequest req) {
+    public DataWrapper handleThrowable(Throwable t, DataWrapper dw, HttpServletRequest req) {
         t.printStackTrace();
         DataWrapper result = new DataWrapper();
         result.put("errorMessage", "An unexpected error occurred. Please try again later.");

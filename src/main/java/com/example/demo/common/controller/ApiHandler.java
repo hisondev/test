@@ -12,9 +12,9 @@ public interface ApiHandler {
 
     void handleLog(DataWrapper dw, HttpServletRequest req);
 
-    DataWrapper handleExceptionError(Exception e, DataWrapper dw, HttpServletRequest req);
+    DataWrapper handleException(Exception e, DataWrapper dw, HttpServletRequest req);
 
-    DataWrapper handleThrowableError(Throwable t, DataWrapper dw, HttpServletRequest req) ;
+    DataWrapper handleThrowable(Throwable t, DataWrapper dw, HttpServletRequest req) ;
 
     void afterHandleRequest(DataWrapper requestDw, DataWrapper responesDw, HttpServletRequest req);
 }

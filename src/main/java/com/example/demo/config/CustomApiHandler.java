@@ -4,8 +4,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.example.demo.common.controller.ApiHandlerDefault;
-import com.example.demo.common.controller.ApiHandlerFactory;
+import com.example.demo.common.api.handler.ApiHandlerDefault;
+import com.example.demo.common.api.handler.ApiHandlerFactory;
 import com.example.demo.common.data.model.DataModel;
 import com.example.demo.common.data.wrapper.DataWrapper;
 

@@ -1,4 +1,4 @@
-package com.example.demo.common.controller;
+package com.example.demo.common.api.controller;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;

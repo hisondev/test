@@ -1,5 +1,31 @@
 var newDataLink = (function() {
-    function DataLink(cmd) {
+        // LRU 캐시 구현
+        function LRUCache(limit) {
+            this.limit = limit || 10; // 캐시 크기 제한
+            this.map = new Map();
+        }
+    
+        LRUCache.prototype.get = function(key) {
+            if (!this.map.has(key)) return null;
+            var value = this.map.get(key);
+            this.map.delete(key); // 캐시에서 항목을 제거하고
+            this.map.set(key, value); // 가장 최근에 사용된 것으로 다시 삽입
+            return value;
+        };
+    
+        LRUCache.prototype.put = function(key, value) {
+            if (this.map.has(key)) this.map.delete(key); // 이미 존재하는 경우 제거
+            else if (this.map.size == this.limit) {
+                this.map.delete(this.first()); // 캐시가 가득 차면 가장 오래된 항목 제거
+            }
+            this.map.set(key, value);
+        };
+    
+        LRUCache.prototype.first = function() {
+            return this.map.keys().next().value;
+        };
+    
+    function DataLink(cmd, options) {
         var _cmd;
         var _rootUrl = Hison.link.custom.rootUrl;
         var _controllerPath = Hison.link.custom.controllerPath;
@@ -11,6 +37,24 @@ var newDataLink = (function() {
         var _BeforeDeleteRequst = Hison.link.custom.BeforeDeleteRequst;
         var _callbackWorked = Hison.link.custom.callbackWorked;
         var _callbackErrorFunc = Hison.link.custom.callbackError;
+
+        if(options) {
+            if (options && options.constructor !== Object) {
+                throw new Error("obtions must be an object which contains key and value.");
+            }
+            if(options.useCache === true) {
+
+            }
+        }
+        // WebSocket 초기화
+        var webSocket = new WebSocket("ws://localhost:8081/websocket-endpoint");
+        webSocket.onmessage = function(event) {
+            console.log("Data change notification received: " + event.data);
+            // 데이터 변경시 캐시 클리어
+            lruCache.clear();
+        };
+        // LRU 캐시 초기화
+        var lruCache = new LRUCache(10);
         
         var _validateParams = function(dw, callbackWorkedFunc, callbackErrorFunc, options, isGet) {
             if(!isGet) {
@@ -74,55 +118,6 @@ var newDataLink = (function() {
             }
             return result;
         }
-
-        /**
-         * 캐싱로직 구현
-         */
-
-        var webSocket = new WebSocket("ws://localhost:8080/websocket-endpoint");
-
-        webSocket.onmessage = function(event) {
-            // 서버에서 데이터 변경 알림을 받음
-            clearCache(); // 캐시를 클리어하거나 업데이트
-        };
-        
-        function clearCache() {
-            // 캐시 클리어 로직
-        }
-
-        function LRUCache(limit) {
-            this.limit = limit || 10; // 캐시 크기 제한
-            this.map = new Map();
-        }
-        
-        LRUCache.prototype.get = function(key) {
-            if (!this.map.has(key)) return null;
-            var value = this.map.get(key);
-            this.map.delete(key); // 캐시에서 항목을 제거하고
-            this.map.set(key, value); // 가장 최근에 사용된 것으로 다시 삽입
-            return value;
-        };
-        
-        LRUCache.prototype.put = function(key, value) {
-            if (this.map.has(key)) this.map.delete(key); // 이미 존재하는 경우 제거
-            else if (this.map.size == this.limit) {
-                this.map.delete(this.first()); // 캐시가 가득 차면 가장 오래된 항목 제거
-            }
-            this.map.set(key, value);
-        };
-        
-        LRUCache.prototype.first = function() {
-            return this.map.keys().next().value;
-        };
-
-
-
-
-        /**
-         * 캐싱로직 구현
-         */
-
-
 
         var _request = async function(methodName, requestDwOrResourcePath, callbackWorkedFunc, callbackErrorFunc, options) {
             var isGet = methodName.toUpperCase() === 'GET';

@@ -1,4 +1,4 @@
-package com.example.demo.common.controller;
+package com.example.demo.common.api.handler;
 
 public class ApiHandlerFactory {
 

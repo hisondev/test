@@ -78,20 +78,32 @@
             dw.put("key2", null);
             dw.put({"key3":"test!!"});
             var dl = newDataLink("MemberService.getMember");
-            var rtn = dl.post(dw,
-            function(resultDw, response, requestDw) {
-                console.log("requestDw is : ", requestDw.getObject());
+
+            dl.post(dw,
+            function(data, response) {
+                console.log("### post function success ###")
                 console.log("response is : ", response);
-                console.log("resultDw is : ", resultDw ? resultDw.getObject() : null);
+                console.log("result data is : ", data.getType && data.getType() === "datawrapper" ? data.getObject() : data);
+                console.log("### post function success ###")
             },
-            function (error, response, requestDw) {
-                console.log("requestDw is : ", requestDw.getObject());
-                console.log("response is : ", response);
+            function (error) {
+                console.log("### post function error ###")
                 console.log("error is : ", error);
-            });
-            var rtn = await dl.postAsync(dw);
-            console.log('Test!!!!');
-            console.log('rtn',rtn);
+                console.log("### post function error ###")
+            }, {timeout:2000});
+
+            newDataLink().get("api/members",
+            function(data, response) {
+                console.log("### get function success ###")
+                console.log("response is : ", response);
+                console.log("result data is : ", data.getType && data.getType() === "datawrapper" ? data.getObject() : data);
+                console.log("### get function success ###")
+            },
+            function (error) {
+                console.log("### post function error ###")
+                console.log("error is : ", error);
+                console.log("### post function error ###")
+            }, {timeout:2000});
         }
 
         async function test2() {
@@ -126,7 +138,7 @@
                 // "key3" : new Date(),
             }
 
-            var dw0 = new DataWrapper();
+            var dw0 = newDataWrapper();
             dw0.put("key1","test1");
             dw0.put("key2","test2");
             console.log(dw0.getObject());

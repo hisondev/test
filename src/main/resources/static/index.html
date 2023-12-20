@@ -78,6 +78,10 @@
             dw.put("key2", null);
             dw.put({"key3":"test!!"});
             var dl = newDataLink("MemberService.getMember");
+            dl.onEventEmit('requestCompleted_Data', function(result) {
+                console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! requestCompleted_Data", result.data.getObject());
+            });
+            dl.setLogging(true);
 
             dl.post(dw,
             function(data, response) {
@@ -90,7 +94,7 @@
                 console.log("### post function error ###")
                 console.log("error is : ", error);
                 console.log("### post function error ###")
-            }, {timeout:2000});
+            }, {timeout:2000,fetchOptions:{keepalive:'true'}});
 
             newDataLink().get("api/members",
             function(data, response) {

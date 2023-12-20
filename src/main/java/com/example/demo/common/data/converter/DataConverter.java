@@ -16,7 +16,7 @@ public interface DataConverter{
 
     JsonNode getConvertedJson(DataModel dm);
 
-    void serialize(DataModel dataModel, JsonGenerator gen, SerializerProvider serializers) throws IOException ;
+    void serialize(DataModel dataModel, JsonGenerator gen, SerializerProvider serializers) throws IOException;
 
     ObjectMapper getObjectMapperForConvertDataModelToJson();
 

@@ -1,31 +1,93 @@
 var newDataLink = (function() {
-        // LRU 캐시 구현
-        function LRUCache(limit) {
-            this.limit = limit || 10; // 캐시 크기 제한
-            this.map = new Map();
+    /********************
+     * LRU 캐시 구현
+     ********************/
+    function LRUCache(limit) {
+        this.limit = limit || 10; // 캐시 크기 제한
+        this.map = new Map();
+    }
+    LRUCache.prototype.get = function(key) {
+        if (!this.map.has(key)) return null;
+        var value = this.map.get(key);
+        this.map.delete(key); // 캐시에서 항목을 제거하고
+        this.map.set(key, value); // 가장 최근에 사용된 것으로 다시 삽입
+        return value;
+    };
+    LRUCache.prototype.put = function(key, value) {
+        if (this.map.has(key)) this.map.delete(key); // 이미 존재하는 경우 제거
+        else if (this.map.size == this.limit) {
+            this.map.delete(this.first()); // 캐시가 가득 차면 가장 오래된 항목 제거
         }
+        this.map.set(key, value);
+    };
+    LRUCache.prototype.first = function() {
+        return this.map.keys().next().value;
+    };
+    /********************
+     * LRU 캐시 구현
+     ********************/
+
+    /********************
+     * EventEmitter 구현
+     ********************/
+    function EventEmitter() {
+        this.events = {};
+    }
+    EventEmitter.prototype.on = function(event, listener) {
+        if (!this.events[event]) {
+            this.events[event] = [];
+        }
+        this.events[event].push(listener);
+    };
     
-        LRUCache.prototype.get = function(key) {
-            if (!this.map.has(key)) return null;
-            var value = this.map.get(key);
-            this.map.delete(key); // 캐시에서 항목을 제거하고
-            this.map.set(key, value); // 가장 최근에 사용된 것으로 다시 삽입
-            return value;
-        };
-    
-        LRUCache.prototype.put = function(key, value) {
-            if (this.map.has(key)) this.map.delete(key); // 이미 존재하는 경우 제거
-            else if (this.map.size == this.limit) {
-                this.map.delete(this.first()); // 캐시가 가득 차면 가장 오래된 항목 제거
-            }
-            this.map.set(key, value);
-        };
-    
-        LRUCache.prototype.first = function() {
-            return this.map.keys().next().value;
-        };
-    
+    EventEmitter.prototype.emit = function(event, ...args) {
+        if (this.events[event]) {
+            this.events[event].forEach(listener => listener(...args));
+        }
+    };
+    /********************
+     * EventEmitter 구현
+     ********************/
+
     function DataLink(cmd, options) {
+        /********************
+         * LRU 캐시 구현
+         ********************/
+        // WebSocket 초기화
+        /*
+        var webSocket = new WebSocket("ws://localhost:8081/websocket-endpoint");
+        webSocket.onmessage = function(event) {
+            console.log("Data change notification received: " + event.data);
+            // 데이터 변경시 캐시 클리어
+            lruCache.clear();
+        };
+        // LRU 캐시 초기화
+        var lruCache = new LRUCache(10);
+        */
+        /********************
+         * LRU 캐시 구현
+         ********************/
+        /********************
+         * EventEmitter 구현
+         ********************/
+        var eventEmitter = new EventEmitter();
+        /********************
+         * EventEmitter 구현
+         ********************/
+        /********************
+         * Logging 구현
+         ********************/
+        var doLogging = false;
+        function logging(url, method, body, response, duration) {
+            if(!doLogging) return;
+            console.log(`[DataLink] ${method} ${url} - ${duration}ms`);
+            console.log('Request Body:', body);
+            console.log('Response:', response);
+        }
+        /********************
+         * Logging 구현
+         ********************/
+
         var _cmd;
         var _rootUrl = Hison.link.custom.rootUrl;
         var _controllerPath = Hison.link.custom.controllerPath;
@@ -46,15 +108,6 @@ var newDataLink = (function() {
 
             }
         }
-        // WebSocket 초기화
-        var webSocket = new WebSocket("ws://localhost:8081/websocket-endpoint");
-        webSocket.onmessage = function(event) {
-            console.log("Data change notification received: " + event.data);
-            // 데이터 변경시 캐시 클리어
-            lruCache.clear();
-        };
-        // LRU 캐시 초기화
-        var lruCache = new LRUCache(10);
         
         var _validateParams = function(dw, callbackWorkedFunc, callbackErrorFunc, options, isGet) {
             if(!isGet) {
@@ -93,6 +146,13 @@ var newDataLink = (function() {
             }
         };
 
+
+        var _validateFetchOptions = function(fetchOptions) {
+            if (fetchOptions.constructor !== Object) {
+                throw new Error("fetchOptions must be an object which contains key and value.");
+            }
+        };
+
         var _getDataWrapper = function(dw) {
             if(dw) {
                 dw.putString('cmd',_cmd);
@@ -119,35 +179,74 @@ var newDataLink = (function() {
             return result;
         }
 
+        /**
+         * 
+         * @param {String} methodName 
+         * @param {String or DataWrapper} requestDwOrResourcePath 
+         * @param {Function} callbackWorkedFunc 
+         * @param {Function} callbackErrorFunc 
+         * @param {Object} options {headers : Object, timeout : Integer(>= 0), fetchOptions : Object(except method, headers, body)}
+         * @returns 
+         */
         var _request = async function(methodName, requestDwOrResourcePath, callbackWorkedFunc, callbackErrorFunc, options) {
+            switch (methodName.toUpperCase()) {
+                case 'GET':
+                    eventEmitter.emit('requestStarted_GET', requestDwOrResourcePath, options);
+                    break;
+                case 'POST':
+                    eventEmitter.emit('requestStarted_POST', requestDwOrResourcePath, options);
+                    break;
+                case 'PUT':
+                    eventEmitter.emit('requestStarted_PUT', requestDwOrResourcePath, options);
+                    break;
+                case 'PATCH':
+                    eventEmitter.emit('requestStarted_PATCH', requestDwOrResourcePath, options);
+                    break;
+                case 'DELETE':
+                    eventEmitter.emit('requestStarted_DELETE', requestDwOrResourcePath, options);
+                    break;
+                default:
+                    break;
+            }
             var isGet = methodName.toUpperCase() === 'GET';
             _validateParams(requestDwOrResourcePath, callbackWorkedFunc, callbackErrorFunc, options, isGet);
 
-            var combinedHeaders = {'Content-Type': 'application/json'};
             var timeout = _timeout;
+            var requestDw = isGet ? null : _getDataWrapper(requestDwOrResourcePath);
+            var fetchOptions = {
+                method: methodName,
+                headers: {'Content-Type': 'application/json'},
+                body: isGet ? null : requestDw.getSerialized(),
+            }
             if(options) {
                 if(options.headers) {
                     _validateHeaders(options.headers);
-                    combinedHeaders =  Object.assign(combinedHeaders, options.headers);
+                    fetchOptions.headers =  Object.assign({'Content-Type': 'application/json'}, options.headers);
                 }
                 if(options.timeout) {
                     _validateTimeout(options.timeout);
                     timeout = options.timeout
                 }
+                if(options.fetchOptions) {
+                    _validateFetchOptions(options.fetchOptions);
+                    Object.keys(options.fetchOptions).forEach(key => {
+                        if(['method','headers','body'].indexOf(key.toLowerCase()) === -1) {
+                            fetchOptions[key] = options.fetchOptions[key];
+                        }
+                    });
+                }
             }
-            var requestDw = isGet ? null : _getDataWrapper(requestDwOrResourcePath);
             var timeoutPromise = new Promise((_, reject) =>
                 setTimeout(() => reject(new Error("Request timed out")), timeout)
             );
             var url = isGet ? _rootUrl + requestDwOrResourcePath : _rootUrl + _controllerPath;
-            var fetchPromise = fetch(url, {
-                method: methodName,
-                headers: combinedHeaders,
-                body: isGet ? null : requestDw.getSerialized(),
-            });
+            var fetchPromise = fetch(url, fetchOptions);
+            var startTime = Date.now();
 
             var racePromise = Promise.race([fetchPromise, timeoutPromise])
             .then(response => {
+                logging(url, methodName, fetchOptions.body, response, Date.now() - startTime);
+                eventEmitter.emit('requestCompleted_Response', response);
                 var contentType = response.headers.get('Content-Type');
                 if (contentType && contentType.includes('application/json')) {
                     return response.json().then(data => ({ data: data, response: response }));
@@ -160,12 +259,15 @@ var newDataLink = (function() {
             .then(rtn => {
                 var resultData = rtn.data;
                 var result = _getRsultDataWrapper(resultData);
+                eventEmitter.emit('requestCompleted_Data', { data: result, response: rtn.response });
                 if(callbackWorkedFunc) {
                     _callbackWorked(result, rtn.response, callbackWorkedFunc);
                 }
                 return { data: result, response: rtn.response };
             })
             .catch(error => {
+                logging(url, methodName, fetchOptions.body, error, Date.now() - startTime);
+                eventEmitter.emit('requestError', error);
                 if(callbackErrorFunc) {
                     _callbackErrorFunc(error, callbackErrorFunc);
                 }
@@ -198,6 +300,24 @@ var newDataLink = (function() {
         this.setCmd = function(cmd) {
             _cmd = cmd;
         };
+
+        /**
+         * requestStarted_GET
+         * requestStarted_POST
+         * requestStarted_PUT
+         * requestStarted_PATCH
+         * requestStarted_DELETE
+         * requestCompleted_Response
+         * requestCompleted_Data
+         * requestError
+         */
+        this.onEventEmit = function(eventName, eventFunc) {
+            eventEmitter.on(eventName, eventFunc);
+        };
+
+        this.setLogging = function(bool) {
+            doLogging = bool;
+        }
 
         //create
         if (!cmd) {

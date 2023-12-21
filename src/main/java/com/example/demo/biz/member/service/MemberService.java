@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import com.example.demo.biz.member.domain.Member;
 import com.example.demo.biz.member.repository.MemberRepository;
+import com.example.demo.common.api.caching.CachingWebSocketSessionManager;
 import com.example.demo.common.data.model.DataModel;
 import com.example.demo.common.data.wrapper.DataWrapper;
 
@@ -14,7 +15,9 @@ import java.util.List;
 
 @Service
 public class MemberService {
-    
+
+    private final CachingWebSocketSessionManager cachingWebSocketSessionManager = CachingWebSocketSessionManager.getInstance();
+
     @Autowired
     private MemberRepository memberRepository;
     
@@ -39,10 +42,11 @@ public class MemberService {
         return rtdw;
     }
 
-    public void justTest() {
+    public DataWrapper justTest(@RequestBody DataWrapper dw) {
         System.out.println("########################## justTest ##########################");
+        cachingWebSocketSessionManager.notifyAllSessions("updated");
         System.out.println("########################## justTest ##########################");
-        System.out.println("########################## justTest ##########################");
+        return null;
     }
 
     // @Transactional

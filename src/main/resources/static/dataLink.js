@@ -1,28 +1,87 @@
+var CachingModule = (function() {
+    // WebSocket
+    var webSocket = new WebSocket("ws://localhost:8081/caching-websocket-endpoint2");
+
+    webSocket.onopen = function(event) {
+        console.log("Connected to WS");
+    };
+    webSocket.onmessage = function(event) {
+        lruCache.clear();
+        console.log("Message from server ", event.data);
+    };
+    webSocket.onclose = function(event) {
+        console.log("WS connection closed");
+    };
+
+    //LRUCache
+    function LRUCache(limit) {
+        this.limit = limit || 10;
+        this.cache = {}; // 객체를 사용하여 캐시 구현
+        this.keys = []; // 키의 순서를 유지하기 위한 배열
+    }
+
+    LRUCache.prototype.get = function(key) {
+        if (!this.cache.hasOwnProperty(key)) return null;
+        var value = this.cache[key];
+
+        // 키의 순서를 업데이트
+        this.remove(key);
+        this.keys.push(key);
+
+        return value;
+    };
+    LRUCache.prototype.put = function(key, value) {
+        if (this.cache.hasOwnProperty(key)) {
+            // 이미 존재하는 키의 경우, 순서만 업데이트
+            this.remove(key);
+        } else if (this.keys.length == this.limit) {
+            // 캐시가 가득 찼다면, 가장 오래된 항목 제거
+            var oldestKey = this.keys.shift();
+            delete this.cache[oldestKey];
+        }
+
+        this.cache[key] = value;
+        this.keys.push(key);
+    };
+    LRUCache.prototype.remove = function(key) {
+        var index = this.keys.indexOf(key);
+        if (index > -1) {
+            this.keys.splice(index, 1);
+        }
+    };
+    LRUCache.prototype.getAll = function() {
+        return {cache : this.cache, keys : this.keys};
+    };
+    LRUCache.prototype.clear = function() {
+        this.cache = {};
+        this.keys = [];
+    };
+
+    var lruCache = new LRUCache(10);
+
+    return {
+        get: function(key) {
+            return lruCache.get(key);
+        },
+        put : function(key, value) {
+            lruCache.put(key, value);
+        },
+        remove : function(key) {
+            lruCache.remove(key);
+        },
+        getAll : function() {
+            return lruCache.getAll();
+        },
+        clear : function() {
+            lruCache.clear();
+        },
+    };
+})();
+
 var newDataLink = (function() {
     /********************
      * LRU 캐시 구현
      ********************/
-    function LRUCache(limit) {
-        this.limit = limit || 10; // 캐시 크기 제한
-        this.map = new Map();
-    }
-    LRUCache.prototype.get = function(key) {
-        if (!this.map.has(key)) return null;
-        var value = this.map.get(key);
-        this.map.delete(key); // 캐시에서 항목을 제거하고
-        this.map.set(key, value); // 가장 최근에 사용된 것으로 다시 삽입
-        return value;
-    };
-    LRUCache.prototype.put = function(key, value) {
-        if (this.map.has(key)) this.map.delete(key); // 이미 존재하는 경우 제거
-        else if (this.map.size == this.limit) {
-            this.map.delete(this.first()); // 캐시가 가득 차면 가장 오래된 항목 제거
-        }
-        this.map.set(key, value);
-    };
-    LRUCache.prototype.first = function() {
-        return this.map.keys().next().value;
-    };
     /********************
      * LRU 캐시 구현
      ********************/
@@ -53,17 +112,8 @@ var newDataLink = (function() {
         /********************
          * LRU 캐시 구현
          ********************/
-        // WebSocket 초기화
-        /*
-        var webSocket = new WebSocket("ws://localhost:8081/websocket-endpoint");
-        webSocket.onmessage = function(event) {
-            console.log("Data change notification received: " + event.data);
-            // 데이터 변경시 캐시 클리어
-            lruCache.clear();
-        };
+
         // LRU 캐시 초기화
-        var lruCache = new LRUCache(10);
-        */
         /********************
          * LRU 캐시 구현
          ********************/

@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.bind.annotation.*;
 
-import com.example.demo.biz.member.service.MemberService;
 import com.example.demo.common.api.exception.ApiException;
 import com.example.demo.common.api.handler.ApiHandler;
 import com.example.demo.common.api.handler.ApiHandlerFactory;
@@ -140,7 +139,7 @@ public final class ApiController {
         }
     }
 
-    private DataWrapper callService(String cmd, DataWrapper dw) throws Throwable{
+    private DataWrapper callService(String cmd, DataWrapper dw) throws Throwable {
         String[] cmdParts = cmd.split("\\.");
         if (cmdParts.length != 2) {
             throw new ApiException("Invalid cmd format");
@@ -151,13 +150,25 @@ public final class ApiController {
         if (service == null) {
             throw new ApiException("Service not found: " + serviceName);
         }
-        if (!(service instanceof MemberService)) {
-            throw new ApiException("Service is not an instance of MemberService");
+        MethodHandle targetMethodHandle = MethodHandleUtil.getFlexibleMethodHandle(
+            service.getClass(), methodName, service);
+        if (targetMethodHandle.type().parameterCount() == 1) {
+            if (targetMethodHandle.type().returnType() == void.class) {
+                targetMethodHandle.invokeExact(dw);
+                return null;
+            } else {
+                return (DataWrapper) targetMethodHandle.invokeExact(dw);
+            }
+        } else if (targetMethodHandle.type().parameterCount() == 0) {
+            if (targetMethodHandle.type().returnType() == void.class) {
+                targetMethodHandle.invokeExact();
+                return null;
+            } else {
+                return (DataWrapper) targetMethodHandle.invokeExact();
+            }
+        } else {
+            throw new ApiException("Method not found: " + methodName);
         }
-        MemberService typedService = (MemberService) service;
-        MethodHandle targetMethodHandle = MethodHandleUtil.getMethodHandle(
-            typedService.getClass(), methodName, DataWrapper.class, DataWrapper.class);
-        return (DataWrapper) targetMethodHandle.invokeExact(typedService, dw);
     }
 
     private static String decapitalizeFirstLetter(String str) {

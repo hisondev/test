@@ -42,11 +42,36 @@ public class MemberService {
         return rtdw;
     }
 
-    public DataWrapper justTest(@RequestBody DataWrapper dw) {
+    public void test1() {
         System.out.println("########################## justTest ##########################");
-        cachingWebSocketSessionManager.notifyAllSessions("updated");
+        cachingWebSocketSessionManager.notifyAllSessions("updated A");
         System.out.println("########################## justTest ##########################");
-        return null;
+    }
+
+    public void test2(@RequestBody DataWrapper dw) {
+        System.out.println("########################## test2 ##########################");
+        System.out.println(dw.toString());
+        cachingWebSocketSessionManager.notifyAllSessions("updated B");
+        System.out.println("########################## test2 ##########################");
+    }
+
+    public DataWrapper test3() {
+        System.out.println("########################## test3 ##########################");
+        cachingWebSocketSessionManager.notifyAllSessions("updated C");
+        System.out.println("########################## test3 ##########################");
+        DataWrapper rtdw = new DataWrapper();
+        rtdw.putString("test", "test!!!");
+        return rtdw;
+    }
+
+    public DataWrapper test4(@RequestBody DataWrapper dw) {
+        System.out.println("########################## test4 ##########################");
+        System.out.println(dw.toString());
+        cachingWebSocketSessionManager.notifyAllSessions("updated D");
+        System.out.println("########################## test4 ##########################");
+        DataWrapper rtdw = new DataWrapper();
+        rtdw.putString("test", "test!!!");
+        return rtdw;
     }
 
     // @Transactional

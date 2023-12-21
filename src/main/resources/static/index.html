@@ -118,10 +118,43 @@
         }
 
         function test3 () {
-            var dl = newDataLink("MemberService.justTest");
-            dl.post(null, 
+            var dl = newDataLink("MemberService.test1");
+            dl.post(newDataWrapper({test : "test request"}), 
             function(result, response) {
-                console.log("result : ",result);
+                console.log("result : ", result ? result.getObject() : null);
+                console.log("response : ",response);
+            },
+            function(error) {
+                console.log("error : ",error);
+            }, null)
+        }
+        function test4 () {
+            var dl = newDataLink("MemberService.test2");
+            dl.post(newDataWrapper({test : "test request"}), 
+            function(result, response) {
+                console.log("result : ", result ? result.getObject() : null);
+                console.log("response : ",response);
+            },
+            function(error) {
+                console.log("error : ",error);
+            }, null)
+        }
+        function test5 () {
+            var dl = newDataLink("MemberService.test3");
+            dl.post(newDataWrapper({test : "test request"}), 
+            function(result, response) {
+                console.log("result : ", result ? result.getObject() : null);
+                console.log("response : ",response);
+            },
+            function(error) {
+                console.log("error : ",error);
+            }, null)
+        }
+        function test6 () {
+            var dl = newDataLink("MemberService.test4");
+            dl.post(newDataWrapper({test : "test request"}), 
+            function(result, response) {
+                console.log("result : ", result ? result.getObject() : null);
                 console.log("response : ",response);
             },
             function(error) {
@@ -136,5 +169,8 @@
     <button onclick="test1()">test go1</button>
     <button onclick="test2()">test go2</button>
     <button onclick="test3()">test go3</button>
+    <button onclick="test4()">test go4</button>
+    <button onclick="test5()">test go5</button>
+    <button onclick="test6()">test go6</button>
 </body>
 </html>

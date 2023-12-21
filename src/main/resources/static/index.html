@@ -109,45 +109,24 @@
                 console.log("### post function error ###")
             }, {timeout:2000});
         }
-
+        var index = 0;
         async function test2() {
-            
-            // private Long id;
-            // private String deptcode;
-            // private String membername;
-            // private String email;
-            // private LocalDateTime regdate;
-            const testData1 = {
-                "key1" : newDataModel([
-                    {
-                        id : 5,
-                        membername: "hani10",
-                        email: "hani2@example.com",
-                        deptcode: "FN",
-                        regdate : "2023-10-17 18:00:00",
-                        test1 : new Date(),
-                        test2 : [1,2,3,4,5]
-                    },
-                    {
-                        id : 2,
-                        membername: "hani2",
-                        email: "hani3@example",
-                        deptcode: "HR",
-                        regdate : "2023-10-18 18:00:00",
-                        test1 : new Date(),
-                        test2 : [6,7,8,9,10]
-                    }
-                ]),
-                "key2" : "test",
-                // "key3" : new Date(),
-            }
-
-            var dw0 = newDataWrapper();
-            dw0.put("key1","test1");
-            dw0.put("key2","test2");
-            console.log(dw0.getObject());
-
+            CachingModule.put("test" + index, index);
+            index++;
+            console.log(CachingModule.getAll());
             return;
+        }
+
+        function test3 () {
+            var dl = newDataLink("MemberService.justTest");
+            dl.post(null, 
+            function(result, response) {
+                console.log("result : ",result);
+                console.log("response : ",response);
+            },
+            function(error) {
+                console.log("error : ",error);
+            }, null)
         }
     </script>
 </head>

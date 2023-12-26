@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.bind.annotation.*;
 
+import com.example.demo.biz.member.service.MemberService;
 import com.example.demo.common.api.exception.ApiException;
 import com.example.demo.common.api.handler.ApiHandler;
 import com.example.demo.common.api.handler.ApiHandlerFactory;
@@ -19,47 +20,6 @@ import javax.servlet.http.HttpServletRequest;
  * The ApiController class is designed to facilitate client-server communication without the need for separate controller
  * and DTO classes. This class serves as a central point for handling all types of HTTP requests, providing a convenient 
  * way to define the business logic for each API endpoint.
- * 
- * <p>ApiController relies on the ApiHandler interface for customizing request handling. Users can create their own 
- * implementations of ApiHandler to define custom pre-processing, post-processing, authorization checks, logging, and 
- * error handling strategies. This is achieved by extending the default handler (ApiHandlerDefault) and registering 
- * the custom handler using the ApiHandlerFactory. Custom handlers can be registered at application startup, allowing for 
- * tailored request handling strategies that fit specific application requirements.</p>
- * 
- * <p>Usage example:</p>
- * <pre>
- * {@code
- *  public class CustomApiHandler extends ApiHandlerDefault {
- *      public static void register() {
- *          ApiHandlerFactory.setCustomHandler(new CustomApiHandler());
- *      }
- *      // Custom implementation
- *  }
- *
- *  public class Application {
- *      public static void main(String[] args) {
- *          CustomApiHandler.register(); // Registering the custom handler
- *      }
- *  }
- * }
- * </pre>
- * 
- * <p>ApiController requires the 'io.github.hison.data-model' artifact for data modeling and handling. It also depends 
- * on Spring's context framework (spring-context), beans definition framework (spring-beans), and the Servlet API 
- * (javax.servlet-api) for handling HTTP requests and responses.</p>
- * 
- * <p>Dependencies:</p>
- * <ul>
- *   <li>'io.github.hison.data-model': for data modeling and manipulation.</li>
- *   <li>'org.springframework:spring-context': for application context management.</li>
- *   <li>'org.springframework:spring-beans': for beans management and dependency injection.</li>
- *   <li>'javax.servlet:javax.servlet-api': for handling HTTP requests and responses.</li>
- * </ul>
- * 
- * <p>This class automatically handles different HTTP methods (GET, POST, PUT, PATCH, DELETE) and delegates the 
- * request processing to the appropriate service method based on the 'cmd' parameter in the request. This approach
- * abstracts the boilerplate code associated with typical request handling and offers a streamlined, configurable
- * method for handling various API requests.</p>
  * 
  * @author Hani son
  * @version 1.0.2
@@ -139,7 +99,7 @@ public final class ApiController {
         }
     }
 
-    private DataWrapper callService(String cmd, DataWrapper dw) throws Throwable {
+    private DataWrapper callService(String cmd, DataWrapper dw) throws Throwable{
         String[] cmdParts = cmd.split("\\.");
         if (cmdParts.length != 2) {
             throw new ApiException("Invalid cmd format");
@@ -150,25 +110,13 @@ public final class ApiController {
         if (service == null) {
             throw new ApiException("Service not found: " + serviceName);
         }
-        MethodHandle targetMethodHandle = MethodHandleUtil.getFlexibleMethodHandle(
-            service.getClass(), methodName, service);
-        if (targetMethodHandle.type().parameterCount() == 1) {
-            if (targetMethodHandle.type().returnType() == void.class) {
-                targetMethodHandle.invokeExact(dw);
-                return null;
-            } else {
-                return (DataWrapper) targetMethodHandle.invokeExact(dw);
-            }
-        } else if (targetMethodHandle.type().parameterCount() == 0) {
-            if (targetMethodHandle.type().returnType() == void.class) {
-                targetMethodHandle.invokeExact();
-                return null;
-            } else {
-                return (DataWrapper) targetMethodHandle.invokeExact();
-            }
-        } else {
-            throw new ApiException("Method not found: " + methodName);
+        if (!(service instanceof MemberService)) {
+            throw new ApiException("Service is not an instance of MemberService");
         }
+        MemberService typedService = (MemberService) service;
+        MethodHandle targetMethodHandle = MethodHandleUtil.getMethodHandle(
+            typedService.getClass(), methodName, DataWrapper.class, DataWrapper.class);
+        return (DataWrapper) targetMethodHandle.invokeExact(typedService, dw);
     }
 
     private static String decapitalizeFirstLetter(String str) {

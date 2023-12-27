@@ -2,6 +2,8 @@ package com.example.demo.common.api.handler;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.http.ResponseEntity;
+
 import com.example.demo.common.data.model.DataModel;
 import com.example.demo.common.data.wrapper.DataWrapper;
 
@@ -12,9 +14,9 @@ public interface ApiHandler {
 
     void handleLog(DataWrapper dw, HttpServletRequest req);
 
-    DataWrapper handleException(Exception e, DataWrapper dw, HttpServletRequest req);
+    ResponseEntity<DataWrapper> handleException(Exception e, DataWrapper dw, HttpServletRequest req);
 
-    DataWrapper handleThrowable(Throwable t, DataWrapper dw, HttpServletRequest req) ;
+    ResponseEntity<DataWrapper> handleThrowable(Throwable t, DataWrapper dw, HttpServletRequest req) ;
 
     void afterHandleRequest(DataWrapper requestDw, DataWrapper responesDw, HttpServletRequest req);
 }

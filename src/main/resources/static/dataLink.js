@@ -1,7 +1,5 @@
 var CachingModule = (function() {
-    /********************
-     * WebSocket 구현
-     ********************/
+    // WebSocket
     var webSocket = new WebSocket("ws://localhost:8081/caching-websocket-endpoint2");
 
     webSocket.onopen = function(event) {
@@ -15,9 +13,7 @@ var CachingModule = (function() {
         console.log("WS connection closed");
     };
 
-    /********************
-     * LRU 캐시 구현
-     ********************/
+    //LRUCache
     function LRUCache(limit) {
         this.limit = limit || 10;
         this.cache = {}; // 객체를 사용하여 캐시 구현
@@ -84,6 +80,13 @@ var CachingModule = (function() {
 
 var newDataLink = (function() {
     /********************
+     * LRU 캐시 구현
+     ********************/
+    /********************
+     * LRU 캐시 구현
+     ********************/
+
+    /********************
      * EventEmitter 구현
      ********************/
     function EventEmitter() {
@@ -101,19 +104,39 @@ var newDataLink = (function() {
             this.events[event].forEach(listener => listener(...args));
         }
     };
+    /********************
+     * EventEmitter 구현
+     ********************/
 
     function DataLink(cmd, options) {
+        /********************
+         * LRU 캐시 구현
+         ********************/
+
+        // LRU 캐시 초기화
+        /********************
+         * LRU 캐시 구현
+         ********************/
+        /********************
+         * EventEmitter 구현
+         ********************/
         var eventEmitter = new EventEmitter();
-        var doLogging = false;
+        /********************
+         * EventEmitter 구현
+         ********************/
         /********************
          * Logging 구현
          ********************/
+        var doLogging = false;
         function logging(url, method, body, response, duration) {
             if(!doLogging) return;
             console.log(`[DataLink] ${method} ${url} - ${duration}ms`);
             console.log('Request Body:', body);
             console.log('Response:', response);
         }
+        /********************
+         * Logging 구현
+         ********************/
 
         var _cmd;
         var _rootUrl = Hison.link.custom.rootUrl;
@@ -240,7 +263,6 @@ var newDataLink = (function() {
 
             var timeout = _timeout;
             var requestDw = isGet ? null : _getDataWrapper(requestDwOrResourcePath);
-            console.log('requestDw : ', requestDw ? requestDw.getObject() : null);
             var fetchOptions = {
                 method: methodName,
                 headers: {'Content-Type': 'application/json'},

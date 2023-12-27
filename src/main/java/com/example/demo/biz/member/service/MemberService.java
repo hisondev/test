@@ -36,42 +36,18 @@ public class MemberService {
         List<Member> mList = dm.getConvertedEntities(Member.class);
         System.out.println(mList.toString());
         rtdw.putDataModel("result", dm);
+        if(true) throw new RuntimeException("This is Runtime exception message test");
         
         System.out.println("########################## getMember ##########################");
         // return null;
         return rtdw;
     }
 
-    public void test1() {
+    public DataWrapper justTest(@RequestBody DataWrapper dw) {
         System.out.println("########################## justTest ##########################");
-        cachingWebSocketSessionManager.notifyAllSessions("updated A");
+        cachingWebSocketSessionManager.notifyAllSessions("updated");
         System.out.println("########################## justTest ##########################");
-    }
-
-    public void test2(@RequestBody DataWrapper dw) {
-        System.out.println("########################## test2 ##########################");
-        System.out.println(dw.toString());
-        cachingWebSocketSessionManager.notifyAllSessions("updated B");
-        System.out.println("########################## test2 ##########################");
-    }
-
-    public DataWrapper test3() {
-        System.out.println("########################## test3 ##########################");
-        cachingWebSocketSessionManager.notifyAllSessions("updated C");
-        System.out.println("########################## test3 ##########################");
-        DataWrapper rtdw = new DataWrapper();
-        rtdw.putString("test", "test!!!");
-        return rtdw;
-    }
-
-    public DataWrapper test4(@RequestBody DataWrapper dw) {
-        System.out.println("########################## test4 ##########################");
-        System.out.println(dw.toString());
-        cachingWebSocketSessionManager.notifyAllSessions("updated D");
-        System.out.println("########################## test4 ##########################");
-        DataWrapper rtdw = new DataWrapper();
-        rtdw.putString("test", "test!!!");
-        return rtdw;
+        return null;
     }
 
     // @Transactional

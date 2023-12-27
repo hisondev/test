@@ -17,11 +17,11 @@ public class DataModelDeserializer extends JsonDeserializer<DataModel> {
         if (jp.isExpectedStartArrayToken()) {
             while (jp.nextToken() != JsonToken.END_ARRAY) {
                 JsonNode arrayNode = jp.readValueAsTree();
-                dataModel.addRow(arrayNode);
+                dataModel.addRows(arrayNode);
             }
         } else if (jp.getCurrentToken() == JsonToken.START_OBJECT) {
             JsonNode objectNode = jp.readValueAsTree();
-            dataModel.addRow(objectNode);
+            dataModel.addRows(objectNode);
         }
 
         return dataModel;

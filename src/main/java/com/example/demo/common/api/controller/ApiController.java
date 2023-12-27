@@ -2,6 +2,7 @@ package com.example.demo.common.api.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.demo.biz.member.service.MemberService;
@@ -37,59 +38,33 @@ public final class ApiController {
     }
 
     @PostMapping
-    public DataWrapper handlePost(@RequestBody DataWrapper dw, HttpServletRequest req) {
+    public ResponseEntity<DataWrapper> handlePost(@RequestBody DataWrapper dw, HttpServletRequest req) {
         return respones(dw, req);
     }
 
     @PutMapping
-    public DataWrapper handlePut(@RequestBody DataWrapper dw, HttpServletRequest req) {
+    public ResponseEntity<DataWrapper> handlePut(@RequestBody DataWrapper dw, HttpServletRequest req) {
         return respones(dw, req);
     }
 
     @PatchMapping
-    public DataWrapper handlePatch(@RequestBody DataWrapper dw, HttpServletRequest req) {
+    public ResponseEntity<DataWrapper> handlePatch(@RequestBody DataWrapper dw, HttpServletRequest req) {
         return respones(dw, req);
     }
 
     @DeleteMapping
-    public DataWrapper handleDelete(@RequestBody DataWrapper dw, HttpServletRequest req) {
+    public ResponseEntity<DataWrapper> handleDelete(@RequestBody DataWrapper dw, HttpServletRequest req) {
         return respones(dw, req);
     }
 
-    private DataWrapper respones(@RequestBody DataWrapper dw, HttpServletRequest req) {
-        DataWrapper result = new DataWrapper();
-        DataModel resultBeforeHandleRequest = handler.beforeHandleRequest(dw, req);
-        if(resultBeforeHandleRequest != null
-            && resultBeforeHandleRequest.hasColumn("PASS")
-            && !("Y".equals(resultBeforeHandleRequest.getValue(0, "PASS")))) {
-            result.putDataModel("result", resultBeforeHandleRequest);
-            return result;
-        }
-        dw.putDataModel("resultBeforeHandleRequest", resultBeforeHandleRequest);
-        result = handleRequest(dw, req);
-        handler.afterHandleRequest(dw, result, req);
-        return result;
-    }
-
-    private DataWrapper handleRequest(DataWrapper dw, HttpServletRequest req) {
+    private ResponseEntity<DataWrapper> respones(@RequestBody DataWrapper dw, HttpServletRequest req) {
         try {
-            DataWrapper result = new DataWrapper();
-            DataModel resultCheckAuthority = handler.handleAuthority(dw, req);
-            if(resultCheckAuthority != null
-                && resultCheckAuthority.hasColumn("PASS")
-                && !("Y".equals(resultCheckAuthority.getValue(0, "PASS")))) {
-                result.putDataModel("result", resultCheckAuthority);
-                return result;
-            }
-            dw.putDataModel("resultCheckAuthority", resultCheckAuthority);
-            handler.handleLog(dw, req);
-            if(!dw.containsKey("cmd")) {
-                throw new ApiException("There is no cmd");
-            }
-            String _cmd = (String) dw.getString("cmd");
+            DataWrapper dataWrapper = new DataWrapper();
+            dw.putDataModel("resultBeforeHandleRequest", handler.beforeHandleRequest(dw, req));
+            dataWrapper = handleRequest(dw, req);
+            handler.afterHandleRequest(dw, dataWrapper, req);
+            return ResponseEntity.ok().body(dataWrapper);
 
-            result = callService(_cmd, dw);
-            return result;
         } catch (ApiException e) {
             return handler.handleException(e, dw, req);
         } catch (Exception e) {
@@ -97,6 +72,20 @@ public final class ApiController {
         } catch (Throwable t) {
             return handler.handleThrowable(t, dw, req);
         }
+    }
+
+    private DataWrapper handleRequest(DataWrapper dw, HttpServletRequest req) throws Throwable{
+        DataWrapper result = new DataWrapper();
+        DataModel resultCheckAuthority = handler.handleAuthority(dw, req);
+        dw.putDataModel("resultCheckAuthority", resultCheckAuthority);
+        handler.handleLog(dw, req);
+        if(!dw.containsKey("cmd")) {
+            throw new ApiException("There is no cmd");
+        }
+        String _cmd = (String) dw.getString("cmd");
+
+        result = callService(_cmd, dw);
+        return result;
     }
 
     private DataWrapper callService(String cmd, DataWrapper dw) throws Throwable{

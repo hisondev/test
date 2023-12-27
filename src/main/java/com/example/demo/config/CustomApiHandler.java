@@ -29,22 +29,4 @@ public class CustomApiHandler extends ApiHandlerDefault {
     public void handleLog(DataWrapper dw, HttpServletRequest req) {
         logHandler.handleLogging(dw, req);
     }
-
-    @Override
-    public DataWrapper handleException(Exception e, DataWrapper dw, HttpServletRequest req) {
-        System.out.println("There is a custom api handler handleException!!!!!!!!!");
-        e.printStackTrace();
-        DataWrapper result = new DataWrapper();
-        result.put("errorMessage", "An unexpected error occurred. Please try again later.");
-        return result;
-    }
-    
-    @Override
-    public DataWrapper handleThrowable(Throwable t, DataWrapper dw, HttpServletRequest req) {
-        System.out.println("There is a custom api handler handleThrowable!!!!!!!!!");
-        t.printStackTrace();
-        DataWrapper result = new DataWrapper();
-        result.put("errorMessage", "An unexpected error occurred. Please try again later.");
-        return result;
-    }
 }

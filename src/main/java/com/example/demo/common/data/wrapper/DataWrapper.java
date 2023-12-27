@@ -35,7 +35,7 @@ import com.example.demo.common.data.model.DataModel;
  * </ul>
  * 
  * @author Hani son
- * @version 1.0.0
+ * @version 1.0.2
  */
 @JsonDeserialize(using = DataWrapperDeserializer.class)
 @JsonSerialize(using = DataWrapperSerializer.class)

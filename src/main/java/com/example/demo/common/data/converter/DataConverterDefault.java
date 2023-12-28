@@ -373,8 +373,13 @@ public class DataConverterDefault implements DataConverter{
         if (primitiveWrappers.contains(value.getClass())) {
             return value.toString();
         } else {
-            System.out.println(value.toString());
-            throw new DataException("This is an invalid type. : " + value.getClass().getName());
+            String valueToString = value.toString();
+            String defaultToString = value.getClass().getName() + "@" + Integer.toHexString(value.hashCode());
+            if (!valueToString.equals(defaultToString)) {
+                return valueToString;
+            } else {
+                throw new DataException("This is an invalid type. : " + value.getClass().getName());
+            }
         }
     }
 

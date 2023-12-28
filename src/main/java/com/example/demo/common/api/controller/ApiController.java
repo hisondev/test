@@ -91,8 +91,8 @@ public final class ApiController {
         result = callService(_cmd, dw);
         return result;
     }
-
-    private DataWrapper callService(String cmd, DataWrapper dw) throws Throwable{
+    
+    private DataWrapper callService(String cmd, DataWrapper dw) throws Throwable {
         String[] cmdParts = cmd.split("\\.");
         if (cmdParts.length != 2) {
             throw new ApiException("Invalid cmd format");
@@ -115,10 +115,25 @@ public final class ApiController {
         }
         
         try {
-            MemberService typedService = (MemberService) service;
-            MethodHandle targetMethodHandle = MethodHandleUtil.getMethodHandle(
-                typedService.getClass(), methodName, DataWrapper.class, DataWrapper.class);
-                return (DataWrapper) targetMethodHandle.invokeExact(typedService, dw);
+            MethodHandle targetMethodHandle = MethodHandleUtil.getFlexibleMethodHandle(
+                service.getClass(), methodName, service);
+            if (targetMethodHandle.type().parameterCount() == 1) {
+                if (targetMethodHandle.type().returnType() == void.class) {
+                    targetMethodHandle.invokeExact(dw);
+                    return null;
+                } else {
+                    return (DataWrapper) targetMethodHandle.invokeExact(dw);
+                }
+            } else if (targetMethodHandle.type().parameterCount() == 0) {
+                if (targetMethodHandle.type().returnType() == void.class) {
+                    targetMethodHandle.invokeExact();
+                    return null;
+                } else {
+                    return (DataWrapper) targetMethodHandle.invokeExact();
+                }
+            } else {
+                throw new ApiException("Method not found: " + methodName);
+            }
         }catch (NoSuchMethodException e) {
             throw new ApiException("no such method: " + methodName);
         } catch (IllegalAccessException e) {

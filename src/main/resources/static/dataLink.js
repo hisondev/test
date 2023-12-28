@@ -1,91 +1,4 @@
-var CachingModule = (function() {
-    // WebSocket
-    var webSocket = new WebSocket("ws://localhost:8081/caching-websocket-endpoint2");
-
-    webSocket.onopen = function(event) {
-        console.log("Connected to WS");
-    };
-    webSocket.onmessage = function(event) {
-        lruCache.clear();
-        console.log("Message from server ", event.data);
-    };
-    webSocket.onclose = function(event) {
-        console.log("WS connection closed");
-    };
-
-    //LRUCache
-    function LRUCache(limit) {
-        this.limit = limit || 10;
-        this.cache = {}; // 객체를 사용하여 캐시 구현
-        this.keys = []; // 키의 순서를 유지하기 위한 배열
-    }
-
-    LRUCache.prototype.get = function(key) {
-        if (!this.cache.hasOwnProperty(key)) return null;
-        var value = this.cache[key];
-
-        // 키의 순서를 업데이트
-        this.remove(key);
-        this.keys.push(key);
-
-        return value;
-    };
-    LRUCache.prototype.put = function(key, value) {
-        if (this.cache.hasOwnProperty(key)) {
-            // 이미 존재하는 키의 경우, 순서만 업데이트
-            this.remove(key);
-        } else if (this.keys.length == this.limit) {
-            // 캐시가 가득 찼다면, 가장 오래된 항목 제거
-            var oldestKey = this.keys.shift();
-            delete this.cache[oldestKey];
-        }
-
-        this.cache[key] = value;
-        this.keys.push(key);
-    };
-    LRUCache.prototype.remove = function(key) {
-        var index = this.keys.indexOf(key);
-        if (index > -1) {
-            this.keys.splice(index, 1);
-        }
-    };
-    LRUCache.prototype.getAll = function() {
-        return {cache : this.cache, keys : this.keys};
-    };
-    LRUCache.prototype.clear = function() {
-        this.cache = {};
-        this.keys = [];
-    };
-
-    var lruCache = new LRUCache(10);
-
-    return {
-        get: function(key) {
-            return lruCache.get(key);
-        },
-        put : function(key, value) {
-            lruCache.put(key, value);
-        },
-        remove : function(key) {
-            lruCache.remove(key);
-        },
-        getAll : function() {
-            return lruCache.getAll();
-        },
-        clear : function() {
-            lruCache.clear();
-        },
-    };
-})();
-
 var newDataLink = (function() {
-    /********************
-     * LRU 캐시 구현
-     ********************/
-    /********************
-     * LRU 캐시 구현
-     ********************/
-
     /********************
      * EventEmitter 구현
      ********************/
@@ -110,14 +23,6 @@ var newDataLink = (function() {
 
     function DataLink(cmd, options) {
         /********************
-         * LRU 캐시 구현
-         ********************/
-
-        // LRU 캐시 초기화
-        /********************
-         * LRU 캐시 구현
-         ********************/
-        /********************
          * EventEmitter 구현
          ********************/
         var eventEmitter = new EventEmitter();
@@ -139,16 +44,16 @@ var newDataLink = (function() {
          ********************/
 
         var _cmd;
-        var _rootUrl = Hison.link.custom.rootUrl;
-        var _controllerPath = Hison.link.custom.controllerPath;
-        var _timeout = Hison.link.custom.timeout;
-        var _BeforeGetRequst = Hison.link.custom.BeforeGetRequst;
-        var _BeforePostRequst = Hison.link.custom.BeforePostRequst;
-        var _BeforePutRequst = Hison.link.custom.BeforePutRequst;
-        var _BeforePatchRequst = Hison.link.custom.BeforePatchRequst;
-        var _BeforeDeleteRequst = Hison.link.custom.BeforeDeleteRequst;
-        var _callbackWorked = Hison.link.custom.callbackWorked;
-        var _callbackErrorFunc = Hison.link.custom.callbackError;
+        var _rootUrl = Hison.link.protocol + Hison.link.domain;
+        var _controllerPath = Hison.link.controllerPath;
+        var _timeout = Hison.link.timeout;
+        var _beforeGetRequst = Hison.link.beforeGetRequst;
+        var _beforePostRequst = Hison.link.beforePostRequst;
+        var _beforePutRequst = Hison.link.beforePutRequst;
+        var _beforePatchRequst = Hison.link.beforePatchRequst;
+        var _beforeDeleteRequst = Hison.link.beforeDeleteRequst;
+        var _beforeCallbackWorked = Hison.link.beforeCallbackWorked;
+        var _beforeCallbackErrorFunc = Hison.link.beforeCallbackError;
 
         if(options) {
             if (options && options.constructor !== Object) {
@@ -159,20 +64,20 @@ var newDataLink = (function() {
             }
         }
         
-        var _validateParams = function(dw, callbackWorkedFunc, callbackErrorFunc, options, isGet) {
+        var _validateParams = function(dw, beforeCallbackWorkedFunc, beforeCallbackErrorFunc, options, isGet) {
             if(!isGet) {
                 if (!_cmd) {
                     throw new Error("Command not specified");
                 }
-                if(dw && (!(dw.getType) || dw.getType() !== 'datawrapper')) {
+                if(dw && !dw.isDataWrapper) {
                     throw new Error("Please insert only a valid data type.");
                 }
             }
-            if (callbackWorkedFunc && typeof callbackWorkedFunc !== 'function') {
-                throw new Error("callbackWorkedFunc must be a function.");
+            if (beforeCallbackWorkedFunc && typeof beforeCallbackWorkedFunc !== 'function') {
+                throw new Error("beforeCallbackWorkedFunc must be a function.");
             }
-            if (callbackErrorFunc && typeof callbackErrorFunc !== 'function') {
-                throw new Error("callbackErrorFunc must be a function.");
+            if (beforeCallbackErrorFunc && typeof beforeCallbackErrorFunc !== 'function') {
+                throw new Error("beforeCallbackErrorFunc must be a function.");
             }
             if (options && options.constructor !== Object) {
                 throw new Error("obtions must be an object which contains key and value.");
@@ -233,12 +138,12 @@ var newDataLink = (function() {
          * 
          * @param {String} methodName 
          * @param {String or DataWrapper} requestDwOrResourcePath 
-         * @param {Function} callbackWorkedFunc 
-         * @param {Function} callbackErrorFunc 
+         * @param {Function} beforeCallbackWorkedFunc 
+         * @param {Function} beforeCallbackErrorFunc 
          * @param {Object} options {headers : Object, timeout : Integer(>= 0), fetchOptions : Object(except method, headers, body)}
          * @returns 
          */
-        var _request = async function(methodName, requestDwOrResourcePath, callbackWorkedFunc, callbackErrorFunc, options) {
+        var _request = async function(methodName, requestDwOrResourcePath, beforeCallbackWorkedFunc, beforeCallbackErrorFunc, options) {
             switch (methodName.toUpperCase()) {
                 case 'GET':
                     eventEmitter.emit('requestStarted_GET', requestDwOrResourcePath, options);
@@ -259,7 +164,7 @@ var newDataLink = (function() {
                     break;
             }
             var isGet = methodName.toUpperCase() === 'GET';
-            _validateParams(requestDwOrResourcePath, callbackWorkedFunc, callbackErrorFunc, options, isGet);
+            _validateParams(requestDwOrResourcePath, beforeCallbackWorkedFunc, beforeCallbackErrorFunc, options, isGet);
 
             var timeout = _timeout;
             var requestDw = isGet ? null : _getDataWrapper(requestDwOrResourcePath);
@@ -310,41 +215,44 @@ var newDataLink = (function() {
                 var resultData = rtn.data;
                 var result = _getRsultDataWrapper(resultData);
                 eventEmitter.emit('requestCompleted_Data', { data: result, response: rtn.response });
-                if(callbackWorkedFunc) {
-                    _callbackWorked(result, rtn.response, callbackWorkedFunc);
-                }
+                if(_beforeCallbackWorked(result, rtn.response) === false) return;
+                if(beforeCallbackWorkedFunc) beforeCallbackWorkedFunc(result, rtn.response);
                 return { data: result, response: rtn.response };
             })
             .catch(error => {
                 logging(url, methodName, fetchOptions.body, error, Date.now() - startTime);
                 eventEmitter.emit('requestError', error);
-                if(callbackErrorFunc) {
-                    _callbackErrorFunc(error, callbackErrorFunc);
-                }
+                if(_beforeCallbackErrorFunc(error) === false) return;
+                if(beforeCallbackErrorFunc) beforeCallbackErrorFunc(error);
                 throw error;
             });
         
             return racePromise;
         };
 
-        this.get = function(resourcePath, callbackWorkedFunc, callbackErrorFunc, options) {
-            return _BeforeGetRequst('GET', resourcePath, callbackWorkedFunc, callbackErrorFunc, options, _request);
+        this.get = function(resourcePath, beforeCallbackWorkedFunc, beforeCallbackErrorFunc, options) {
+            if(_beforeGetRequst(resourcePath, beforeCallbackWorkedFunc, beforeCallbackErrorFunc, options) === false) return;
+            return _request('GET', resourcePath, beforeCallbackWorkedFunc, beforeCallbackErrorFunc, options);
         };
 
-        this.post = function(requestDataWrapper, callbackWorkedFunc, callbackErrorFunc, options) {
-            return _BeforePostRequst('POST', requestDataWrapper, callbackWorkedFunc, callbackErrorFunc, options, _request);
+        this.post = function(requestDataWrapper, beforeCallbackWorkedFunc, beforeCallbackErrorFunc, options) {
+            if(_beforePostRequst(requestDataWrapper, beforeCallbackWorkedFunc, beforeCallbackErrorFunc, options) === false) return;
+            return _request('POST', requestDataWrapper, beforeCallbackWorkedFunc, beforeCallbackErrorFunc, options);
         };
         
-        this.put = function(requestDataWrapper, callbackWorkedFunc, callbackErrorFunc, options) {
-            return _BeforePutRequst('PUT', requestDataWrapper, callbackWorkedFunc, callbackErrorFunc, options, _request);
+        this.put = function(requestDataWrapper, beforeCallbackWorkedFunc, beforeCallbackErrorFunc, options) {
+            if(_beforePutRequst(requestDataWrapper, beforeCallbackWorkedFunc, beforeCallbackErrorFunc, options) === false) return;
+            return _request('PUT', requestDataWrapper, beforeCallbackWorkedFunc, beforeCallbackErrorFunc, options);
         };
         
-        this.patch = function(requestDataWrapper, callbackWorkedFunc, callbackErrorFunc, options) {
-            return _BeforePatchRequst('PATCH', requestDataWrapper, callbackWorkedFunc, callbackErrorFunc, options, _request);
+        this.patch = function(requestDataWrapper, beforeCallbackWorkedFunc, beforeCallbackErrorFunc, options) {
+            if(_beforePatchRequst(requestDataWrapper, beforeCallbackWorkedFunc, beforeCallbackErrorFunc, options) === false) return;
+            return _request('PATCH', requestDataWrapper, beforeCallbackWorkedFunc, beforeCallbackErrorFunc, options);
         };
         
-        this.delete = function(requestDataWrapper, callbackWorkedFunc, callbackErrorFunc, options) {
-            return _BeforeDeleteRequst('DELETE', requestDataWrapper, callbackWorkedFunc, callbackErrorFunc, options, _request);
+        this.delete = function(requestDataWrapper, beforeCallbackWorkedFunc, beforeCallbackErrorFunc, options) {
+            if(_beforeDeleteRequst(requestDataWrapper, beforeCallbackWorkedFunc, beforeCallbackErrorFunc, options) === false) return;
+            return _request('DELETE', requestDataWrapper, beforeCallbackWorkedFunc, beforeCallbackErrorFunc, options);
         };
 
         this.setCmd = function(cmd) {
@@ -380,68 +288,121 @@ var newDataLink = (function() {
         return new DataLink(keyOrObject, value);
     };
 })();
-if(Hison) {
-    Hison.link.custom.rootUrl = 'http://localhost:8081/';
-    Hison.link.custom.controllerPath = 'api';
-    Hison.link.custom.timeout = 5000;
-    Hison.link.custom.BeforeGetRequst = function(methodName, resourcePath, callbackWorkedFunc, callbackErrorFunc, options, requestFunc) {
-        return requestFunc(methodName, resourcePath, callbackWorkedFunc, callbackErrorFunc, options);
-    };
-    Hison.link.custom.BeforePostRequst = function(methodName, requestDw, callbackWorkedFunc, callbackErrorFunc, options, requestFunc) {
-        return requestFunc(methodName, requestDw, callbackWorkedFunc, callbackErrorFunc, options);
-    };
-    Hison.link.custom.BeforePutRequst = function(methodName, requestDw, callbackWorkedFunc, callbackErrorFunc, options, requestFunc) {
-        return requestFunc(methodName, requestDw, callbackWorkedFunc, callbackErrorFunc, options);
-    };
-    Hison.link.custom.BeforePatchRequst = function(methodName, requestDw, callbackWorkedFunc, callbackErrorFunc, options, requestFunc) {
-        return requestFunc(methodName, requestDw, callbackWorkedFunc, callbackErrorFunc, options);
-    };
-    Hison.link.custom.BeforeDeleteRequst = function(methodName, requestDw, callbackWorkedFunc, callbackErrorFunc, options, requestFunc) {
-        return requestFunc(methodName, requestDw, callbackWorkedFunc, callbackErrorFunc, options);
-    };
-    Hison.link.custom.callbackWorked = function(result, response, callbackWorkedFunction) {
-        if(callbackWorkedFunction) {
-            callbackWorkedFunction(result, response);
-        }
-    };
-    Hison.link.custom.callbackError = function(error, callbackErrorFunction) {
-        if(callbackErrorFunction) {
-            callbackErrorFunction(error);
-        }
-    };
-} else {
+
+if(!Hison) {
     var Hison = {
         link : {
-            custom : {
-                rootUrl : 'http://localhost:8081/',
-                controllerPath : 'api',
-                timeout : 5000,
-                BeforeGetRequst : function(methodName, resourcePath, callbackWorkedFunc, callbackErrorFunc, options, requestFunc) {
-                    return requestFunc(methodName, resourcePath, callbackWorkedFunc, callbackErrorFunc, options);
-                },
-                BeforePostRequst : function(methodName, requestDw, callbackWorkedFunc, callbackErrorFunc, options, requestFunc) {
-                    return requestFunc(methodName, requestDw, callbackWorkedFunc, callbackErrorFunc, options);
-                },
-                BeforePutRequst : function(methodName, requestDw, callbackWorkedFunc, callbackErrorFunc, options, requestFunc) {
-                    return requestFunc(methodName, requestDw, callbackWorkedFunc, callbackErrorFunc, options);
-                },
-                BeforePatchRequst : function(methodName, requestDw, callbackWorkedFunc, callbackErrorFunc, options, requestFunc) {
-                    return requestFunc(methodName, requestDw, callbackWorkedFunc, callbackErrorFunc, options);
-                },
-                BeforeDeleteRequst : function(methodName, requestDw, callbackWorkedFunc, callbackErrorFunc, options, requestFunc) {
-                    return requestFunc(methodName, requestDw, callbackWorkedFunc, callbackErrorFunc, options);
-                },
-                callbackWorked : function(result, response, callbackWorkedFunction) {
-                    if(callbackWorkedFunction) {
-                        callbackWorkedFunction(result, response);
-                    }
-                },
-                callbackError : function(error, callbackErrorFunction) {
-                    if(callbackErrorFunction) {
-                        callbackErrorFunction(error);
-                    }
-                },
+            protocol : "http://",
+            domain : 'localhost:8081',
+            controllerPath : '/api',
+            timeout : 5000,
+            beforeGetRequst : function(resourcePath, beforeCallbackWorkedFunc, beforeCallbackErrorFunc, options) {
+                return true;
             },
+            beforePostRequst : function(requestDw, beforeCallbackWorkedFunc, beforeCallbackErrorFunc, options) {
+                return true;
+            },
+            beforePutRequst : function(requestDw, beforeCallbackWorkedFunc, beforeCallbackErrorFunc, options) {
+                return true;
+            },
+            beforePatchRequst : function(requestDw, beforeCallbackWorkedFunc, beforeCallbackErrorFunc, options) {
+                return true;
+            },
+            beforeDeleteRequst : function(requestDw, beforeCallbackWorkedFunc, beforeCallbackErrorFunc, options) {
+                return true;
+            },
+            beforeCallbackWorked : function(result, response) {
+                return true;
+            },
+            beforeCallbackError : function(error) {
+                return true;
+            },
+        },
+        caching : {
+            isUsing : true,
+            protocol : "ws://",
+            wsEndPoint : "/caching-websocket-endpoint",
+            limit : 10,
         },
     };
 }
+
+var CachingModule = (function() {
+    if(!Hison.caching.isUsing) return;
+    var _limit = Hison.caching.limit;
+    var _webSocketUrl = Hison.caching.protocol + Hison.link.domain + Hison.caching.wsEndPoint;
+    var webSocket = new WebSocket(_webSocketUrl);
+
+    webSocket.onopen = function(event) {};
+    webSocket.onmessage = function(event) {};
+    webSocket.onclose = function(event) {};
+
+    function LRUCache(limit) {
+        this.limit = limit;
+        this.cache = {};
+        this.keys = [];
+    }
+
+    LRUCache.prototype.get = function(key) {
+        if (!this.cache.hasOwnProperty(key)) return null;
+        var value = this.cache[key];
+
+        this.remove(key);
+        this.keys.push(key);
+
+        return value;
+    };
+    LRUCache.prototype.put = function(key, value) {
+        if (this.cache.hasOwnProperty(key)) {
+            this.remove(key);
+        } else if (this.keys.length == this.limit) {
+            var oldestKey = this.keys.shift();
+            delete this.cache[oldestKey];
+        }
+
+        this.cache[key] = value;
+        this.keys.push(key);
+    };
+    LRUCache.prototype.remove = function(key) {
+        var index = this.keys.indexOf(key);
+        if (index > -1) {
+            this.keys.splice(index, 1);
+        }
+    };
+    LRUCache.prototype.getAll = function() {
+        return {cache : this.cache, keys : this.keys};
+    };
+    LRUCache.prototype.clear = function() {
+        this.cache = {};
+        this.keys = [];
+    };
+
+    var lruCache = new LRUCache(_limit);
+
+    return {
+        get: function(key) {
+            return lruCache.get(key);
+        },
+        put : function(key, value) {
+            lruCache.put(key, value);
+        },
+        remove : function(key) {
+            lruCache.remove(key);
+        },
+        getAll : function() {
+            return lruCache.getAll();
+        },
+        clear : function() {
+            lruCache.clear();
+        },
+        onopen : function(func) {
+            webSocket.onopen = func;
+        },
+        onmessage : function(func) {
+            webSocket.onmessage = func;
+        },
+        onclose : function(func) {
+            webSocket.onclose = func;
+        },
+    };
+})();

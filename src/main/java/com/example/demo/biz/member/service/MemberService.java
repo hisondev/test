@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import com.example.demo.biz.member.domain.Member;
 import com.example.demo.biz.member.repository.MemberRepository;
 import com.example.demo.common.api.caching.CachingWebSocketSessionManager;
+import com.example.demo.common.api.exception.ServiceRuntimeException;
 import com.example.demo.common.data.model.DataModel;
 import com.example.demo.common.data.wrapper.DataWrapper;
 
@@ -36,7 +37,7 @@ public class MemberService {
         List<Member> mList = dm.getConvertedEntities(Member.class);
         System.out.println(mList.toString());
         rtdw.putDataModel("result", dm);
-        if(true) throw new RuntimeException("This is Runtime exception message test");
+        if(true) throw new ServiceRuntimeException("This is Runtime exception message test", "ERR0001");
         
         System.out.println("########################## getMember ##########################");
         // return null;

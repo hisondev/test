@@ -1,39 +1,40 @@
 var Hison ={};
 (function() {
     Hison.data = {};
-    Hison.data.custom = {};
-    Hison.data.custom.convertObject = function(object) {
+    Hison.data.convertObject = function(object) {
         return object;
     }
 
     Hison.link = {};
-    Hison.link.custom = {};
-    Hison.link.custom.rootUrl = 'http://localhost:8081/';
-    Hison.link.custom.controllerPath = 'api';
-    Hison.link.custom.timeout = 5000;
-    Hison.link.custom.BeforeGetRequst = function(methodName, resourcePath, callbackWorkedFunc, callbackErrorFunc, options, requestFunc) {
-        return requestFunc(methodName, resourcePath, callbackWorkedFunc, callbackErrorFunc, options);
-    }
-    Hison.link.custom.BeforePostRequst = function(methodName, requestDw, callbackWorkedFunc, callbackErrorFunc, options, requestFunc) {
-        return requestFunc(methodName, requestDw, callbackWorkedFunc, callbackErrorFunc, options);
+    Hison.link.protocol = "http://"
+    Hison.link.domain = 'localhost:8081/';
+    Hison.link.controllerPath = 'api';
+    Hison.link.timeout = 5000;
+    Hison.link.beforeGetRequst = function(resourcePath, beforeCallbackWorkedFunc, beforeCallbackErrorFunc, options) {
+        return true;
     };
-    Hison.link.custom.BeforePutRequst = function(methodName, requestDw, callbackWorkedFunc, callbackErrorFunc, options, requestFunc) {
-        return requestFunc(methodName, requestDw, callbackWorkedFunc, callbackErrorFunc, options);
+    Hison.link.beforePostRequst = function(requestDw, beforeCallbackWorkedFunc, beforeCallbackErrorFunc, options) {
+        return true;
     };
-    Hison.link.custom.BeforePatchRequst = function(methodName, requestDw, callbackWorkedFunc, callbackErrorFunc, options, requestFunc) {
-        return requestFunc(methodName, requestDw, callbackWorkedFunc, callbackErrorFunc, options);
+    Hison.link.beforePutRequst = function(requestDw, beforeCallbackWorkedFunc, beforeCallbackErrorFunc, options) {
+        return true;
     };
-    Hison.link.custom.BeforeDeleteRequst = function(methodName, requestDw, callbackWorkedFunc, callbackErrorFunc, options, requestFunc) {
-        return requestFunc(methodName, requestDw, callbackWorkedFunc, callbackErrorFunc, options);
+    Hison.link.beforePatchRequst = function(requestDw, beforeCallbackWorkedFunc, beforeCallbackErrorFunc, options) {
+        return true;
     };
-    Hison.link.custom.callbackWorked = function(resultDw, response, callbackWorkedFunction) {
-        if(callbackWorkedFunction) {
-            callbackWorkedFunction(resultDw, response);
-        }
+    Hison.link.beforeDeleteRequst = function(requestDw, beforeCallbackWorkedFunc, beforeCallbackErrorFunc, options) {
+        return true;
     };
-    Hison.link.custom.callbackError = function(error, callbackErrorFunction) {
-        if(callbackErrorFunction) {
-            callbackErrorFunction(error);
-        }
+    Hison.link.beforeCallbackWorked = function(result, response) {
+        return true;
     };
+    Hison.link.beforeCallbackError = function(error) {
+        return true;
+    };
+
+    Hison.caching = {};
+    Hison.caching.isUsing = true;
+    Hison.caching.protocol = "ws://";
+    Hison.caching.wsEndPoint = "/caching-websocket-endpoint";
+    Hison.caching.limit = 10;
 })();

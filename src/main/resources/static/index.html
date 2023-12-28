@@ -8,7 +8,7 @@
     <script src="dataModel.js"></script>
     <script src="dataLink.js"></script>
     <script>
-        Hison.data.custom.convertObject = function(object) {
+        Hison.data.convertObject = function(object) {
             if (object instanceof Date) {
                 var year = object.getFullYear();
                 var month = object.getMonth() + 1;
@@ -25,6 +25,26 @@
             }
             return object;
         }
+        Hison.link.beforeCallbackWorked = function(result, response, callbackWorkedFunction) {
+            if(result && result.isDataWrapper) {
+                console.log(result.getObject());
+                if(result.containsKey("status") && result.getString("status") === "error") {
+                    alert(result.getString("message"));
+                    return false;
+                }
+            }
+        };
+
+        CachingModule.onopen(function (event) {
+            console.log("ws onopen", event);
+        })
+        CachingModule.onmessage(function (event) {
+            CachingModule.clear();
+            console.log("Message from server ", event.data);
+        })
+        CachingModule.onclose(function (event) {
+            console.log("ws onclose", event);
+        })
 
         // JavaScript fetch API
         async function test1() {
@@ -78,39 +98,41 @@
             dw.put("key2", null);
             dw.put({"key3":"test!!"});
             var dl = newDataLink("MemberService.getMember");
-            dl.onEventEmit('requestCompleted_Data', function(result) {
-                console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! requestCompleted_Data", result.data.getObject());
+            // dl.onEventEmit('requestCompleted_Data', function(result) {
+            //     console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! requestCompleted_Data", result.data.getObject());
+            // });
+            // dl.setLogging(true);
+
+            var result = await dl.post(dw,
+            function(data, response) {
+                console.log("### post function success ###")
+                console.log("response is : ", response);
+                console.log("result data is : ", data && data.isDataWrapper ? data.getObject() : data);
+                console.log("### post function success ###")
+            },
+            function (error) {
+                console.log("### post function error ###")
+                console.log("error is : ", error);
+                console.log("### post function error ###")
             });
-            dl.setLogging(true);
 
-            dl.post(dw,
-            function(data, response) {
-                console.log("### post function success ###")
-                console.log("response is : ", response);
-                console.log("result data is : ", data.getType && data.getType() === "datawrapper" ? data.getObject() : data);
-                console.log("### post function success ###")
-            },
-            function (error) {
-                console.log("### post function error ###")
-                console.log("error is : ", error);
-                console.log("### post function error ###")
-            }, {timeout:2000,fetchOptions:{keepalive:'true'}});
+            console.log("result22 : ", result);
 
-            newDataLink().get("api/members",
-            function(data, response) {
-                console.log("### get function success ###")
-                console.log("response is : ", response);
-                console.log("result data is : ", data.getType && data.getType() === "datawrapper" ? data.getObject() : data);
-                console.log("### get function success ###")
-            },
-            function (error) {
-                console.log("### post function error ###")
-                console.log("error is : ", error);
-                console.log("### post function error ###")
-            }, {timeout:2000});
+            // newDataLink().get("api/members",
+            // function(data, response) {
+            //     console.log("### get function success ###")
+            //     console.log("response is : ", response);
+            //     console.log("result data is : ", data.getType && data.getType() === "datawrapper" ? data.getObject() : data);
+            //     console.log("### get function success ###")
+            // },
+            // function (error) {
+            //     console.log("### post function error ###")
+            //     console.log("error is : ", error);
+            //     console.log("### post function error ###")
+            // }, {timeout:2000});
         }
         var index = 0;
-        async function test2() {
+        function test2() {
             CachingModule.put("test" + index, index);
             index++;
             console.log(CachingModule.getAll());

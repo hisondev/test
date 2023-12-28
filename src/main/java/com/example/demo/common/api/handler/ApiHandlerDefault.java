@@ -5,6 +5,8 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import com.example.demo.common.api.exception.ApiException;
+import com.example.demo.common.api.exception.ServiceRuntimeException;
 import com.example.demo.common.data.model.DataModel;
 import com.example.demo.common.data.wrapper.DataWrapper;
 
@@ -53,6 +55,34 @@ public class ApiHandlerDefault implements ApiHandler{
     @Override
     public void handleLog(DataWrapper dw, HttpServletRequest req) {}
 
+    @Override
+    public ResponseEntity<DataWrapper> handleApiException(ApiException e, DataWrapper dw, HttpServletRequest req) {
+        DataWrapper dataWrapper = new DataWrapper();
+        dataWrapper.putString("status", "error");
+        dataWrapper.putString("code", e.getCode());
+        dataWrapper.putString("message", "An undefined error occurred. Contact your system administrator.");
+        
+        e.printStackTrace();
+
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(dataWrapper);
+    }
+
+    @Override
+    public ResponseEntity<DataWrapper> handleServiceRuntimeException(ServiceRuntimeException e, DataWrapper dw, HttpServletRequest req) {
+        DataWrapper dataWrapper = new DataWrapper();
+        dataWrapper.putString("status", "error");
+        dataWrapper.putString("code", e.getCode());
+        dataWrapper.putString("message", e.getMessage());
+        
+        e.printStackTrace();
+
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(dataWrapper);
+    }
+
     /**
      * Handles exceptions thrown during API request processing.
      * This method provides a default error response for exceptions.
@@ -64,15 +94,10 @@ public class ApiHandlerDefault implements ApiHandler{
      */
     @Override
     public ResponseEntity<DataWrapper> handleException(Exception e, DataWrapper dw, HttpServletRequest req) {
-        DataModel dataModel = new DataModel("errorCode ", "errorMassage");
-        dataModel.addRow()
-                 .setValue(0, "errorCode", e.getClass())
-                 .setValue(0, "errorMessage", e.getMessage());
-        
         DataWrapper dataWrapper = new DataWrapper();
         dataWrapper.putString("status", "error");
-        dataWrapper.putString("message", "");
-        dataWrapper.putDataModel("exception", dataModel);
+        dataWrapper.putString("code", e.getClass().toString());
+        dataWrapper.putString("message", e.getMessage());
         
         e.printStackTrace();
 
@@ -92,15 +117,10 @@ public class ApiHandlerDefault implements ApiHandler{
      */
     @Override
     public ResponseEntity<DataWrapper> handleThrowable(Throwable t, DataWrapper dw, HttpServletRequest req) {
-        DataModel dataModel = new DataModel("errorCode ", "errorMassage");
-        dataModel.addRow()
-                 .setValue(0, "errorCode", t.getClass())
-                 .setValue(0, "errorMessage", t.getMessage());
-        
         DataWrapper dataWrapper = new DataWrapper();
         dataWrapper.putString("status", "error");
-        dataWrapper.putString("message", "");
-        dataWrapper.putDataModel("exception", dataModel);
+        dataWrapper.putString("code", t.getClass().toString());
+        dataWrapper.putString("message", t.getMessage());
         
         t.printStackTrace();
 

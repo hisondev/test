@@ -43,6 +43,6 @@ public class CustomCachingHandler implements CachingHandler{
 
     @Override
     public String getEndPoint() {
-        return "caching-websocket-endpoint2";
+        return "caching-websocket-endpoint";
     }
 }

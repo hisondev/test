@@ -1,5 +1,6 @@
 package com.example.demo.common.api.controller;
 
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.ResponseEntity;
@@ -7,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.example.demo.biz.member.service.MemberService;
 import com.example.demo.common.api.exception.ApiException;
+import com.example.demo.common.api.exception.ServiceRuntimeException;
 import com.example.demo.common.api.handler.ApiHandler;
 import com.example.demo.common.api.handler.ApiHandlerFactory;
 import com.example.demo.common.data.model.DataModel;
@@ -66,7 +68,9 @@ public final class ApiController {
             return ResponseEntity.ok().body(dataWrapper);
 
         } catch (ApiException e) {
-            return handler.handleException(e, dw, req);
+            return handler.handleApiException(e, dw, req);
+        } catch (ServiceRuntimeException e) {
+            return handler.handleServiceRuntimeException(e, dw, req);
         } catch (Exception e) {
             return handler.handleException(e, dw, req);
         } catch (Throwable t) {
@@ -95,17 +99,31 @@ public final class ApiController {
         }
         String serviceName = cmdParts[0];
         String methodName = cmdParts[1];
-        Object service = applicationContext.getBean(decapitalizeFirstLetter(serviceName));
+        Object service = null;
+
+        try {
+            service = applicationContext.getBean(decapitalizeFirstLetter(serviceName));
+        } catch (NoSuchBeanDefinitionException e) {
+            throw new ApiException("no bean named: " + serviceName);
+        }
+
         if (service == null) {
             throw new ApiException("Service not found: " + serviceName);
         }
         if (!(service instanceof MemberService)) {
             throw new ApiException("Service is not an instance of MemberService");
         }
-        MemberService typedService = (MemberService) service;
-        MethodHandle targetMethodHandle = MethodHandleUtil.getMethodHandle(
-            typedService.getClass(), methodName, DataWrapper.class, DataWrapper.class);
-        return (DataWrapper) targetMethodHandle.invokeExact(typedService, dw);
+        
+        try {
+            MemberService typedService = (MemberService) service;
+            MethodHandle targetMethodHandle = MethodHandleUtil.getMethodHandle(
+                typedService.getClass(), methodName, DataWrapper.class, DataWrapper.class);
+                return (DataWrapper) targetMethodHandle.invokeExact(typedService, dw);
+        }catch (NoSuchMethodException e) {
+            throw new ApiException("no such method: " + methodName);
+        } catch (IllegalAccessException e) {
+            throw new ApiException("This is illegal access: " + cmd);
+        }
     }
 
     private static String decapitalizeFirstLetter(String str) {

@@ -23,7 +23,7 @@ var newDataWrapper = (function() {
                 return object;
             }
             if (object.constructor !== Object && object.constructor !== Array) {
-                if(object.getType && object.getType() === 'datamodel') {
+                if(object.isDataModel) {
                     return object.clone();
                 } else {
                     return object;
@@ -70,7 +70,7 @@ var newDataWrapper = (function() {
             } else if (value === undefined) {
                 throw new Error("You can not put a value of undefined type.");
             } else if (typeof value === 'object') {
-                if(!value.getType || value.getType() !== "datamodel") {
+                if(!value.isDataModel) {
                     throw new Error("Please insert only values convertible to string or of data-model type.");
                 }
                 _data[key] = value.clone();
@@ -78,6 +78,22 @@ var newDataWrapper = (function() {
                 throw new Error("Please insert only values convertible to string or of data-model type.");
             }
         };
+
+        /**
+         * A boolean property indicating whether the object is an instance of DataWrapper.
+         * This property is always true for instances of DataWrapper.
+         * It is used to check if an object is a DataWrapper instance.
+         *
+         * @type {boolean}
+         * @example
+         * // Check if an object is a DataWrapper instance
+         * if (someObject.isDataWrapper) {
+         *     console.log('This is a DataWrapper instance.');
+         * } else {
+         *     console.log('This is not a DataWrapper instance.');
+         * }
+         */
+        this.isDataWrapper = true;
         
         /**
          * Returns a deep copied instance of the DataWrapper.
@@ -111,7 +127,7 @@ var newDataWrapper = (function() {
             for (var key in _data) {
                 if (_data.hasOwnProperty(key)) {
                     // DataModel 객체인 경우
-                    if (_data[key] && _data[key].getType && _data[key].getType() === 'datamodel') {
+                    if (_data[key] && _data[key].isDataModel) {
                         data[key] = _data[key].getRows();
                     } else {
                         // 그 외의 경우는 정상적으로 값을 할당
@@ -120,14 +136,6 @@ var newDataWrapper = (function() {
                 }
             }
             return JSON.stringify(data);
-        };
-
-        /**
-         * Retrieves the type of the instance.
-         * @returns {string 'datawrapper'} - The type of the instance.
-         */
-        this.getType = function() {
-            return "datawrapper";
         };
 
         /**
@@ -161,7 +169,7 @@ var newDataWrapper = (function() {
          * @throws {Error} If the specified key does not contain a data-model value.
          */
         this.getDataModel = function(key) {
-            if(!_data[key].getType || _data[key].getType() !== 'datamodel') {
+            if(!_data[key].isDataModel) {
                 throw new Error("The data does not contain the specified data-model value.");
             }
             return _data[key].clone();
@@ -185,14 +193,14 @@ var newDataWrapper = (function() {
                 throw new Error("Please insert key and value or object which key-value pairs.");
             }
     
-            if (!value && value !== null) {
+            if (value === undefined) {
                 if (typeof keyOrObject !== 'object' || Array.isArray(keyOrObject)) {
                     throw new Error("Please insert an object with only its own key-value pairs.");
                 }
                 for (var key in keyOrObject) {
                     _put(key, keyOrObject[key]);
                 }
-            } else if (keyOrObject && (value || value === null)) {
+            } else if (keyOrObject && value !== undefined) {
                 _put(keyOrObject, value);
             }
 
@@ -227,7 +235,7 @@ var newDataWrapper = (function() {
          * @throws {Error} If the provided value is not of data-model type.
          */
         this.putDataModel = function(key, value) {
-            if(value !== null && (!value.getType || value.getType() !== 'datamodel')) {
+            if(value !== null && !value.isDataModel) {
                 throw new Error("Please insert only values of data-model type.");
             }
             _put(key, value);
@@ -248,7 +256,7 @@ var newDataWrapper = (function() {
         this.getObject = function() {
             var result = {};
             for(var key in _data) {
-                if(_data[key] && _data[key].getType && _data[key].getType() === 'datamodel') {
+                if(_data[key] && _data[key].isDataModel) {
                     result[key] = _data[key].getObject();
                 } else {
                     result[key] = _deepCopy(_data[key]);
@@ -351,7 +359,7 @@ var newDataModel = (function() {
                 return object;
             }
             if (object.constructor !== Object && object.constructor !== Array) {
-                return Hison.data.custom.convertObject ? Hison.data.custom.convertObject(object) : object;
+                return Hison.data.convertObject ? Hison.data.convertObject(object) : object;
             }
             if (!visited) visited = [];
             for (var i = 0; i < visited.length; i++) {
@@ -473,7 +481,7 @@ var newDataModel = (function() {
             } else if (value === null) {
                 result = null;
             } else if (typeof value === 'object') {
-                if(value.getType && (value.getType() === 'datawrapper' || value.getType() === 'datamodel')) {
+                if(value.isDataWrapper || value.isDataModel) {
                     throw new Error("You cannot insert a datawrapper or datamodel within a datamodel.");
                 }
                 result = _deepCopy(value);
@@ -554,9 +562,9 @@ var newDataModel = (function() {
                     return;
                 }
             } else if (typeof ArrayOrObject === 'object') {
-                if(ArrayOrObject.getType && ArrayOrObject.getType() === 'datawrapper') {
+                if(ArrayOrObject.isDataWrapper) {
                     throw new Error("You cannot construct a datamodel with datawrapper.");
-                } else if (ArrayOrObject.getType && ArrayOrObject.getType() === 'datamodel'){
+                } else if (ArrayOrObject.isDataModel){
                     for(var row of ArrayOrObject.getRows()) {
                         _addRow(row);
                     }
@@ -568,6 +576,22 @@ var newDataModel = (function() {
             }
             throw new Error("Please insert array contains objects with their own key-value pairs, array contains strings or only object of key-value pairs.");
         };
+
+        /**
+         * A boolean property indicating whether the object is an instance of DataModel.
+         * This property is always true for instances of DataModel.
+         * It is used to check if an object is a DataModel instance.
+         *
+         * @type {boolean}
+         * @example
+         * // Check if an object is a DataModel instance
+         * if (someObject.isDataModel) {
+         *     console.log('This is a DataModel instance.');
+         * } else {
+         *     console.log('This is not a DataModel instance.');
+         * }
+         */
+        this.isDataModel = true;
 
         /**
          * Creates and returns a deep-copied new DataModel instance.
@@ -602,14 +626,6 @@ var newDataModel = (function() {
             return JSON.stringify(_rows);
         }
 
-        /**
-         * Retrieves the type of the instance.
-         * @returns {string 'datamodel'} - The type of the instance.
-         */
-        this.getType = function() {
-            return "datamodel";
-        };
-                
         /**
          * Checks if the DataModel is declared.
          * @returns {boolean} - True if DataModel is declared, false otherwise. Determine whether there is a defined column.
@@ -750,16 +766,66 @@ var newDataModel = (function() {
         }
 
         /**
-         * Adds a new row to the DataModel.
-         * 
-         * @param {Object} row The row object to add.
+         * Adds a new row to the DataModel at the specified index or at the end.
+         * This method can be used in four different ways based on the provided parameters:
+         * 1. No parameters: Adds an empty row at the end of the DataModel. Each column in the row is initialized with null.
+         * 2. rowIndex (number) only: Adds an empty row at the specified index. Each column in the row is initialized with null.
+         * 3. row (object) only: Adds the provided row object at the end of the DataModel.
+         * 4. rowIndex (number) and row (object): Inserts the provided row object at the specified index in the DataModel.
+         *
+         * @param {number|object} [rowIndex] - The index at which to add the row. If rowIndex is an object, it is treated as the row to add.
+         * @param {object} [row] - The row object to add. If rowIndex is a number, row is inserted at rowIndex, otherwise added at the end.
+         * @throws {Error} If rowIndex is not a valid number or out of range, if columns are not defined, or if parameters are invalid.
          * @return {DataModel} The DataModel instance itself for chaining.
-         * @throws {Error} If the input row is not a valid object with key-value pairs.
+         *
+         * @example
+         * // Add an empty row at the end
+         * dataModel.addRow();
+         * 
+         * @example
+         * // Add an empty row at index 2
+         * dataModel.addRow(2);
+         * 
+         * @example
+         * // Add a row object at the end
+         * dataModel.addRow({name: 'John', age: 30});
+         * 
+         * @example
+         * // Insert a row object at index 1
+         * dataModel.addRow(1, {name: 'Jane', age: 25});
          */
-        this.addRow = function(row) {
-            _addRow(row);
+        this.addRow = function(rowIndex, row) {
+            if (rowIndex === undefined && row === undefined) {
+                if(_cols.length <= 0) {
+                    throw new Error("Please define the column first.");
+                }
+                var emptyRow = {};
+                for (var col of _cols) {
+                    emptyRow[col] = null;
+                }
+                _rows.push(emptyRow);
+            } else if (typeof rowIndex === 'number' && row === undefined) {
+                if(_cols.length <= 0) {
+                    throw new Error("Please define the column first.");
+                }
+                var validIndex = _getValidRowIndex(rowIndex);
+                var emptyRow = {};
+                for (var col of _cols) {
+                    emptyRow[col] = null;
+                }
+                _rows.splice(validIndex, 0, emptyRow);
+            } else if (typeof rowIndex === 'object' && row === undefined) {
+                _addRow(rowIndex);
+            } else if (typeof rowIndex === 'number' && typeof row === 'object') {
+                var validIndex = _getValidRowIndex(rowIndex);
+                _addRow(row);
+                var newRow = _rows.pop();
+                _rows.splice(validIndex, 0, newRow);
+            } else {
+                throw new Error("Invalid parameters for addRow method.");
+            }
             return this;
-        }
+        };
         
         /**
          * Retrieves a deep copy of all rows in the DataModel.
@@ -1481,7 +1547,7 @@ var newDataModel = (function() {
  *
  * @example
  * // Overriding the function to handle Date objects
- * Hison.data.custom.convertObject = function(object) {
+ * Hison.data.convertObject = function(object) {
  *     if (object instanceof Date) {
  *         var year = object.getFullYear();
  *         var month = object.getMonth() + 1; // getMonth()는 0부터 시작
@@ -1493,17 +1559,11 @@ var newDataModel = (function() {
  *     return object; // Default behavior for other objects
  * };
  */
-if(Hison) {
-    Hison.data.custom.convertObject = function(object) {
-        return object;
-    };
-} else {
+if(!Hison) {
     var Hison = {
         data : {
-            custom : {
-                convertObject : function(object) {
-                    return object;
-                }
+            convertObject : function(object) {
+                return object;
             },
         },
     };

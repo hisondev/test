@@ -28,7 +28,7 @@ import javax.servlet.http.HttpServletRequest;
  * @version 1.0.2
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/hison-api-link")
 public final class ApiController {
     @Autowired
     private ApplicationContext applicationContext;
@@ -84,7 +84,7 @@ public final class ApiController {
         dw.putDataModel("resultCheckAuthority", resultCheckAuthority);
         handler.handleLog(dw, req);
         if(!dw.containsKey("cmd")) {
-            throw new ApiException("There is no cmd");
+            throw new ApiException("There is no cmd", "APIERROR0001");
         }
         String _cmd = (String) dw.getString("cmd");
 
@@ -95,7 +95,7 @@ public final class ApiController {
     private DataWrapper callService(String cmd, DataWrapper dw) throws Throwable {
         String[] cmdParts = cmd.split("\\.");
         if (cmdParts.length != 2) {
-            throw new ApiException("Invalid cmd format");
+            throw new ApiException("Invalid cmd format", "APIERROR0002");
         }
         String serviceName = cmdParts[0];
         String methodName = cmdParts[1];
@@ -104,14 +104,14 @@ public final class ApiController {
         try {
             service = applicationContext.getBean(decapitalizeFirstLetter(serviceName));
         } catch (NoSuchBeanDefinitionException e) {
-            throw new ApiException("no bean named: " + serviceName);
+            throw new ApiException("no bean named: " + serviceName, "APIERROR0003");
         }
 
         if (service == null) {
-            throw new ApiException("Service not found: " + serviceName);
+            throw new ApiException("Service not found: " + serviceName, "APIERROR0004");
         }
         if (!(service instanceof MemberService)) {
-            throw new ApiException("Service is not an instance of MemberService");
+            throw new ApiException("Service is not an instance of MemberService", "APIERROR0005");
         }
         
         try {
@@ -132,12 +132,12 @@ public final class ApiController {
                     return (DataWrapper) targetMethodHandle.invokeExact();
                 }
             } else {
-                throw new ApiException("Method not found: " + methodName);
+                throw new ApiException("Method not found: " + methodName, "APIERROR0006");
             }
         }catch (NoSuchMethodException e) {
-            throw new ApiException("no such method: " + methodName);
+            throw new ApiException("no such method: " + methodName, "APIERROR0007");
         } catch (IllegalAccessException e) {
-            throw new ApiException("This is illegal access: " + cmd);
+            throw new ApiException("This is illegal access: " + cmd, "APIERROR0008");
         }
     }
 

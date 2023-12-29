@@ -37,7 +37,7 @@ public class MemberService {
         List<Member> mList = dm.getConvertedEntities(Member.class);
         System.out.println(mList.toString());
         rtdw.putDataModel("result", dm);
-        if(true) throw new ServiceRuntimeException("This is Runtime exception message test", "ERR0001");
+        if(false) throw new ServiceRuntimeException("This is Runtime exception message test", "ERR0001");
         
         System.out.println("########################## getMember ##########################");
         // return null;

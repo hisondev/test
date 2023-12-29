@@ -9,7 +9,7 @@ public class ServiceRuntimeException extends RuntimeException {
     private String code = "0000";
 
     /**
-     * Constructs a new {@code ApiException} with the specified detail message.
+     * Constructs a new {@code ServiceRuntimeException} with the specified detail message.
      * 
      * @param message the detail message
      */
@@ -18,7 +18,7 @@ public class ServiceRuntimeException extends RuntimeException {
     }
 
     /**
-     * Constructs a new {@code ApiException} with the specified detail message.
+     * Constructs a new {@code ServiceRuntimeException} with the specified detail message.
      * 
      * @param message the detail message
      */
@@ -28,7 +28,7 @@ public class ServiceRuntimeException extends RuntimeException {
     }
 
     /**
-     * Constructs a new {@code ApiException} with the specified detail message and cause.
+     * Constructs a new {@code ServiceRuntimeException} with the specified detail message and cause.
      * 
      * @param message the detail message
      * @param cause the cause of the exception (a {@code null} value is permitted, and indicates that the cause is nonexistent or unknown)
@@ -38,7 +38,7 @@ public class ServiceRuntimeException extends RuntimeException {
     }
 
     /**
-     * Constructs a new {@code ApiException} with the specified detail message and cause.
+     * Constructs a new {@code ServiceRuntimeException} with the specified detail message and cause.
      * 
      * @param message the detail message
      * @param cause the cause of the exception (a {@code null} value is permitted, and indicates that the cause is nonexistent or unknown)
@@ -49,7 +49,7 @@ public class ServiceRuntimeException extends RuntimeException {
     }
 
     /**
-     * Constructs a new {@code ApiException} with the specified cause and a detail message of {@code (cause==null ? null : cause.toString())}.
+     * Constructs a new {@code ServiceRuntimeException} with the specified cause and a detail message of {@code (cause==null ? null : cause.toString())}.
      * 
      * @param cause the cause of the exception (a {@code null} value is permitted, and indicates that the cause is nonexistent or unknown)
      */
@@ -58,7 +58,7 @@ public class ServiceRuntimeException extends RuntimeException {
     }
 
     /**
-     * Constructs a new {@code ApiException} with the specified cause and a detail message of {@code (cause==null ? null : cause.toString())}.
+     * Constructs a new {@code ServiceRuntimeException} with the specified cause and a detail message of {@code (cause==null ? null : cause.toString())}.
      * 
      * @param cause the cause of the exception (a {@code null} value is permitted, and indicates that the cause is nonexistent or unknown)
      */
@@ -68,20 +68,20 @@ public class ServiceRuntimeException extends RuntimeException {
     }
 
     /**
-     * Constructs a new {@code ApiException} using another {@code ApiException} as its cause.
+     * Constructs a new {@code ServiceRuntimeException} using another {@code ServiceRuntimeException} as its cause.
      * 
      * @param cause the cause of the exception
      */
-    public ServiceRuntimeException(ApiException cause) {
+    public ServiceRuntimeException(ServiceRuntimeException cause) {
         super(cause.toString(), cause);
     }
 
     /**
-     * Constructs a new {@code ApiException} using another {@code ApiException} as its cause.
+     * Constructs a new {@code ServiceRuntimeException} using another {@code ServiceRuntimeException} as its cause.
      * 
      * @param cause the cause of the exception
      */
-    public ServiceRuntimeException(ApiException cause, String code) {
+    public ServiceRuntimeException(ServiceRuntimeException cause, String code) {
         super(cause.toString(), cause);
         this.code = code;
     }

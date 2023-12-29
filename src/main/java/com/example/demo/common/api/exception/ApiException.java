@@ -6,7 +6,7 @@ package com.example.demo.common.api.exception;
  * @version 1.0.2
  */
 public class ApiException extends RuntimeException {
-    private String code = "0000";
+    private String code = "APIERROR";
     /**
      * Constructs a new {@code ApiException} with the specified detail message.
      * 
@@ -21,9 +21,9 @@ public class ApiException extends RuntimeException {
      * 
      * @param message the detail message
      */
-    public ApiException(String message, String error) {
+    public ApiException(String message, String code) {
         super(message);
-        this.code = error;
+        this.code = code;
     }
 
     public String getCode() {

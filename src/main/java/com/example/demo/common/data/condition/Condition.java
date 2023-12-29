@@ -1,7 +1,6 @@
 package com.example.demo.common.data.condition;
 
 import java.util.HashMap;
-
 import com.example.demo.common.data.model.DataModel;
 
 /**
@@ -18,7 +17,7 @@ import com.example.demo.common.data.model.DataModel;
  * </pre>
  * 
  * @author Hani son
- * @version 1.0.0
+ * @version 1.0.2
  */
 public class Condition extends HashMap<String, Object> {
     /**

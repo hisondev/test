@@ -5,11 +5,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class CachingWebSocketSessionManager {
 
-    //하나의 Web Socket Session 활용하기 위해 싱글톤 패턴 사용
     private static CachingWebSocketSessionManager instance;
     private final CopyOnWriteArrayList<WebSocketSession> sessions = new CopyOnWriteArrayList<>();
 
-    //handler주입
     private final CachingHandler handler;
     private CachingWebSocketSessionManager() {
         this.handler = CachingHandlerFactory.getHandler();

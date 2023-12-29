@@ -7,22 +7,22 @@ var Hison ={};
 
     Hison.link = {};
     Hison.link.protocol = "http://"
-    Hison.link.domain = 'localhost:8081/';
-    Hison.link.controllerPath = 'api';
+    Hison.link.domain = 'localhost:8081';
+    Hison.link.controllerPath = '/hison-api-link';
     Hison.link.timeout = 5000;
-    Hison.link.beforeGetRequst = function(resourcePath, beforeCallbackWorkedFunc, beforeCallbackErrorFunc, options) {
+    Hison.link.beforeGetRequst = function(resourcePath, callbackWorkedFunc, callbackErrorFunc, options) {
         return true;
     };
-    Hison.link.beforePostRequst = function(requestDw, beforeCallbackWorkedFunc, beforeCallbackErrorFunc, options) {
+    Hison.link.beforePostRequst = function(requestDw, callbackWorkedFunc, callbackErrorFunc, options) {
         return true;
     };
-    Hison.link.beforePutRequst = function(requestDw, beforeCallbackWorkedFunc, beforeCallbackErrorFunc, options) {
+    Hison.link.beforePutRequst = function(requestDw, callbackWorkedFunc, callbackErrorFunc, options) {
         return true;
     };
-    Hison.link.beforePatchRequst = function(requestDw, beforeCallbackWorkedFunc, beforeCallbackErrorFunc, options) {
+    Hison.link.beforePatchRequst = function(requestDw, callbackWorkedFunc, callbackErrorFunc, options) {
         return true;
     };
-    Hison.link.beforeDeleteRequst = function(requestDw, beforeCallbackWorkedFunc, beforeCallbackErrorFunc, options) {
+    Hison.link.beforeDeleteRequst = function(requestDw, callbackWorkedFunc, callbackErrorFunc, options) {
         return true;
     };
     Hison.link.beforeCallbackWorked = function(result, response) {
@@ -33,8 +33,7 @@ var Hison ={};
     };
 
     Hison.caching = {};
-    Hison.caching.isUsing = true;
     Hison.caching.protocol = "ws://";
-    Hison.caching.wsEndPoint = "/caching-websocket-endpoint";
+    Hison.caching.wsEndPoint = "/hison-caching-websocket-endpoint";
     Hison.caching.limit = 10;
 })();

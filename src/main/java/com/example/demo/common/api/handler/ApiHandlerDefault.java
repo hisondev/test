@@ -97,7 +97,7 @@ public class ApiHandlerDefault implements ApiHandler{
         DataWrapper dataWrapper = new DataWrapper();
         dataWrapper.putString("status", "error");
         dataWrapper.putString("code", e.getClass().toString());
-        dataWrapper.putString("message", e.getMessage());
+        dataWrapper.putString("message", "An undefined error occurred. Contact your system administrator.");
         
         e.printStackTrace();
 
@@ -120,7 +120,7 @@ public class ApiHandlerDefault implements ApiHandler{
         DataWrapper dataWrapper = new DataWrapper();
         dataWrapper.putString("status", "error");
         dataWrapper.putString("code", t.getClass().toString());
-        dataWrapper.putString("message", t.getMessage());
+        dataWrapper.putString("message", "An undefined error occurred. Contact your system administrator.");
         
         t.printStackTrace();
 

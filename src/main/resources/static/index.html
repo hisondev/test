@@ -6,7 +6,7 @@
     <title>Document</title>
     <script src="hison.js"></script>
     <script src="dataModel.js"></script>
-    <script src="dataLink.js"></script>
+    <script src="ApiLink.js"></script>
     <script>
         Hison.data.convertObject = function(object) {
             if (object instanceof Date) {
@@ -27,7 +27,6 @@
         }
         Hison.link.beforeCallbackWorked = function(result, response, callbackWorkedFunction) {
             if(result && result.isDataWrapper) {
-                console.log(result.getObject());
                 if(result.containsKey("status") && result.getString("status") === "error") {
                     alert(result.getString("message"));
                     return false;
@@ -35,14 +34,16 @@
             }
         };
 
-        CachingModule.onopen(function (event) {
+        var cachingModule = newCachingModule();
+
+        cachingModule.onopen(function (event) {
             console.log("ws onopen", event);
         })
-        CachingModule.onmessage(function (event) {
-            CachingModule.clear();
+        cachingModule.onmessage(function (event) {
+            cachingModule.clear();
             console.log("Message from server ", event.data);
         })
-        CachingModule.onclose(function (event) {
+        cachingModule.onclose(function (event) {
             console.log("ws onclose", event);
         })
 
@@ -97,13 +98,8 @@
             const dw = newDataWrapper("key1", dm);
             dw.put("key2", null);
             dw.put({"key3":"test!!"});
-            var dl = newDataLink("MemberService.getMember");
-            // dl.onEventEmit('requestCompleted_Data', function(result) {
-            //     console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! requestCompleted_Data", result.data.getObject());
-            // });
-            // dl.setLogging(true);
-
-            var result = await dl.post(dw,
+            var al = newApiLink("MemberService.getMember", {cachingModule: cachingModule, logging: true});
+            var result = await al.post(dw,
             function(data, response) {
                 console.log("### post function success ###")
                 console.log("response is : ", response);
@@ -115,40 +111,29 @@
                 console.log("error is : ", error);
                 console.log("### post function error ###")
             });
-
-            console.log("result22 : ", result);
-
-            // newDataLink().get("api/members",
-            // function(data, response) {
-            //     console.log("### get function success ###")
-            //     console.log("response is : ", response);
-            //     console.log("result data is : ", data.getType && data.getType() === "datawrapper" ? data.getObject() : data);
-            //     console.log("### get function success ###")
-            // },
-            // function (error) {
-            //     console.log("### post function error ###")
-            //     console.log("error is : ", error);
-            //     console.log("### post function error ###")
-            // }, {timeout:2000});
+            console.log(result.data.getObject());
+            console.log(cachingModule.getAll());
         }
         var index = 0;
         function test2() {
-            CachingModule.put("test" + index, index);
+            cachingModule.put("test" + index, index);
             index++;
-            console.log(CachingModule.getAll());
+            console.log(cachingModule.getAll());
             return;
         }
 
         function test3 () {
-            var dl = newDataLink("MemberService.justTest");
-            dl.post(null, 
+            var al = newApiLink("MemberService.justTest");
+            al.onEventEmit("requestStarted_POST",(x, y)=>{console.log(x, y)});
+            const dw = newDataWrapper("key1", "test1");
+            al.post(dw, 
             function(result, response) {
                 console.log("result : ",result);
                 console.log("response : ",response);
             },
             function(error) {
                 console.log("error : ",error);
-            }, null)
+            }, {timeout:1000})
         }
     </script>
 </head>

@@ -36,17 +36,6 @@
 
         var cachingModule = newCachingModule();
 
-        cachingModule.onopen(function (event) {
-            console.log("ws onopen", event);
-        })
-        cachingModule.onmessage(function (event) {
-            cachingModule.clear();
-            console.log("Message from server ", event.data);
-        })
-        cachingModule.onclose(function (event) {
-            console.log("ws onclose", event);
-        })
-
         // JavaScript fetch API
         async function test1() {
             // private Long id;
@@ -113,12 +102,17 @@
             });
             console.log(result.data.getObject());
             console.log(cachingModule.getAll());
+            var t = cachingModule.getAll();
+            delete t["MemberService.getMember"];
+            console.log(cachingModule.getAll());
+            console.log(cachingModule.getKeys());
         }
         var index = 0;
         function test2() {
             cachingModule.put("test" + index, index);
             index++;
             console.log(cachingModule.getAll());
+            console.log(cachingModule.getKeys());
             return;
         }
 

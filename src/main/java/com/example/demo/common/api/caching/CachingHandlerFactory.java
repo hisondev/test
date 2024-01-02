@@ -1,7 +1,10 @@
 package com.example.demo.common.api.caching;
 
+/** 
+ * @author Hani son
+ * @version 1.0.0
+ */
 public class CachingHandlerFactory {
-
     private static CachingHandler cachingHandler;
     
     public static CachingHandler getHandler() {

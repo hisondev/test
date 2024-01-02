@@ -9,6 +9,10 @@ import com.example.demo.common.api.exception.ServiceRuntimeException;
 import com.example.demo.common.data.model.DataModel;
 import com.example.demo.common.data.wrapper.DataWrapper;
 
+/** 
+ * @author Hani son
+ * @version 1.0.0
+ */
 public interface ApiHandler {
     DataModel beforeHandleRequest(DataWrapper dw, HttpServletRequest req);
 

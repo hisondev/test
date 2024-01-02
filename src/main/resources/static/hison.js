@@ -6,10 +6,10 @@ var Hison ={};
     }
 
     Hison.link = {};
-    Hison.link.protocol = "http://"
+    Hison.link.protocol = 'http://';
     Hison.link.domain = 'localhost:8081';
     Hison.link.controllerPath = '/hison-api-link';
-    Hison.link.timeout = 5000;
+    Hison.link.timeout = 10000;
     Hison.link.beforeGetRequst = function(resourcePath, callbackWorkedFunc, callbackErrorFunc, options) {
         return true;
     };
@@ -33,7 +33,7 @@ var Hison ={};
     };
 
     Hison.caching = {};
-    Hison.caching.protocol = "ws://";
-    Hison.caching.wsEndPoint = "/hison-caching-websocket-endpoint";
+    Hison.caching.protocol = 'ws://';
+    Hison.caching.wsEndPoint = '/hison-caching-websocket-endpoint';
     Hison.caching.limit = 10;
 })();

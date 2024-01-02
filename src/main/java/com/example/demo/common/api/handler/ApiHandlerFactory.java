@@ -1,5 +1,9 @@
 package com.example.demo.common.api.handler;
 
+/** 
+ * @author Hani son
+ * @version 1.0.0
+ */
 public class ApiHandlerFactory {
 
     private static ApiHandler customHandler;

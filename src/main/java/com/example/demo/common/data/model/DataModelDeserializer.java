@@ -8,6 +8,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import java.io.IOException;
 
+/**
+ * @author Hani son
+ * @version 1.0.4
+ */
 public class DataModelDeserializer extends JsonDeserializer<DataModel> {
 
     @Override

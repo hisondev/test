@@ -10,6 +10,10 @@ import com.example.demo.common.data.model.DataModel;
 
 import java.io.IOException;
 
+/**
+ * @author Hani son
+ * @version 1.0.4
+ */
 public class DataWrapperDeserializer extends JsonDeserializer<DataWrapper> {
 
     @Override

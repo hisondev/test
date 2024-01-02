@@ -61,6 +61,9 @@ import com.example.demo.common.data.model.DataModel;
  *
  * This approach provides flexibility and extensibility in data conversion within the application, 
  * enhancing the adaptability of the DataModel to various data processing scenarios.
+ * 
+ * @author Hani son
+ * @version 1.0.4
  */
 public class DataConverterDefault implements DataConverter{
     /**

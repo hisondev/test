@@ -3,8 +3,11 @@ package com.example.demo.common.api.caching;
 import org.springframework.web.socket.WebSocketSession;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+/** 
+ * @author Hani son
+ * @version 1.0.0
+ */
 public class CachingWebSocketSessionManager {
-
     private static CachingWebSocketSessionManager instance;
     private final CopyOnWriteArrayList<WebSocketSession> sessions = new CopyOnWriteArrayList<>();
 

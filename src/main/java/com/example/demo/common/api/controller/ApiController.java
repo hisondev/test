@@ -19,14 +19,26 @@ import java.lang.invoke.MethodHandle;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * <h1>ApiController</h1>
- * The ApiController class is designed to facilitate client-server communication without the need for separate controller
- * and DTO classes. This class serves as a central point for handling all types of HTTP requests, providing a convenient 
- * way to define the business logic for each API endpoint.
+ * 
+ * ApiController is a controller class that handles HTTP POST, PUT, PATCH, and DELETE methods.
+ * This controller facilitates the development process by allowing business logic to be called using the 'cmd' parameter, eliminating the need for creating separate controllers.
+ * 
+ * <p>Key Features:</p>
+ * <ul>
+ * <li>Customizable ApiController behavior through ApiHandler.</li>
+ * <li>Convenient exception handling using ApiException and ServiceRuntimeException.</li>
+ * <li>Developer customization of WebSocket connections and caching functionalities through CachingWebSocketHandler and CachingHandler.</li>
+ * </ul>
+ * <p>Usage Example:</p>
+ * <pre>
+ *    ApiController controller = new ApiController();
+ *    ResponseEntity<DataWrapper> response = controller.handlePost(dataWrapper, request);
+ * </pre>
  * 
  * @author Hani son
- * @version 1.0.2
+ * @version 1.0.0
  */
+
 @RestController
 @RequestMapping("/hison-api-link")
 public final class ApiController {

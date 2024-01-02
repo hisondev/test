@@ -6,7 +6,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.example.demo.biz.member.service.MemberService;
 import com.example.demo.common.api.exception.ApiException;
 import com.example.demo.common.api.exception.ServiceRuntimeException;
 import com.example.demo.common.api.handler.ApiHandler;
@@ -121,9 +120,6 @@ public final class ApiController {
 
         if (service == null) {
             throw new ApiException("Service not found: " + serviceName, "APIERROR0004");
-        }
-        if (!(service instanceof MemberService)) {
-            throw new ApiException("Service is not an instance of MemberService", "APIERROR0005");
         }
         
         try {

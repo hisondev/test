@@ -11,11 +11,9 @@ import com.example.demo.common.data.model.DataModel;
 
 /**
  * @author Hani son
- * @version 1.0.4
+ * @version 1.0.5
  */
 public interface DataConverter{
-    boolean isEntity(Object obj);
-
     String getConvertJsonValueNodeToDataModelRowValue(JsonNode valueNode);
 
     JsonNode getConvertedJson(DataModel dm);

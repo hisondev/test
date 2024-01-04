@@ -17,7 +17,7 @@ import com.example.demo.common.data.model.DataModel;
  * </pre>
  * 
  * @author Hani son
- * @version 1.0.4
+ * @version 1.0.5
  */
 public class Condition extends HashMap<String, Object> {
     /**

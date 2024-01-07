@@ -9,13 +9,11 @@ import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
  * @author Hani son
  * @version 1.0.0
  */
-@Configuration
-@EnableWebSocket
-public class CachingWebSocketConfig implements WebSocketConfigurer {
+public class WebSocketConfig implements WebSocketConfigurer {
     private final CachingWebSocketSessionManager sessionManager = CachingWebSocketSessionManager.getInstance();
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(new CachingWebSocketHandler(sessionManager), sessionManager.getEndPoint());
+        registry.addHandler(new WebSocketHandler(sessionManager), sessionManager.getEndPoint());
     }
 }

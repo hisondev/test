@@ -8,10 +8,10 @@ import org.springframework.web.socket.CloseStatus;
  * @author Hani son
  * @version 1.0.0
  */
-public class CachingWebSocketHandler extends AbstractWebSocketHandler {
+public class WebSocketHandler extends AbstractWebSocketHandler {
     private final CachingWebSocketSessionManager sessionManager;
 
-    public CachingWebSocketHandler(CachingWebSocketSessionManager sessionManager) {
+    public WebSocketHandler(CachingWebSocketSessionManager sessionManager) {
         this.sessionManager = sessionManager;
     }
 

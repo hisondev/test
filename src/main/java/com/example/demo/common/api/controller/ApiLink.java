@@ -43,16 +43,13 @@ import javax.servlet.http.HttpServletRequest;
  * @author Hani son
  * @version 1.0.0
  */
-
-@RestController
-@RequestMapping("/hison-api-link")
-public final class ApiController {
+public class ApiLink {
     @Autowired
     private ApplicationContext applicationContext;
 
     private final ApiHandler handler;
 
-    public ApiController() {
+    public ApiLink() {
         this.handler = ApiHandlerFactory.getHandler();
     }
 

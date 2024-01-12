@@ -6,7 +6,7 @@
     <title>Document</title>
     <script src="hison.js"></script>
     <script src="dataModel.js"></script>
-    <script src="ApiLink.js"></script>
+    <script src="apiLink.js"></script>
     <script>
         Hison.data.convertObject = function(object) {
             if (object instanceof Date) {
@@ -33,7 +33,7 @@
                 }
             }
         };
-
+        Hison.link.domain = 'localhost:8082';
         var cachingModule = newCachingModule();
 
         // JavaScript fetch API

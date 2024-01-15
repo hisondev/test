@@ -53,14 +53,6 @@ var Hison ={};
     /******************************************
      * Utils
      ******************************************/
-    var _chkStr = function(...strs) {
-        strs.forEach(str => {
-            if (typeof str !== 'string') {
-                throw new Error('The input must be a string');
-            }
-        });
-    };
-
     Hison.utils = {};
     //Boolean
     //문자열이 영문으로만 이루어져 있으면 true를 반환한다.
@@ -80,7 +72,7 @@ var Hison ={};
         return /^[0-9!@#$%^&*()_+\\-=\[\]{};':"\\|,.<>\/?~]+$/.test(str);
     };
     //문자열이 특수문자를 포함하고 있으면 true를 반환한다.
-    Hison.utils.isHasSymbols = function(str) {
+    Hison.utils.isIncludeSymbols = function(str) {
         return /[!@#$%^&*()_+\\-=\[\]{};':"\\|,.<>\/?~]/.test(str);
     };
     //문자열이 영문 소문자로만 이루어져 있으면 true를 반환한다.
@@ -129,7 +121,7 @@ var Hison ={};
     Hison.utils.isObject = function(obj) {
         return obj !== null && typeof obj === 'object' && !Array.isArray(obj) && obj.constructor === Object;
     };
-    //파라메터 객체의 각 년월일 값이 날짜 형식이면 true를 반환한다.(1600.01.01 ~ 9999.12.31)
+    //파라메터 객체의 각 년월일 값이 날짜 형식이면 true를 반환한다.(100.01.01 ~ 9999.12.31)
     Hison.utils.isDate = function(dateObj) {
         var yyyy = dateObj.y;
         var mm = dateObj.m;
@@ -137,6 +129,10 @@ var Hison ={};
 
         var result = true;
         try {
+            if(!Hison.utils.isInteger(yyyy) || !Hison.utils.isInteger(mm) || !Hison.utils.isInteger(dd)) {
+                return false;
+            }
+
             if(!yyyy) {
                 return false;
             }
@@ -151,13 +147,20 @@ var Hison ={};
                 dd = "0" + dd;
             }
 
-            var y = parseInt(yyyy, 10),
-                m = parseInt(mm, 10),
-                d = parseInt(dd, 10);
+            if(Hison.utils.getToNumber(yyyy+mm+dd) < 16000101) {
+                var date = new Date(Hison.utils.getToNumber(yyyy), Hison.utils.getToNumber(mm) - 1, Hison.utils.getToNumber(dd));
+                if (date.getFullYear() !== Hison.utils.getToNumber(yyyy) || date.getMonth() !== Hison.utils.getToNumber(mm) - 1 || date.getDate() !== Hison.utils.getToNumber(dd)) {
+                    return false;
+                }
+                return true;
+            }
+            else {
+                var dateRegex = /^(?=\d)(?:(?:31(?!.(?:0?[2469]|11))|(?:30|29)(?!.0?2)|29(?=.0?2.(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00)))(?:\x20|$))|(?:2[0-8]|1\d|0?[1-9]))([-.\/])(?:1[012]|0?[1-9])\1(?:1[6-9]|[2-9]\d)?\d\d(?:(?=\x20\d)\x20|$))?(((0?[1-9]|1[012])(:[0-5]\d){0,2}(\x20[AP]M))|([01]\d|2[0-3])(:[0-5]\d){1,2})?$/;
+                result = dateRegex.test(dd+'-'+mm+'-'+yyyy);
+            }
             
-            var dateRegex = /^(?=\d)(?:(?:31(?!.(?:0?[2469]|11))|(?:30|29)(?!.0?2)|29(?=.0?2.(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00)))(?:\x20|$))|(?:2[0-8]|1\d|0?[1-9]))([-.\/])(?:1[012]|0?[1-9])\1(?:1[6-9]|[2-9]\d)?\d\d(?:(?=\x20\d)\x20|$))?(((0?[1-9]|1[012])(:[0-5]\d){0,2}(\x20[AP]M))|([01]\d|2[0-3])(:[0-5]\d){1,2})?$/;
-            result = dateRegex.test(d+'-'+m+'-'+y);
         } catch (err) {
+            console.log(err);
             result = false;
         }    
         return result;
@@ -312,12 +315,18 @@ var Hison ={};
         var regex = /^070-\d{4}-\d{4}$/;
         return regex.test(telNoStr);
     };
+    //파라메터 문자열 값이 고객센터 전화번호(한국 기준)형식이면 true를 반환한다.
+    Hison.utils.isCSTelNo = function(telNoStr) {
+        var regex = /^\d{4}-\d{4}$/;
+        return regex.test(telNoStr);
+    };
     //파라메터 문자열 값이 전화번호(지역 or 모바일 or 인터넷)형식이면 true를 반환한다.
     Hison.utils.isTelNo = function(telNoStr) {
         var result = false;
         if(Hison.utils.isLocalTelNo(telNoStr)) result = true;
         if(Hison.utils.isCellTelNo(telNoStr)) result = true;
         if(Hison.utils.isInternetTelNo(telNoStr)) result = true;
+        if(Hison.utils.isCSTelNo(telNoStr)) result = true;
         return result;
     };
     
@@ -412,20 +421,20 @@ var Hison ={};
         }
     };
     //해당 월의 영문표기를 가져온다.
-    Hison.utils.getMonthName = function(m, isFullName) {
+    Hison.utils.getMonthName = function(month, isFullName) {
         if (isFullName !== false) {
             isFullName = true;
         }
-        m = parseInt(m, 10);
+        month = parseInt(month, 10);
 
         var monthsFullName = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
         var monthsShortName = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-        if (m < 1 || m > 12) {
+        if (month < 1 || month > 12) {
             throw new Error("Month must be between 1 and 12");
         }
 
-        return isFullName ? monthsFullName[m - 1] : monthsShortName[m - 1];
+        return isFullName ? monthsFullName[month - 1] : monthsShortName[month - 1];
     };
     //파라메터의 날짜 문자열을 파라메터 포맷의 형식으로 가져온다. default는 
     Hison.utils.getDateWithFormat = function(datetimeObj, format) {
@@ -791,18 +800,17 @@ var Hison ={};
         }
     };
     //해당 날짜의 요일을 반환한다.
-    Hison.utils.getDayOfWeek = function(datetimeObj, dayType) {
+    Hison.utils.getDayOfWeek = function(dateObj, dayType) {
         // 필수 파라미터 검증
-        if (!datetimeObj.y || !datetimeObj.m || !datetimeObj.d) {
-            throw new Error("Required parameters have not been entered.");
+        if (!dateObj.y || !dateObj.m || !dateObj.d) {
+            return '';
         }
         if(!dayType) dayType = "";
 
-        if(!Hison.utils.isDate(datetimeObj)) throw new Error("Please input a valid date.");
-        if(!Hison.utils.isTime(datetimeObj)) throw new Error("Please input a valid date.");
+        if(!Hison.utils.isDate(dateObj)) return '';
     
         // 날짜 객체 생성
-        var date = new Date(datetimeObj.y, datetimeObj.m - 1, datetimeObj.d);
+        var date = new Date(dateObj.y, dateObj.m - 1, dateObj.d);
         var dayOfWeek = date.getDay();
     
         // dayType에 따른 요일 반환
@@ -822,10 +830,15 @@ var Hison ={};
         }
     };    
     //해당 연월의 마지막 일자를 반환한다.
-    Hison.utils.getLastDay = function(yyyy, mm) {
-        var nextMonthFirstDay = new Date(yyyy, mm, 1);
+    Hison.utils.getLastDay = function(dateObj) {
+        if (!dateObj.y || !dateObj.m) {
+            return '';
+        }
+        dateObj.d = 1;
+        if(!Hison.utils.isDate(dateObj)) return '';
+        var nextMonthFirstDay = new Date(dateObj.y, dateObj.m, 1);
         nextMonthFirstDay.setDate(0);
-        return nextMonthFirstDay.getDate().toString();
+        return nextMonthFirstDay.getDate();
     };
     //현재 년도를 반환한다.
     Hison.utils.getSysYear = function(format) {
@@ -877,17 +890,6 @@ var Hison ={};
         var currentDate = new Date(); // 현재 날짜 및 시간을 얻음
         return Hison.utils.getDayOfWeek({y:currentDate.getFullYear(),m:currentDate.getMonth() + 1,d:currentDate.getDate()}, dayType);
     };
-    //현재 시분초를 반환한다. default hh:mm:ss
-    Hison.utils.getSysTime = function(format) {
-        if(!format) format = "";
-        var currentDate = new Date();
-        switch (format.toLowerCase()) {
-            case 'hhmmss':
-                return currentDate.getHours().toString().padStart(2, '0') + currentDate.getMinutes().toString().padStart(2, '0') + currentDate.getSeconds().toString().padStart(2, '0');
-            default:
-                return currentDate.getHours().toString().padStart(2, '0') + ":" + currentDate.getMinutes().toString().padStart(2, '0') + ":" + currentDate.getSeconds().toString().padStart(2, '0');
-        }
-    };
     //현재 시각은 반환한다.
     Hison.utils.getSysHour = function(format) {
         if(!format) format = "";
@@ -904,7 +906,7 @@ var Hison ={};
         if(!format) format = "";
         var currentDate = new Date();
         switch (format.toLowerCase()) {
-            case 'hhmm':
+            case 'hhmi':
                 return currentDate.getHours().toString().padStart(2, '0') + "" + currentDate.getMinutes().toString().padStart(2, '0');
             default:
                 return currentDate.getHours().toString().padStart(2, '0') + ":" + currentDate.getMinutes().toString().padStart(2, '0');
@@ -915,7 +917,7 @@ var Hison ={};
         if(!format) format = "";
         var currentDate = new Date();
         switch (format.toLowerCase()) {
-            case 'mm':
+            case 'mi':
                 return currentDate.getMinutes().toString().padStart(2, '0');
             default:
                 return currentDate.getMinutes().toString();
@@ -932,9 +934,20 @@ var Hison ={};
                 return currentDate.getSeconds().toString();
         }
     };
+    //현재 시분초를 반환한다. default hh:mm:ss
+    Hison.utils.getSysTime = function(format) {
+        if(!format) format = "";
+        var currentDate = new Date();
+        switch (format.toLowerCase()) {
+            case 'hhmiss':
+                return currentDate.getHours().toString().padStart(2, '0') + currentDate.getMinutes().toString().padStart(2, '0') + currentDate.getSeconds().toString().padStart(2, '0');
+            default:
+                return currentDate.getHours().toString().padStart(2, '0') + ":" + currentDate.getMinutes().toString().padStart(2, '0') + ":" + currentDate.getSeconds().toString().padStart(2, '0');
+        }
+    };
     //현재 날짜를 반환한다.
     Hison.utils.getSysDate = function(format) {
-        if(!format) format = "yyyy-mm-dd hh:mi:ss";
+        if(!format) format = "mn ddth, yyyy hh:mi:ss";
         var currentDate = new Date(); // 현재 날짜 및 시간을 얻음
         return Hison.utils.getDateWithFormat(
             {
@@ -976,9 +989,10 @@ var Hison ={};
         var factor = Math.pow(10, precision);
         return Math.trunc(num * factor) / factor;
     };
-    
+
     //문자열의 Byte길이를 반환한다.
     Hison.utils.getByteLength = function(str) {
+        str = Hison.utils.getToString(str);
         var byteLength = 0;
         for (var i = 0; i < str.length; i++) {
             var charCode = str.charCodeAt(i);
@@ -996,6 +1010,7 @@ var Hison ={};
     };
     //파라메터 문자열을 파라메터 Byte로 자른 값을 반환한다.
     Hison.utils.getCutByteLength = function(str, cutByte) {
+        str = Hison.utils.getToString(str);
         var byteLength = 0;
         var cutIndex = str.length;
     
@@ -1015,31 +1030,141 @@ var Hison ={};
                 break;
             }
         }
-    
         return str.substring(0, cutIndex);
     };
     //파라메터 문자열에 사이사이 일정한 공백을 추가하여 길이 규격을 맞춘 값을 반환한다.
-    Hison.utils.getStringLenForm = function() {};
+    Hison.utils.getStringLenForm = function(str, length) {
+        str = Hison.utils.getToString(str);
+        var strLength = str.length;
+        if (strLength >= length) {
+            return str;
+        }
+        var totalSpaces = length - strLength;
+        var gaps = strLength - 1;
+        var spacePerGap = Math.floor(totalSpaces / gaps);
+        var extraSpaces = totalSpaces % gaps;
+        var result = '';
+        for (var i = 0; i < gaps; i++) {
+            result += str[i];
+            result += ' '.repeat(spacePerGap + (i < extraSpaces ? 1 : 0));
+        }
+        result += str[strLength - 1];
+        return result;
+    };
     //파라메터 문자열 왼쪽에 파라메터 특정 문자를 반복해 채운 값을 반환한다.
-    Hison.utils.getLpad = function() {};
+    Hison.utils.getLpad = function(str, padStr, repeat) {
+        str = Hison.utils.getToString(str);
+        padStr = Hison.utils.getToString(padStr);
+
+        var pad = padStr.repeat((repeat - str.length) / padStr.length);
+        return pad + str;
+    };
     //파라메터 문자열 오른쪽에 파라메터 특정 문자를 반복해 채운 값을 반환한다.
-    Hison.utils.getRpad = function() {};
+    Hison.utils.getRpad = function(str, padStr, repeat) {
+        str = Hison.utils.getToString(str);
+        padStr = Hison.utils.getToString(padStr);
+
+        var pad = padStr.repeat((repeat - str.length) / padStr.length);
+        return str + pad;
+    };
     //파라메터 문자열 좌우 공백을 제거한 값을 반환한다.
-    Hison.utils.getTrim = function() {};
+    Hison.utils.getTrim = function(str) {
+        str = Hison.utils.getToString(str);
+        return str.trim();
+    };
     //파라메터 문자열의 파라메터 문자일부를 파라메터 문자열로 치환한 값을 반환한다.
-    Hison.utils.getRplaceAll = function() {};
+    Hison.utils.getReplaceAll = function(str, searchStr, replaceStr) {
+        str = Hison.utils.getToString(str);
+        searchStr = Hison.utils.getToString(searchStr);
+        replaceStr = Hison.utils.getToString(replaceStr);
+        return str.split(searchStr).join(replaceStr);
+    };
     //값이 undifined, null인 경우 지정된 값을 반환한다.
-    Hison.utils.nvl = function() {};
+    Hison.utils.nvl = function(val, defaultValue) {
+        return val == null ? defaultValue : val;
+    };
     //파라메터 값을 파라메터 숫자 형식으로 변환한 값을 반환한다.
-    Hison.utils.getNumberFormat = function() {};
-    //파라메터 값을 파라메터 마스크 형식으로 변환한 값을 반환한다.
-    Hison.utils.getMask = function() {};
+    Hison.utils.getNumberFormat = function(value, format) {
+        if (!Hison.utils.isNumeric(value)) {
+            throw new Error("Invalid number");
+        }
+        var regex = /^(.*?)([#0,.]+)(.*?)$/;
+        var matches = format.match(regex);
+
+        if (!matches) {
+            throw new Error("Invalid format");
+        }
+
+        var prefix = matches[1];
+        var numberFormat = matches[2];
+        var suffix = matches[3];
+        var intergerFormat = numberFormat.split('.')[0];
+        var decimalFormat = numberFormat.split('.').length > 1 ? numberFormat.split('.')[1] : '';
+
+        if(suffix === '%') value = value * 100;
+
+        numStr = Hison.utils.getToString(value);
+        var isNegative = numStr[0] === '-';
+        var numStr = isNegative ? numStr.substring(1) : numStr;
+        var interger = numStr.split('.')[0];
+        var decimal = numStr.split('.').length > 1 ? numStr.split('.')[1] : '';
+        
+        var result;
+
+        decimal = Hison.utils.getToFloat('0.' + decimal)
+                .toLocaleString('en',{
+                    minimumFractionDigits: decimalFormat.lastIndexOf('0') + 1,
+                    maximumFractionDigits: decimalFormat.length
+                    });
+        if(decimal === '0') decimal = '';
+        else decimal = decimal.substring(1);
+
+        switch (intergerFormat) {
+            case "#,###":
+                if(Hison.utils.getToNumber(interger) === 0) {
+                    result = decimal;
+                }
+                else {
+                    interger = Hison.utils.getToFloat(interger).toLocaleString('en');
+                    result = interger + decimal;
+                }
+                break;
+            case "#,##0":
+                interger = Hison.utils.getToFloat(interger).toLocaleString('en');
+                result = interger + decimal;
+                break;
+            case "#":
+                if(Hison.utils.getToNumber(interger) === 0) {
+                    result = decimal;
+                }
+                else {
+                    result = interger + decimal;
+                }
+                break;
+            case "0":
+                result = interger + decimal;
+                break;
+            default:
+                throw new Error("Invalid format");
+        }
+    
+        return prefix + result + suffix;
+    };
     //파라메터 문자열의 모든 문자를 제거한 값을 반환한다.
-    Hison.utils.getRemoveAlpha = function() {};
+    Hison.utils.getRemoveExceptNumbers = function(str) {
+        str = Hison.utils.getToString(str);
+        return str.replace(/[^0-9]/g, ''); // 숫자를 제외한 모든 문자를 제거
+    };
     //파라메터 문자열의 모든 숫자를 제거한 값을 반환한다.
-    Hison.utils.getRemoveNumber = function() {};
+    Hison.utils.getRemoveNumbers = function(str) {
+        str = Hison.utils.getToString(str);
+        return str.replace(/[0-9]/g, ''); // 모든 숫자를 제거
+    };
     //파라메터 문자열의 반전값을 반환한다.
-    Hison.utils.getReverse = function() {};
+    Hison.utils.getReverse = function(str) {
+        str = Hison.utils.getToString(str);
+        return str.split('').reverse().join('');
+    };
     
     //파라메터 값에 대해 Boolean타입으로 형변환 한 값을 반환한다. (0을 제외한 모든 숫자(문자열숫자) 또는 true, 'true/TRUE', 'y/Y', 'yes/YES', 'check/CHECK', 'c/C', '참'이면 true)
     Hison.utils.getToBoolean = function(val) {
@@ -1093,12 +1218,80 @@ var Hison ={};
     };
     
     //파라메터 URL 또는 파일명에서 확장자를 추출한 값을 반환한다.
-    Hison.utils.getFileExtension = function() {};
-    //파라메터 URL 또는 파일명에서 확장자를 제외한 파일명 값을 반환한다.
-    Hison.utils.getFileName = function() {};
+    Hison.utils.getFileExtension = function(str) {
+        str = Hison.utils.getToString(str);
     
-    //파라메터 값을 파라메터 문자포맷으로 디코딩한 값을 반환한다.
-    Hison.utils.getDecode = function() {};
-    //파라메터 값을 파라메터 문자포맷으로 인코딩한 값을 반환한다.
-    Hison.utils.getEncode = function() {};
+        var extension = str.split('.').pop();
+        if (extension === str) {
+            return ''; // 확장자가 없는 경우
+        }
+        return extension;
+    };
+    //파라메터 URL 또는 파일명에서 확장자를 제외한 파일명 값을 반환한다.
+    Hison.utils.getFileName = function(str) {
+        str = Hison.utils.getToString(str);
+    
+        var fileName = str.split('/').pop(); // 경로에서 파일명만 추출
+        var lastDotIndex = fileName.lastIndexOf('.');
+    
+        if (lastDotIndex === -1) return fileName; // 마침표가 없는 경우
+        return fileName.substring(0, lastDotIndex); // 마지막 마침표 이전까지의 문자열 반환
+    };
+    
+    //파라메터 값을 파라메터 문자포맷으로 Base64 디코딩한 값을 반환한다.
+    //var decoded = Hison.utils.getDecodeBase64(encoded);
+    //console.log(decoded); // Hello World!
+    Hison.utils.getDecodeBase64 = function(str) {
+        str = Hison.utils.getToString(str);
+        return decodeURIComponent(Array.prototype.map.call(atob(str), function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+    };
+    //파라메터 값을 파라메터 문자포맷으로 Base64 인코딩한 값을 반환한다.
+    //var encoded = Hison.utils.getEncodeBase64("Hello World!");
+    //console.log(encoded); // SGVsbG8gV29ybGQh
+    Hison.utils.getEncodeBase64 = function(str) {
+        str = Hison.utils.getToString(str);
+        return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(_, p1) {
+            return String.fromCharCode('0x' + p1);
+        }));
+    };
+
+    Hison.utils.deepCopy = function(object, visited) {
+        if (object === null || typeof object !== 'object') {
+            return object;
+        }
+        if (object.constructor !== Object && object.constructor !== Array) {
+            if(object.isDataWrapper || object.isDataModel) {
+                return object.clone();
+            } else {
+                throw new Error("The object does not support deep copy.");
+            }
+        }
+        if (!visited) visited = [];
+        for (var i = 0; i < visited.length; i++) {
+            if (visited[i].source === object) {
+                return visited[i].copy;
+            }
+        }
+        var copy;
+        if (Array.isArray(object)) {
+            copy = [];
+            visited.push({ source: object, copy: copy });
+    
+            for (var j = 0; j < object.length; j++) {
+                copy[j] = Hison.utils.deepCopy(object[j], visited);
+            }
+        } else {
+            copy = {};
+            visited.push({ source: object, copy: copy });
+    
+            for (var key in object) {
+                if (object.hasOwnProperty(key)) {
+                    copy[key] = Hison.utils.deepCopy(object[key], visited);
+                }
+            }
+        }
+        return copy;
+    };
 })();

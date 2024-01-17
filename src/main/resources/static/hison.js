@@ -1,3 +1,18 @@
+/**
+ * The Hison object is a container for configuration values and methods required for using the hisondev solution.
+ * It includes the following sub-objects:
+ * 
+ * - Hison.const: Contains constants required for overall configuration.
+ * - Hison.data: Provides functionalities for DataWrapper and DataModel.
+ * - Hison.link: Offers features necessary for ApiLink.
+ * - Hison.caching: Includes functionalities for the caching module.
+ * - Hison.utils: A collection of various common utility methods.
+ * 
+ * The Hison object is finally defined in the shield.js file through the finalDefineHison() method.
+ * After its definition, it is frozen and hidden to prevent external access and modification.
+ *
+ * @namespace Hison
+ */
 var Hison ={};
 (function() {
     Hison.const.LESSOREQ_0X7FF_BYTE = 2;    //charCode <= 0x7FF
@@ -54,74 +69,348 @@ var Hison ={};
      * Utils
      ******************************************/
     Hison.utils = {};
-    //Boolean
-    //문자열이 영문으로만 이루어져 있으면 true를 반환한다.
+    /******************************************
+     * Utils Boolean
+     ******************************************/
+    /**
+     * Checks if the given string consists only of English alphabet characters.
+     * This method uses a regular expression to test whether the input string contains
+     * only letters (both uppercase and lowercase) from A to Z.
+     *
+     * @param {string} str - The string to be tested.
+     * @returns {boolean} Returns true if the string consists only of English alphabet characters; otherwise, false.
+     *
+     * @example
+     * // returns true
+     * Hison.utils.isAlpha("HelloWorld");
+     *
+     * @example
+     * // returns false
+     * Hison.utils.isAlpha("Hello World! 123");
+     */
     Hison.utils.isAlpha = function(str) {
         return /^[A-Za-z]+$/.test(str);
     };
-    //문자열이 영문과 숫자로만 이루어져 있으면 true를 반환한다.
+    /**
+     * Checks if the given string consists only of English alphabet characters and numbers.
+     * This method uses a regular expression to test whether the input string contains
+     * only letters (both uppercase and lowercase) from A to Z and numbers from 0 to 9.
+     *
+     * @param {string} str - The string to be tested.
+     * @returns {boolean} Returns true if the string consists only of English alphabet characters and numbers; otherwise, false.
+     *
+     * @example
+     * // returns true
+     * Hison.utils.isAlphaAndNumber("HelloWorld123");
+     *
+     * @example
+     * // returns false
+     * Hison.utils.isAlphaAndNumber("Hello World! 123");
+     */
     Hison.utils.isAlphaAndNumber = function(str) {
         return /^[A-Za-z0-9]+$/.test(str);
     };
-    //문자열이 숫자로만 이루어져 있으면 true를 반환한다.
+    /**
+     * Checks if the given string consists only of numbers.
+     * This method uses a regular expression to test whether the input string contains
+     * only numeric characters (0 through 9).
+     *
+     * @param {string} str - The string to be tested.
+     * @returns {boolean} Returns true if the string consists only of numbers; otherwise, false.
+     *
+     * @example
+     * // returns true
+     * Hison.utils.isNumber("1234567890");
+     *
+     * @example
+     * // returns false
+     * Hison.utils.isNumber("123ABC");
+     */
     Hison.utils.isNumber = function(str) {
         return /^[0-9]+$/.test(str);
     };
-    //문자열이 숫자와 특수문자로만 이루어져 있으면 true를 반환한다.
+    /**
+     * Checks if the given string consists only of numbers and special characters.
+     * This method uses a regular expression to test whether the input string contains
+     * only numeric characters (0 through 9) and special characters such as !@#$%^&*()_+\\-=[]{};':"\\|,.<>/?~.
+     *
+     * @param {string} str - The string to be tested.
+     * @returns {boolean} Returns true if the string consists only of numbers and special characters; otherwise, false.
+     *
+     * @example
+     * // returns true
+     * Hison.utils.isNumberSymbols("1234!@#$");
+     *
+     * @example
+     * // returns false
+     * Hison.utils.isNumberSymbols("1234ABC");
+     */
     Hison.utils.isNumberSymbols = function(str) {
         return /^[0-9!@#$%^&*()_+\\-=\[\]{};':"\\|,.<>\/?~]+$/.test(str);
     };
-    //문자열이 특수문자를 포함하고 있으면 true를 반환한다.
+    /**
+     * Checks if the given string includes any special characters.
+     * This method uses a regular expression to test whether the input string contains
+     * special characters such as !@#$%^&*()_+\\-=[]{};':"\\|,.<>/?~.
+     *
+     * @param {string} str - The string to be tested.
+     * @returns {boolean} Returns true if the string includes any special characters; otherwise, false.
+     *
+     * @example
+     * // returns true
+     * Hison.utils.isIncludeSymbols("Hello@World");
+     *
+     * @example
+     * // returns false
+     * Hison.utils.isIncludeSymbols("HelloWorld");
+     */
     Hison.utils.isIncludeSymbols = function(str) {
         return /[!@#$%^&*()_+\\-=\[\]{};':"\\|,.<>\/?~]/.test(str);
     };
-    //문자열이 영문 소문자로만 이루어져 있으면 true를 반환한다.
+    /**
+     * Checks if the given string consists only of lowercase English alphabet characters.
+     * This method uses a regular expression to test whether the input string contains
+     * only lowercase letters (a to z).
+     *
+     * @param {string} str - The string to be tested.
+     * @returns {boolean} Returns true if the string consists only of lowercase English alphabet characters; otherwise, false.
+     *
+     * @example
+     * // returns true
+     * Hison.utils.isLowerAlpha("helloworld");
+     *
+     * @example
+     * // returns false
+     * Hison.utils.isLowerAlpha("HelloWorld");
+     * 
+     * @example
+     * // returns false
+     * Hison.utils.isLowerAlpha("hello123");
+     */
     Hison.utils.isLowerAlpha = function(str) {
         return /^[a-z]+$/.test(str);
     };
-    //문자열이 영문 소문자와 숫자로만 이루어져 있으면 true를 반환한다.
+    /**
+     * Checks if the given string consists only of lowercase English alphabet characters and numbers.
+     * This method uses a regular expression to test whether the input string contains
+     * only lowercase letters (a to z) and numbers (0 through 9).
+     *
+     * @param {string} str - The string to be tested.
+     * @returns {boolean} Returns true if the string consists only of lowercase English alphabet characters and numbers; otherwise, false.
+     *
+     * @example
+     * // returns true
+     * Hison.utils.isLowerAlphaAndNumber("hello123");
+     *
+     * @example
+     * // returns false
+     * Hison.utils.isLowerAlphaAndNumber("HelloWorld123");
+     * 
+     * @example
+     * // returns false
+     * Hison.utils.isLowerAlphaAndNumber("hello@world");
+     */
     Hison.utils.isLowerAlphaAndNumber = function(str) {
         return /^[a-z0-9]+$/.test(str);
     };
-    //문자열이 영문 대문자로만 이루어져 있으면 true를 반환한다.
+    /**
+     * Checks if the given string consists only of uppercase English alphabet characters.
+     * This method uses a regular expression to test whether the input string contains
+     * only uppercase letters (A to Z).
+     *
+     * @param {string} str - The string to be tested.
+     * @returns {boolean} Returns true if the string consists only of uppercase English alphabet characters; otherwise, false.
+     *
+     * @example
+     * // returns true
+     * Hison.utils.isUpperAlpha("HELLOWORLD");
+     *
+     * @example
+     * // returns false
+     * Hison.utils.isUpperAlpha("HelloWorld");
+     * 
+     * @example
+     * // returns false
+     * Hison.utils.isUpperAlpha("HELLO123");
+     */
     Hison.utils.isUpperAlpha = function(str) {
         return /^[A-Z]+$/.test(str);
     };
-    //문자열이 영문 대문자와 숫자로만 이루어져 있으면 true를 반환한다.
+    /**
+     * Checks if the given string consists only of uppercase English alphabet characters and numbers.
+     * This method uses a regular expression to test whether the input string contains
+     * only uppercase letters (A to Z) and numbers (0 through 9).
+     *
+     * @param {string} str - The string to be tested.
+     * @returns {boolean} Returns true if the string consists only of uppercase English alphabet characters and numbers; otherwise, false.
+     *
+     * @example
+     * // returns true
+     * Hison.utils.isUpperAlphaAndNumber("HELLO123");
+     *
+     * @example
+     * // returns false
+     * Hison.utils.isUpperAlphaAndNumber("HelloWorld123");
+     * 
+     * @example
+     * // returns false
+     * Hison.utils.isUpperAlphaAndNumber("HELLO@123");
+     */
     Hison.utils.isUpperAlphaAndNumber = function(str) {
         return /^[A-Z0-9]+$/.test(str);
     };
-    //파라메터 값이 유효한 숫자이면 true를 반환한다.
+    /**
+     * Checks if the given parameter is a valid number.
+     * This method uses `isNaN` and `isFinite` to determine if the input is a number and is finite.
+     * `isNaN` checks whether the value is NaN (Not-a-Number), and `isFinite` checks if the number is finite.
+     *
+     * @param {number} num - The value to be tested.
+     * @returns {boolean} Returns true if the value is a valid finite number; otherwise, false.
+     *
+     * @example
+     * // returns true
+     * Hison.utils.isNumeric(123);
+     * 
+     * @example
+     * // returns true
+     * Hison.utils.isNumeric(-123.456);
+     * 
+     * @example
+     * // returns false
+     * Hison.utils.isNumeric(Infinity);
+     */
     Hison.utils.isNumeric = function(num) {
         return !isNaN(num) && isFinite(num);
     };
-    //파라메터 값이 정수이면 true를 반환한다.
+    /**
+     * Checks if the given parameter is an integer.
+     * This method first uses `Hison.utils.isNumeric` to check if the input is a valid number.
+     * If it is a valid number, it then uses `Number.isInteger` to check if the number is an integer.
+     *
+     * @param {number} num - The value to be tested.
+     * @returns {boolean} Returns true if the value is an integer; otherwise, false.
+     *
+     * @example
+     * // returns true
+     * Hison.utils.isInteger(123);
+     *
+     * @example
+     * // returns false
+     * Hison.utils.isInteger(123.456);
+     */
     Hison.utils.isInteger = function(num) {
         if(!Hison.utils.isNumeric(num)) return false;
         num = Number(num);
         return Number.isInteger(num);
     };
-    //파라메터 값이 양의 정수이면 true를 반환한다.
+    /**
+     * Checks if the given parameter is a positive integer.
+     * This method first uses `Hison.utils.isNumeric` to check if the input is a valid number.
+     * If it is a valid number, it then uses `Number.isInteger` to check if the number is an integer,
+     * and additionally checks if the number is greater than 0 to determine if it's positive.
+     *
+     * @param {number} num - The value to be tested.
+     * @returns {boolean} Returns true if the value is a positive integer; otherwise, false.
+     *
+     * @example
+     * // returns true
+     * Hison.utils.isPositiveInteger(123);
+     *
+     * @example
+     * // returns false
+     * Hison.utils.isPositiveInteger(-123);
+     *
+     * @example
+     * // returns false
+     * Hison.utils.isPositiveInteger(0);
+     */
     Hison.utils.isPositiveInteger = function(num) {
         if(!Hison.utils.isNumeric(num)) return false;
         num = Number(num);
         return Number.isInteger(num) && num > 0;
     };
-    //파라메터 값이 음의 정수이면 true를 반환한다.
+    /**
+     * Checks if the given parameter is a negative integer.
+     * This method first uses `Hison.utils.isNumeric` to check if the input is a valid number.
+     * If it is a valid number, it then uses `Number.isInteger` to check if the number is an integer,
+     * and additionally checks if the number is less than 0 to determine if it's negative.
+     *
+     * @param {number} num - The value to be tested.
+     * @returns {boolean} Returns true if the value is a negative integer; otherwise, false.
+     *
+     * @example
+     * // returns true
+     * Hison.utils.isNegativeInteger(-123);
+     *
+     * @example
+     * // returns false
+     * Hison.utils.isNegativeInteger(123);
+     */
     Hison.utils.isNegativeInteger = function(num) {
         if (!Hison.utils.isNumeric(num)) return false;
         num = Number(num);
         return Number.isInteger(num) && num < 0;
-    };    
-    //파라메터 값이 배열이면 true를 반환한다.
+    };
+    /**
+     * Checks if the given parameter is an array.
+     * This method uses `Array.isArray` to determine if the input is an instance of an array.
+     * Additionally, it checks the constructor of the input to ensure it's specifically an Array.
+     *
+     * @param {any} arr - The value to be tested.
+     * @returns {boolean} Returns true if the value is an array; otherwise, false.
+     * @example
+     * // returns true
+     * Hison.utils.isArray([1, 2, 3]);
+     * @example
+     * // returns false
+     * Hison.utils.isArray({ a: 1, b: 2 });
+     */
     Hison.utils.isArray = function(arr) {
         return Array.isArray(arr) && arr.constructor === Array;
-    };    
-    //파라메터 값이 키-값 쌍 객체이면 true를 반환한다.
+    };
+    /**
+     * Checks if the given parameter is an object consisting of key-value pairs.
+     * This method determines if the input is an object by checking its type.
+     * It also ensures the input is not null, not an array, and is specifically a JavaScript Object.
+     *
+     * @param {any} obj - The value to be tested.
+     * @returns {boolean} Returns true if the value is an object (key-value pairs); otherwise, false.
+     *
+     * @example
+     * // returns true
+     * Hison.utils.isObject({ a: 1, b: 2 });
+     *
+     * @example
+     * // returns false
+     * Hison.utils.isObject([1, 2, 3]);
+     *
+     * @example
+     * // returns false
+     * Hison.utils.isObject(new Date());
+     */
     Hison.utils.isObject = function(obj) {
         return obj !== null && typeof obj === 'object' && !Array.isArray(obj) && obj.constructor === Object;
     };
-    //파라메터 객체의 각 년월일 값이 날짜 형식이면 true를 반환한다.(100.01.01 ~ 9999.12.31)
+    /**
+     * Checks if the given date object's year, month, and day values form a valid date.
+     * This method validates dates in the range of 100.01.01 to 9999.12.31.
+     * Dates from 1600.01.01 to 9999.12.31 are checked using a regular expression.
+     * Dates before 1600.01.01 are validated using JavaScript's Date object.
+     *
+     * The method first checks if the year, month, and day are valid integers.
+     * Then it constructs a date string and validates it based on the above criteria.
+     *
+     * @param {object} dateObj - The date object to be tested, with properties 'y' for year, 'm' for month, and 'd' for day.
+     * @returns {boolean} Returns true if the date object represents a valid date within the allowed range; otherwise, false.
+     * 
+     * @example
+     * // returns true
+     * Hison.utils.isDate({y:2000, m:2, d:29});
+     * 
+     * @example
+     * // returns false
+     * Hison.utils.isDate({y:2001, m:2, d:29});
+     */
     Hison.utils.isDate = function(dateObj) {
         var yyyy = dateObj.y;
         var mm = dateObj.m;
@@ -160,12 +449,27 @@ var Hison ={};
             }
             
         } catch (err) {
-            console.log(err);
             result = false;
         }    
         return result;
     };
-    //파라메터 객체의 각 시분초 값이 시간 형식이면 true를 반환한다.
+    /**
+     * Checks if the given time object's hour, minute, and second values form a valid time.
+     * This method first validates if the hour (hh), minute (mi), and second (s) are valid integers.
+     * It then checks each time part (hour, minute, second) to ensure they are within the valid range.
+     * Hours must be between 0 and 23, minutes and seconds must be between 0 and 59.
+     *
+     * @param {object} timeObj - The time object to be tested, with properties 'h' for hour, 'mi' for minute, and 's' for second.
+     * @returns {boolean} Returns true if the time object represents a valid time; otherwise, false.
+     *
+     * @example
+     * // returns true
+     * Hison.utils.isTime({ h: "12", mi: "30", s: "45" });
+     *
+     * @example
+     * // returns false
+     * Hison.utils.isTime({ h: "24", mi: "00", s: "00" });
+     */
     Hison.utils.isTime = function(timeObj) {
         var hh = timeObj.h;
         var mm = timeObj.mi;
@@ -184,60 +488,142 @@ var Hison ={};
     
         return isValidTimePart(hh, 23) && isValidTimePart(mm, 59) && isValidTimePart(ss, 59);
     };
-    //파라메터 문자열 값이 날짜 시간 형식이면 true를 반환한다.
+    /**
+     * Checks if the given parameter object represents a valid date and time.
+     * This method validates a datetime object by separately checking the date and time components.
+     * It uses `Hison.utils.isDate` to validate the date part (year, month, day)
+     * and `Hison.utils.isTime` to validate the time part (hour, minute, second).
+     *
+     * @param {object} datetimeObj - The datetime object to be tested, with properties 'y' for year, 'm' for month, 'd' for day, 'h' for hour, 'mi' for minute, and 's' for second.
+     * @returns {boolean} Returns true if both the date and time parts of the object are valid; otherwise, false.
+     *
+     * @example
+     * // returns true
+     * Hison.utils.isDatetime({ y: 2020, m: 12, d: 25, h: 10, mi: 30, s: 45 });
+     *
+     * @example
+     * // returns false
+     * Hison.utils.isDatetime({ y: 2020, m: 13, d: 25, h: 10, mi: 30, s: 45 });
+     */
     Hison.utils.isDatetime = function(datatimeObj) {
         if(!Hison.utils.isDate(datatimeObj.y, datatimeObj.m, datatimeObj.d)) return false;
         if(!Hison.utils.isTime(datatimeObj.h, datatimeObj.mi, datatimeObj.s)) return false;
         return true;
     };
-    //파라메터 문자열 값이 메일 형식이면 true를 반환한다.
+    /**
+     * Checks if the given string is in a valid email format.
+     * This method uses a regular expression to validate the email string. 
+     * The pattern checks for a standard email format which includes alphanumeric characters, 
+     * underscores, hyphens, and periods before the '@' symbol, followed by a domain name 
+     * and a domain suffix of 2 or more characters.
+     *
+     * @param {string} emailStr - The email string to be tested.
+     * @returns {boolean} Returns true if the string is a valid email format; otherwise, false.
+     *
+     * @example
+     * // returns true
+     * Hison.utils.isEmail("example@test.com");
+     *
+     * @example
+     * // returns false
+     * Hison.utils.isEmail("example@.com");
+     */
     Hison.utils.isEmail = function(emailStr) {
         var emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z0-9-]{2,}$/;
         return emailPattern.test(emailStr);
     };
-    //파라메터 문자열 값이 URL 형식이면 true를 반환한다.
+    /**
+     * Checks if the given string is in a valid URL format.
+     * This method uses a regular expression to validate the URL string.
+     * The pattern checks for standard URL formats, including http and https protocols,
+     * as well as ftp, followed by a valid domain structure.
+     * The pattern is case-insensitive to accommodate URL variations.
+     *
+     * @param {string} urlStr - The URL string to be tested.
+     * @returns {boolean} Returns true if the string is a valid URL format; otherwise, false.
+     *
+     * @example
+     * // returns true
+     * Hison.utils.isURL("https://www.example.com");
+     *
+     * @example
+     * // returns true
+     * Hison.utils.isURL("ftp://example.com/path/file.txt");
+     *
+     * @example
+     * // returns false
+     * Hison.utils.isURL("www.example.com");
+     */
     Hison.utils.isURL = function(urlStr) {
         var urlPattern = /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/i;
         return urlPattern.test(urlStr);
     };
-    //파라메터 문자열 값이 파라메터 Mask형식이면 true를 반환한다.
+    /**
+     * Checks if the given string matches the specified mask format.
+     * This method compares each character of the input string against the corresponding character in the mask string.
+     * The mask format can include:
+     * - 'A' for uppercase alphabetic characters.
+     * - 'a' for lowercase alphabetic characters.
+     * - '9' for numeric characters.
+     * Any other character in the mask must match exactly in the input string.
+     *
+     * @param {string} str - The string to be tested.
+     * @param {string} maskStr - The mask string that defines the required format.
+     * @returns {boolean} Returns true if the string matches the mask format; otherwise, false.
+     *
+     * @example
+     * // returns true
+     * Hison.utils.isValidMask("Abc-123", "Aaa-999");
+     *
+     * @example
+     * // returns false
+     * Hison.utils.isValidMask("abc-123", "Aaa-999");
+     */
     Hison.utils.isValidMask = function(str, maskStr) {
-        // 문자열과 마스크의 길이가 다르면 false를 반환
         if (str.length !== maskStr.length) {
             return false;
         }
     
-        // 각 문자를 순회하며 마스크에 맞는지 확인
         for (var i = 0; i < str.length; i++) {
             var char = str.charAt(i);
             var maskChar = maskStr.charAt(i);
     
             switch (maskChar) {
                 case 'A':
-                    // 대문자 알파벳이어야 함
                     if (char < 'A' || char > 'Z') return false;
                     break;
                 case 'a':
-                    // 소문자 알파벳이어야 함
                     if (char < 'a' || char > 'z') return false;
                     break;
                 case '9':
-                    // 숫자여야 함
                     if (isNaN(parseInt(char))) return false;
                     break;
                 default:
-                    // 다른 문자는 마스크 문자와 정확히 일치해야 함
                     if (char !== maskChar) return false;
             }
         }
         return true;
     };
-    //파라메터 값이 사업자등록번호(한국 기준)형식이면 true를 반환한다.
     /**
-     주어진 문자열이 'xxx-xx-xxxxx' 형식에 맞는지 정규 표현식으로 검사합니다.
-     하이픈을 제거하고 각 자리 숫자를 배열로 변환합니다.
-     사업자등록번호의 유효성을 검사하는 계산을 수행합니다. 이 계산은 각 자리의 숫자에 특정 가중치를 곱한 값들의 합을 10으로 나눈 나머지를 사용합니다.
-     마지막으로 계산된 숫자가 사업자등록번호의 마지막 숫자와 일치하는지 확인합니다.
+     * Checks if the given string is a valid Korean business registration number.
+     * The business registration number format is 'xxx-xx-xxxxx'. The method uses a regular expression
+     * to verify if the input string matches this format.
+     * It then removes hyphens and converts each digit into an array.
+     * A specific calculation is performed to validate the business registration number.
+     * This calculation involves multiplying each digit by a specific weight and summing these values,
+     * then taking the remainder when divided by 10.
+     * Finally, the method checks if the calculated number matches the last digit of the business registration number.
+     *
+     * @param {string} bizNoStr - The business registration number string to be tested.
+     * @returns {boolean} Returns true if the string is a valid Korean business registration number; otherwise, false.
+     *
+     * @example
+     * // returns true
+     * Hison.utils.isBizNo("123-45-67890");
+     *
+     * @example
+     * // returns false
+     * Hison.utils.isBizNo("123-45-67891");
      */
     Hison.utils.isBizNo = function(bizNoStr) {
         var regex = /^\d{3}-\d{2}-\d{5}$/;
@@ -245,7 +631,7 @@ var Hison ={};
             return false;
         }
     
-        bizNoStr = bizNoStr.replace(/-/g, ''); // 하이픈 제거
+        bizNoStr = bizNoStr.replace(/-/g, '');
         var arrBizNo = bizNoStr.split('').map(function(num) {
             return parseInt(num, 10);
         });
@@ -255,28 +641,70 @@ var Hison ={};
     
         return checkNum === arrBizNo[8];
     };
-    //파라메터 문자열 값이 법인등록번호 (한국 기준)형식이면 true를 반환한다.
-    //형식없이 6-7인지
+    /**
+     * Checks if the given string is a valid Korean corporate registration number.
+     * The corporate registration number format in Korea is typically '6 digits-7 digits'.
+     * This method uses a regular expression to verify if the input string matches this specific format.
+     *
+     * @param {string} corpNoStr - The corporate registration number string to be tested.
+     * @returns {boolean} Returns true if the string is a valid Korean corporate registration number format; otherwise, false.
+     *
+     * @example
+     * // returns true
+     * Hison.utils.isCorpNo("123456-1234567");
+     */
     Hison.utils.isCorpNo = function(corpNoStr) {
         var regex = /^\d{6}-\d{7}$/;
         return regex.test(corpNoStr);
     };
-    //파라메터 문자열 값이 생년월일(한국 기준)형식이면 true를 반환한다.
+    /**
+     * Checks if the given string is in a valid Korean birth date format.
+     * The birth date format in Korea is typically 'YYMMDD' (6 digits).
+     * This method uses a regular expression to verify if the input string matches this specific format.
+     * It then parses the string into year, month, and day components.
+     * Years less than '40' are considered as 2000s, otherwise as 1900s.
+     * Finally, it validates the full date using `Hison.utils.isDate` method.
+     *
+     * @param {string} birthDateStr - The birth date string to be tested.
+     * @returns {boolean} Returns true if the string is a valid birth date format; otherwise, false.
+     *
+     * @example
+     * // returns true
+     * Hison.utils.isBirthDate("850123");
+     *
+     * @example
+     * // returns false
+     * Hison.utils.isBirthDate("851332"); // Invalid day
+     */
     Hison.utils.isBirthDate = function(birthDateStr) {
         var regex = /^\d{6}$/;
         if(!regex.test(birthDateStr)) return false;
         var yy = birthDateStr.substring(0,2);
-        yy = parseInt(yy, 10) < 30 ? "20" + yy : "19" + yy;
+        yy = parseInt(yy, 10) < 40 ? "20" + yy : "19" + yy;
         var mm = birthDateStr.substring(2,4);
         var dd = birthDateStr.substring(4,6);
 
         return Hison.utils.isDate(yy, mm, dd);
     };
-    //파라메터 문자열 값이 주민등록번호(한국 기준)형식이면 true를 반환한다.
     /**
-     주어진 문자열이 'xxxxxx-xxxxxxx' 형식에 맞는지 정규 표현식으로 검사합니다. 두 번째 부분의 첫 숫자는 1, 2, 3, 또는 4여야 합니다.
-     주민등록번호 각 자리 숫자에 고유한 가중치를 곱하여 합산합니다.
-     합산한 값을 11로 나눈 나머지를 계산하고, 이를 11에서 뺀 후 다시 10으로 나눈 나머지를 계산합니다. 이렇게 계산된 숫자가 주민등록번호의 마지막 숫자와 일치해야 합니다. 
+     * Checks if the given string is a valid Korean resident registration number.
+     * The format for the resident registration number is 'xxxxxx-xxxxxxx' where the first part is the birth date
+     * and the second part begins with either 1, 2, 3, or 4.
+     * This method uses a regular expression to verify the format and the specific criteria for the second part.
+     * It then applies a unique weight to each digit of the number and calculates the sum.
+     * The sum is divided by 11, and this remainder is subtracted from 11 and again divided by 10.
+     * The final remainder should match the last digit of the resident registration number.
+     *
+     * @param {string} resNoStr - The resident registration number string to be tested.
+     * @returns {boolean} Returns true if the string is a valid Korean resident registration number; otherwise, false.
+     *
+     * @example
+     * // returns true
+     * Hison.utils.isResNo("990101-1234567");
+     *
+     * @example
+     * // returns false
+     * Hison.utils.isResNo("990101-7234567"); // Invalid format
      */
     Hison.utils.isResNo = function(resNoStr) {
         var regex = /^\d{6}-[1234]\d{6}$/;
@@ -295,32 +723,143 @@ var Hison ={};
         var lastDigit = (11 - (sum % 11)) % 10;
         return lastDigit === nums[12];
     };
-    //파라메터 문자열 값이 외국인등록번호(한국 기준)형식이면 true를 반환한다.
+    /**
+     * Checks if the given string is a valid Korean foreign resident registration number.
+     * The format for the foreign resident registration number is 'xxxxxx-xxxxxxx', similar to the Korean resident registration number,
+     * but the second part begins with either 5, 6, 7, or 8.
+     * This method uses a regular expression to verify if the input string matches this specific format.
+     *
+     * @param {string} fgnResNoStr - The foreign resident registration number string to be tested.
+     * @returns {boolean} Returns true if the string is a valid Korean foreign resident registration number; otherwise, false.
+     *
+     * @example
+     * // returns true
+     * Hison.utils.isFgnResNo("990101-5123456");
+     *
+     * @example
+     * // returns false
+     * Hison.utils.isFgnResNo("990101-3123456");
+     * // Invalid format as it doesn't start with 5, 6, 7, or 8
+     */
     Hison.utils.isFgnResNo = function(fgnResNoStr) {
         var regex = /^\d{6}-[5678]\d{6}$/;
         return regex.test(fgnResNoStr);
     };
-    //파라메터 문자열 값이 지역 전화번호(한국 기준)형식이면 true를 반환한다.
+    /**
+     * Checks if the given string is in the format of a local Korean telephone number.
+     * The format for local telephone numbers in Korea typically starts with an area code,
+     * followed by a three or four-digit exchange number, and ends with a four-digit line number.
+     * Area codes start with '02' for Seoul, or '0' followed by a 1 or 2-digit number for other regions.
+     * The format is generally 'AreaCode-Exchange-Line' (e.g., '02-1234-5678' or '031-123-4567').
+     * This method uses a regular expression to validate the format of the telephone number.
+     *
+     * @param {string} telNoStr - The telephone number string to be tested.
+     * @returns {boolean} Returns true if the string is a valid local Korean telephone number; otherwise, false.
+     *
+     * @example
+     * // returns true
+     * Hison.utils.isLocalTelNo("02-1234-5678");
+     *
+     * @example
+     * // returns false
+     * Hison.utils.isLocalTelNo("02-123-567"); // Invalid format
+     */
     Hison.utils.isLocalTelNo = function(telNoStr) {
         var regex = /^(02|0[3-9][0-9]?)-\d{3,4}-\d{4}$/;
         return regex.test(telNoStr);
     };
-    //파라메터 문자열 값이 모바일 전화번호(한국 기준)형식이면 true를 반환한다.
+    /**
+     * Checks if the given string is in the format of a Korean mobile telephone number.
+     * The format for Korean mobile numbers typically starts with a three-digit mobile carrier prefix,
+     * followed by a three or four-digit middle number, and ends with a four-digit line number.
+     * The mobile carrier prefixes include '010', '011', '016', '017', '018', and '019'.
+     * The format is generally 'CarrierPrefix-Middle-Line' (e.g., '010-1234-5678' or '011-123-4567').
+     * This method uses a regular expression to validate the format of the mobile telephone number.
+     *
+     * @param {string} telNoStr - The mobile telephone number string to be tested.
+     * @returns {boolean} Returns true if the string is a valid Korean mobile telephone number; otherwise, false.
+     *
+     * @example
+     * // returns true
+     * Hison.utils.isCellTelNo("010-1234-5678");
+     *
+     * @example
+     * // returns false
+     * Hison.utils.isCellTelNo("012-3456-7890"); // Invalid format
+     */
     Hison.utils.isCellTelNo = function(telNoStr) {
         var regex = /^(010|011|016|017|018|019)-\d{3,4}-\d{4}$/;
         return regex.test(telNoStr);
     };
-    //파라메터 문자열 값이 인터넷 전화번호(한국 기준)형식이면 true를 반환한다.
+    /**
+     * Checks if the given string is in the format of a Korean internet telephone number.
+     * Korean internet telephone numbers typically start with the prefix '070',
+     * followed by a four-digit middle number, and end with a four-digit line number.
+     * The format is generally '070-Middle-Line' (e.g., '070-1234-5678').
+     * This method uses a regular expression to validate the format of the internet telephone number.
+     *
+     * @param {string} telNoStr - The internet telephone number string to be tested.
+     * @returns {boolean} Returns true if the string is a valid Korean internet telephone number; otherwise, false.
+     *
+     * @example
+     * // returns true
+     * Hison.utils.isInternetTelNo("070-1234-5678");
+     *
+     * @example
+     * // returns false
+     * Hison.utils.isInternetTelNo("071-1234-5678"); // Invalid format
+     */
     Hison.utils.isInternetTelNo = function(telNoStr) {
         var regex = /^070-\d{4}-\d{4}$/;
         return regex.test(telNoStr);
     };
-    //파라메터 문자열 값이 고객센터 전화번호(한국 기준)형식이면 true를 반환한다.
+    /**
+     * Checks if the given string is in the format of a Korean customer service telephone number.
+     * Korean customer service numbers typically consist of two groups of four digits,
+     * separated by a hyphen (e.g., '1234-5678'). These numbers are often used for businesses
+     * and organizations to provide customer support or information services.
+     * This method uses a regular expression to validate the format of the customer service telephone number.
+     *
+     * @param {string} telNoStr - The customer service telephone number string to be tested.
+     * @returns {boolean} Returns true if the string is a valid Korean customer service telephone number; otherwise, false.
+     *
+     * @example
+     * // returns true
+     * Hison.utils.isCSTelNo("1234-5678");
+     *
+     * @example
+     * // returns false
+     * Hison.utils.isCSTelNo("123-45678"); // Invalid format
+     */
     Hison.utils.isCSTelNo = function(telNoStr) {
         var regex = /^\d{4}-\d{4}$/;
         return regex.test(telNoStr);
     };
-    //파라메터 문자열 값이 전화번호(지역 or 모바일 or 인터넷)형식이면 true를 반환한다.
+    /**
+     * Checks if the given string is in the format of any Korean telephone number type,
+     * including local, mobile, internet, or customer service numbers.
+     * This method internally utilizes other specific functions to check for each telephone number type:
+     * - Local telephone numbers (checked by Hison.utils.isLocalTelNo)
+     * - Mobile telephone numbers (checked by Hison.utils.isCellTelNo)
+     * - Internet telephone numbers (checked by Hison.utils.isInternetTelNo)
+     * - Customer service telephone numbers (checked by Hison.utils.isCSTelNo)
+     * If the given string matches any of these formats, the method returns true.
+     *
+     * @param {string} telNoStr - The telephone number string to be tested.
+     * @returns {boolean} Returns true if the string is a valid Korean telephone number of any type; otherwise, false.
+     *
+     * @example
+     * // returns true
+     * Hison.utils.isTelNo("02-1234-5678"); // Local number
+     *
+     * @example
+     * // returns true
+     * Hison.utils.isTelNo("010-1234-5678"); // Mobile number
+     *
+     * @example
+     * // returns false
+     * Hison.utils.isTelNo("123-4567"); // Invalid format
+     */
     Hison.utils.isTelNo = function(telNoStr) {
         var result = false;
         if(Hison.utils.isLocalTelNo(telNoStr)) result = true;
@@ -330,7 +869,30 @@ var Hison ={};
         return result;
     };
     
-    //날짜에 날짜를 추가한다. default는 일자 추가
+    /******************************************
+     * Utils Date
+     ******************************************/
+    /**
+     * Adds a specified amount of time to a given date object.
+     * The function accepts a date object and a value to add, with an optional type of the value (years, months, days, etc.).
+     * If no type is specified, days are added by default. The function throws errors for invalid input or date format.
+     * It adjusts the given date accordingly and returns a new date object in a structured format.
+     *
+     * @param {object} datatimeObj - The date object to which time will be added. Should contain year (y), and optionally month (m), day (d), hours (h), minutes (mi), and seconds (s).
+     * @param {number} addValue - The value to add to the date. Must be an integer.
+     * @param {string} [addType='d'] - The type of value to add ('y' for years, 'm' for months, 'd' for days, 'h' for hours, 'mi' for minutes, 's' for seconds). Default is days ('d').
+     * @returns {object} Returns a new date object with the added time.
+     *
+     * @throws {Error} Throws an error if required parameters are not entered, if addValue is not an integer, or if the input date is invalid.
+     *
+     * @example
+     * // returns a date object with 5 days added
+     * Hison.utils.addDate({ y: 2024, m: 1, d: 15 }, 5);
+     *
+     * @example
+     * // returns a date object with 3 months added
+     * Hison.utils.addDate({ y: 2024, m: 1, d: 15 }, 3, 'm');
+     */
     Hison.utils.addDate = function(datatimeObj, addValue, addType) {
         if (!datatimeObj.y || (addValue !== 0 && !addValue)) {
             throw new Error("Required parameters have not been entered.");
@@ -382,7 +944,26 @@ var Hison ={};
             s: date.getSeconds().toString().padStart(2, '0')
         };
     };
-    //두 날짜의 차이를 가져온다. default는 일자 차이
+    /**
+     * Calculates the difference between two date objects. The difference can be measured in years, months, days, hours, minutes, or seconds.
+     * The default measurement is in days if no type is specified. This function throws errors for invalid input or date format.
+     * It uses Hison.utils.isDate and Hison.utils.isTime to validate the input dates.
+     *
+     * @param {object} datetimeObj1 - The first date object for comparison. Should contain year (y), and optionally month (m), day (d), hours (h), minutes (mi), and seconds (s).
+     * @param {object} datetimeObj2 - The second date object for comparison. Should contain year (y), and optionally month (m), day (d), hours (h), minutes (mi), and seconds (s).
+     * @param {string} [diffType='d'] - The type of difference to calculate ('y' for years, 'm' for months, 'd' for days, 'h' for hours, 'mi' for minutes, 's' for seconds). Default is days ('d').
+     * @returns {number} Returns the difference between the two dates in the specified unit.
+     *
+     * @throws {Error} Throws an error if required parameters are not entered, or if the input dates are invalid.
+     *
+     * @example
+     * // returns the number of days between two dates
+     * Hison.utils.getDateDiff({ y: 2024, m: 1, d: 15 }, { y: 2024, m: 1, d: 20 });
+     *
+     * @example
+     * // returns the number of months between two dates
+     * Hison.utils.getDateDiff({ y: 2023, m: 1, d: 1 }, { y: 2024, m: 1, d: 1 }, 'm');
+     */
     Hison.utils.getDateDiff = function(datetimeObj1, datetimeObj2, diffType) {
         if (!datetimeObj1.y || !datetimeObj2.y) {
             throw new Error("Required parameters have not been entered.");
@@ -420,7 +1001,24 @@ var Hison ={};
                 return Math.floor((date2 - date1) / (24 * 60 * 60 * 1000));
         }
     };
-    //해당 월의 영문표기를 가져온다.
+    /**
+     * Retrieves the English name of a month given its numerical value. The function can return either the full name
+     * of the month or its abbreviated form. By default, it returns the full name unless specified otherwise.
+     *
+     * @param {number} month - The numerical value of the month (1 for January, 2 for February, etc.).
+     * @param {boolean} [isFullName=true] - A boolean flag to indicate whether to return the full name (true) or the abbreviated name (false) of the month.
+     * @returns {string} Returns the English name of the specified month.
+     *
+     * @throws {Error} Throws an error if the month value is not between 1 and 12.
+     *
+     * @example
+     * // returns 'March'
+     * Hison.utils.getMonthName(3);
+     *
+     * @example
+     * // returns 'Nov'
+     * Hison.utils.getMonthName(11, false);
+     */
     Hison.utils.getMonthName = function(month, isFullName) {
         if (isFullName !== false) {
             isFullName = true;
@@ -436,12 +1034,29 @@ var Hison ={};
 
         return isFullName ? monthsFullName[month - 1] : monthsShortName[month - 1];
     };
-    //파라메터의 날짜 문자열을 파라메터 포맷의 형식으로 가져온다. default는 
+    /**
+     * Formats a given date object according to a specified format string. The default format is "mn ddth, yyyy".
+     * This function supports a wide range of format specifiers, allowing for various date representations.
+     * It throws an error for invalid date inputs or unsupported format strings.
+     *
+     * @param {object} datetimeObj - The date object to format. Should contain year (y), and optionally month (m), day (d), hours (h), minutes (mi), and seconds (s).
+     * @param {string} [format='mn ddth, yyyy'] - The format string specifying the desired output format. Supports various combinations of 'yyyy', 'mm', 'dd', 'hh', 'mi', 'ss', along with separators.
+     * @returns {string} Returns the formatted date as a string.
+     *
+     * @throws {Error} Throws an error if required parameters are not entered, if the date is invalid, or if the format string is unsupported.
+     *
+     * @example
+     * // returns 'January 15th, 2024'
+     * Hison.utils.getDateWithFormat({ y: 2024, m: 1, d: 15 });
+     *
+     * @example
+     * // returns '2024-01-15'
+     * Hison.utils.getDateWithFormat({ y: 2024, m: 1, d: 15 }, 'yyyy-mm-dd');
+     */
     Hison.utils.getDateWithFormat = function(datetimeObj, format) {
         if(!datetimeObj.y) throw new Error("Required parameters have not been entered.");
-        if(!format) format = "";
+        if(!format) format = "mn ddth, yyyy";
 
-        // 날짜 및 시간을 문자열로 변환 (단일 자릿수는 0으로 채움)
         datetimeObj.m = (datetimeObj.m || 1).toString().padStart(2, '0');
         datetimeObj.d = (datetimeObj.d || 1).toString().padStart(2, '0');
         datetimeObj.h = (datetimeObj.h || 0).toString().padStart(2, '0');
@@ -454,7 +1069,6 @@ var Hison ={};
         var mn = Hison.utils.getMonthName(datetimeObj.m);
         var mnabb = Hison.utils.getMonthName(datetimeObj.m, false);
     
-        // 포맷에 따라 날짜 및 시간 문자열 조합
         switch (format.toLowerCase()) {
             case 'yyyy':
                 return datetimeObj.y;
@@ -796,12 +1410,26 @@ var Hison ={};
                 return datetimeObj.d + 'th ' + mnabb + ' ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
 
             default:
-                return mn + ' ' + datetimeObj.d + ', ' + datetimeObj.y;
+                throw new Error("Invalid format");
         }
     };
-    //해당 날짜의 요일을 반환한다.
+    /**
+     * Returns the day of the week for a given date. The function supports various formats for the day of the week,
+     * including numerical, abbreviated, full name, and Korean formats. If no format is specified, the default numerical format is used.
+     *
+     * @param {object} dateObj - The date object for which the day of the week is to be determined. Should contain year (y), month (m), and day (d).
+     * @param {string} [dayType=''] - The format of the day of the week to return. Options are 'd' for numerical (0-6), 'dy' for 3-letter abbreviation, 'day' for full name, 'kdy' for Korean abbreviation, 'kday' for full Korean name.
+     * @returns {string} Returns the day of the week as per the specified format. Returns an empty string if the date is invalid or required parameters are missing.
+     *
+     * @example
+     * // returns '1' (Monday)
+     * Hison.utils.getDayOfWeek({ y: 2024, m: 1, d: 1 }, 'd');
+     *
+     * @example
+     * // returns 'MONDAY'
+     * Hison.utils.getDayOfWeek({ y: 2024, m: 1, d: 1 }, 'day');
+     */
     Hison.utils.getDayOfWeek = function(dateObj, dayType) {
-        // 필수 파라미터 검증
         if (!dateObj.y || !dateObj.m || !dateObj.d) {
             return '';
         }
@@ -809,11 +1437,9 @@ var Hison ={};
 
         if(!Hison.utils.isDate(dateObj)) return '';
     
-        // 날짜 객체 생성
         var date = new Date(dateObj.y, dateObj.m - 1, dateObj.d);
         var dayOfWeek = date.getDay();
     
-        // dayType에 따른 요일 반환
         switch (dayType.toLowerCase()) {
             case 'd':
                 return dayOfWeek.toString();    // 0 ~ 6
@@ -828,8 +1454,22 @@ var Hison ={};
             default:
                 return dayOfWeek.toString();
         }
-    };    
-    //해당 연월의 마지막 일자를 반환한다.
+    };
+    /**
+     * Returns the last day of the month for a given year and month. The function calculates the number of days in the specified month,
+     * accounting for leap years as applicable. It returns an empty string for invalid input or missing parameters.
+     *
+     * @param {object} dateObj - The date object for which the last day of the month is to be determined. Should contain year (y) and month (m).
+     * @returns {number|string} Returns the last day of the month as a number. Returns an empty string if the year or month is missing or if the date is invalid.
+     *
+     * @example
+     * // returns 31 (Last day of January 2024)
+     * Hison.utils.getLastDay({ y: 2024, m: 1 });
+     *
+     * @example
+     * // returns 29 (Last day of February 2024, a leap year)
+     * Hison.utils.getLastDay({ y: 2024, m: 2 });
+     */
     Hison.utils.getLastDay = function(dateObj) {
         if (!dateObj.y || !dateObj.m) {
             return '';
@@ -840,7 +1480,21 @@ var Hison ={};
         nextMonthFirstDay.setDate(0);
         return nextMonthFirstDay.getDate();
     };
-    //현재 년도를 반환한다.
+    /**
+     * Returns the current year in either a four-digit or two-digit format. The default is the four-digit format.
+     * The function determines the current year based on the system's date settings and formats it as specified.
+     *
+     * @param {string} [format=''] - The format in which to return the year. 'yy' for two-digit format, any other value for the default four-digit format.
+     * @returns {string} Returns the current year as a string in the specified format.
+     *
+     * @example
+     * // returns '2024' (assuming the current year is 2024)
+     * Hison.utils.getSysYear();
+     *
+     * @example
+     * // returns '24' (assuming the current year is 2024)
+     * Hison.utils.getSysYear('yy');
+     */
     Hison.utils.getSysYear = function(format) {
         if(!format) format = "";
         var currentDate = new Date();
@@ -851,7 +1505,26 @@ var Hison ={};
                 return currentDate.getFullYear().toString();
         }
     };
-    //현재 월을 반환한다.
+    /**
+     * Returns the current month in various formats: numerical, full name, or abbreviated name. 
+     * The default is the numerical format without leading zeros. 
+     * The function determines the current month based on the system's date settings and formats it as specified.
+     *
+     * @param {string} [format=''] - The format in which to return the month. 'mm' for two-digit numerical format, 'mn' for full month name, 'mnabb' for abbreviated month name, and any other value for the default numerical format.
+     * @returns {string} Returns the current month as a string in the specified format.
+     *
+     * @example
+     * // returns '01' for January (assuming the current month is January)
+     * Hison.utils.getSysMonth('mm');
+     *
+     * @example
+     * // returns 'January' (assuming the current month is January)
+     * Hison.utils.getSysMonth('mn');
+     *
+     * @example
+     * // returns 'Jan' (assuming the current month is January)
+     * Hison.utils.getSysMonth('mnabb');
+     */
     Hison.utils.getSysMonth = function(format) {
         if(!format) format = "";
         var currentDate = new Date();
@@ -867,13 +1540,43 @@ var Hison ={};
                 return sysMonth.toString();
         }
     };
-    //현재 년월을 반환한다.
+    /**
+     * Returns the current year and month formatted as specified. The default format is "mn, yyyy" (e.g., "January, 2024").
+     * This function utilizes the getDateWithFormat function to format the current year and month according to the specified format.
+     *
+     * @param {string} [format='mn, yyyy'] - The format string specifying how the year and month should be returned. 
+     *                                       It can be any format supported by the getDateWithFormat function.
+     * @returns {string} Returns the current year and month as a string in the specified format.
+     *
+     * @example
+     * // returns 'January, 2024' (assuming the current date is in January 2024)
+     * Hison.utils.getSysYearMonth();
+     *
+     * @example
+     * // returns '2024-01' (assuming the current date is in January 2024)
+     * Hison.utils.getSysYearMonth('yyyy-mm');
+     */
     Hison.utils.getSysYearMonth = function(format) {
         if(!format) format = "mn, yyyy";
         var currentDate = new Date();
         return Hison.utils.getDateWithFormat({y:currentDate.getFullYear(),m:currentDate.getMonth() + 1}, format)
     };
-    //현재 일자를 반환한다.
+    /**
+     * Returns the current day of the month in either a two-digit or a default format. 
+     * The default format is a numerical representation without leading zeros. 
+     * The function determines the current day based on the system's date settings.
+     *
+     * @param {string} [format=''] - The format in which to return the day. 'dd' for two-digit format, any other value for the default format.
+     * @returns {string} Returns the current day as a string in the specified format.
+     *
+     * @example
+     * // returns '05' (assuming the current day of the month is 5)
+     * Hison.utils.getSysDay('dd');
+     *
+     * @example
+     * // returns '5' (assuming the current day of the month is 5)
+     * Hison.utils.getSysDay();
+     */
     Hison.utils.getSysDay = function(format) {
         if(!format) format = "";
         var currentDate = new Date();
@@ -884,13 +1587,44 @@ var Hison ={};
                 return currentDate.getDate().toString();
         }
     };
-    //현재 요일을 반환한다.
+    /**
+     * Returns the current day of the week in various formats. The default format is numerical (0 for Sunday, 6 for Saturday).
+     * This function utilizes the getDayOfWeek function to determine the day of the week based on the current system date.
+     *
+     * @param {string} [dayType='d'] - The format of the day of the week to return. 
+     *                                 Options are 'd' for numerical (0-6), 'dy' for 3-letter abbreviation, 
+     *                                 'day' for full name, 'kdy' for Korean abbreviation, 'kday' for full Korean name.
+     * @returns {string} Returns the current day of the week as per the specified format.
+     *
+     * @example
+     * // returns '1' (assuming the current day of the week is Monday)
+     * Hison.utils.getSysDayOfWeek();
+     *
+     * @example
+     * // returns 'MONDAY' (assuming the current day of the week is Monday)
+     * Hison.utils.getSysDayOfWeek('day');
+     */
     Hison.utils.getSysDayOfWeek = function(dayType) {
         if(!dayType) dayType = "d";
-        var currentDate = new Date(); // 현재 날짜 및 시간을 얻음
+        var currentDate = new Date();
         return Hison.utils.getDayOfWeek({y:currentDate.getFullYear(),m:currentDate.getMonth() + 1,d:currentDate.getDate()}, dayType);
     };
-    //현재 시각은 반환한다.
+    /**
+     * Returns the current hour of the day in either a two-digit or a default format. 
+     * The default format is a numerical representation without leading zeros. 
+     * The function determines the current hour based on the system's time settings.
+     *
+     * @param {string} [format=''] - The format in which to return the hour. 'hh' for two-digit format, any other value for the default format.
+     * @returns {string} Returns the current hour as a string in the specified format.
+     *
+     * @example
+     * // returns '05' (assuming the current hour is 5 AM)
+     * Hison.utils.getSysHour('hh');
+     *
+     * @example
+     * // returns '5' (assuming the current hour is 5 AM)
+     * Hison.utils.getSysHour();
+     */
     Hison.utils.getSysHour = function(format) {
         if(!format) format = "";
         var currentDate = new Date();
@@ -901,7 +1635,22 @@ var Hison ={};
                 return currentDate.getHours().toString();
         }
     };
-    //현재 시분을 반환한다. defualt hh:mm
+    /**
+     * Returns the current hour and minute in either a 'hhmi' (continuous string) format or the default 'hh:mm' format.
+     * The default format is 'hh:mm', which includes a colon separator between hours and minutes.
+     * The function determines the current time based on the system's time settings.
+     *
+     * @param {string} [format=''] - The format in which to return the time. 'hhmi' for continuous string format (e.g., '0512'), any other value for the default 'hh:mm' format (e.g., '05:12').
+     * @returns {string} Returns the current hour and minute as a string in the specified format.
+     *
+     * @example
+     * // returns '05:12' (assuming the current time is 5 hours and 12 minutes)
+     * Hison.utils.getSysHourMinute();
+     *
+     * @example
+     * // returns '0512' (assuming the current time is 5 hours and 12 minutes)
+     * Hison.utils.getSysHourMinute('hhmi');
+     */
     Hison.utils.getSysHourMinute = function(format) {
         if(!format) format = "";
         var currentDate = new Date();
@@ -912,7 +1661,22 @@ var Hison ={};
                 return currentDate.getHours().toString().padStart(2, '0') + ":" + currentDate.getMinutes().toString().padStart(2, '0');
         }
     };
-    //현재 분을 반환한다.
+    /**
+     * Returns the current minute of the hour in either a two-digit or a default format. 
+     * The default format is a numerical representation without leading zeros. 
+     * The function determines the current minute based on the system's time settings.
+     *
+     * @param {string} [format=''] - The format in which to return the minute. 'mi' for two-digit format, any other value for the default format.
+     * @returns {string} Returns the current minute as a string in the specified format.
+     *
+     * @example
+     * // returns '05' (assuming the current minute is 5 past the hour)
+     * Hison.utils.getSysMinute('mi');
+     *
+     * @example
+     * // returns '5' (assuming the current minute is 5 past the hour)
+     * Hison.utils.getSysMinute();
+     */
     Hison.utils.getSysMinute = function(format) {
         if(!format) format = "";
         var currentDate = new Date();
@@ -922,8 +1686,23 @@ var Hison ={};
             default:
                 return currentDate.getMinutes().toString();
         }
-    };    
-    //현재 초를 반환한다.
+    };
+    /**
+     * Returns the current second of the minute in either a two-digit or a default format. 
+     * The default format is a numerical representation without leading zeros. 
+     * The function determines the current second based on the system's time settings.
+     *
+     * @param {string} [format=''] - The format in which to return the second. 'ss' for two-digit format, any other value for the default format.
+     * @returns {string} Returns the current second as a string in the specified format.
+     *
+     * @example
+     * // returns '05' (assuming the current second is 5 past the minute)
+     * Hison.utils.getSysSecond('ss');
+     *
+     * @example
+     * // returns '5' (assuming the current second is 5 past the minute)
+     * Hison.utils.getSysSecond();
+     */
     Hison.utils.getSysSecond = function(format) {
         if(!format) format = "";
         var currentDate = new Date();
@@ -934,7 +1713,22 @@ var Hison ={};
                 return currentDate.getSeconds().toString();
         }
     };
-    //현재 시분초를 반환한다. default hh:mm:ss
+    /**
+     * Returns the current time in either a 'hhmiss' (continuous string) format or the default 'hh:mm:ss' format.
+     * The default format is 'hh:mm:ss', which includes colon separators between hours, minutes, and seconds.
+     * The function determines the current time based on the system's time settings.
+     *
+     * @param {string} [format=''] - The format in which to return the time. 'hhmiss' for continuous string format (e.g., '051230'), any other value for the default 'hh:mm:ss' format (e.g., '05:12:30').
+     * @returns {string} Returns the current time as a string in the specified format.
+     *
+     * @example
+     * // returns '05:12:30' (assuming the current time is 5 hours, 12 minutes, and 30 seconds)
+     * Hison.utils.getSysTime();
+     *
+     * @example
+     * // returns '051230' (assuming the current time is 5 hours, 12 minutes, and 30 seconds)
+     * Hison.utils.getSysTime('hhmiss');
+     */
     Hison.utils.getSysTime = function(format) {
         if(!format) format = "";
         var currentDate = new Date();
@@ -945,10 +1739,25 @@ var Hison ={};
                 return currentDate.getHours().toString().padStart(2, '0') + ":" + currentDate.getMinutes().toString().padStart(2, '0') + ":" + currentDate.getSeconds().toString().padStart(2, '0');
         }
     };
-    //현재 날짜를 반환한다.
+    /**
+     * Returns the current date and time in a specified format. The default format is "mn ddth, yyyy hh:mi:ss" (e.g., "January 15th, 2024 05:12:30").
+     * This function utilizes the getDateWithFormat function to format the current date and time according to the specified format.
+     *
+     * @param {string} [format='mn ddth, yyyy hh:mi:ss'] - The format string specifying how the date and time should be returned. 
+     *                                                      It can be any format supported by the getDateWithFormat function.
+     * @returns {string} Returns the current date and time as a string in the specified format.
+     *
+     * @example
+     * // returns 'January 15th, 2024 05:12:30' (assuming the current date and time)
+     * Hison.utils.getSysDate();
+     *
+     * @example
+     * // returns '2024-01-15 05:12' (assuming the current date and time)
+     * Hison.utils.getSysDate('yyyy-mm-dd hh:mi');
+     */
     Hison.utils.getSysDate = function(format) {
         if(!format) format = "mn ddth, yyyy hh:mi:ss";
-        var currentDate = new Date(); // 현재 날짜 및 시간을 얻음
+        var currentDate = new Date();
         return Hison.utils.getDateWithFormat(
             {
                 y:currentDate.getFullYear(),
@@ -961,28 +1770,103 @@ var Hison ={};
             , format);
     };
 
-    //파라메터 값을 파라메터 지정한 위치로 올림한 값을 반환한다.
+    /******************************************
+     * Utils Number
+     ******************************************/
+    /**
+     * Rounds up a given number to a specified precision. The precision determines the number of decimal places to round up to.
+     * If the precision is not an integer, it defaults to 0 (rounding up to the nearest whole number).
+     * The function throws an error if the provided number is not numeric.
+     *
+     * @param {number} num - The number to be rounded up.
+     * @param {number} [precision=0] - The number of decimal places to round up to. Must be an integer.
+     * @returns {number} Returns the rounded up value of the provided number at the specified precision.
+     *
+     * @throws {Error} Throws an error if 'num' is not numeric or if 'precision' is not an integer.
+     *
+     * @example
+     * // returns 2.35 rounded up to the nearest tenth (2.4)
+     * Hison.utils.getCeil(2.35, 1);
+     *
+     * @example
+     * // returns 3 rounded up to the nearest whole number (3)
+     * Hison.utils.getCeil(2.35);
+     */
     Hison.utils.getCeil = function(num, precision) {
         if(!Hison.utils.isNumeric(num)) throw new Error("Please input only number.");
         if(!Hison.utils.isInteger(precision)) precision = 0;
         var factor = Math.pow(10, precision);
         return Math.ceil(num * factor) / factor;
     };
-    //파라메터 값을 파라메터 지정한 위치로 내림한 값을 반환한다.
+    /**
+     * Rounds down a given number to a specified precision. The precision determines the number of decimal places to round down to.
+     * If the precision is not an integer, it defaults to 0 (rounding down to the nearest whole number).
+     * The function throws an error if the provided number is not numeric.
+     *
+     * @param {number} num - The number to be rounded down.
+     * @param {number} [precision=0] - The number of decimal places to round down to. Must be an integer.
+     * @returns {number} Returns the rounded down value of the provided number at the specified precision.
+     *
+     * @throws {Error} Throws an error if 'num' is not numeric or if 'precision' is not an integer.
+     *
+     * @example
+     * // returns 2.35 rounded down to the nearest tenth (2.3)
+     * Hison.utils.getFloor(2.35, 1);
+     *
+     * @example
+     * // returns 2 rounded down to the nearest whole number (2)
+     * Hison.utils.getFloor(2.35);
+     */
     Hison.utils.getFloor = function(num, precision) {
         if(!Hison.utils.isNumeric(num)) throw new Error("Please input only number.");
         if(!Hison.utils.isInteger(precision)) precision = 0;
         var factor = Math.pow(10, precision);
         return Math.floor(num * factor) / factor;
     };
-    //파라메터 값을 파라메터 지정한 위치로 반올림한 값을 반환한다.
+    /**
+     * Rounds a given number to a specified precision. The precision determines the number of decimal places to round to.
+     * If the precision is not an integer, it defaults to 0 (rounding to the nearest whole number).
+     * The function throws an error if the provided number is not numeric.
+     *
+     * @param {number} num - The number to be rounded.
+     * @param {number} [precision=0] - The number of decimal places to round to. Must be an integer.
+     * @returns {number} Returns the rounded value of the provided number at the specified precision.
+     *
+     * @throws {Error} Throws an error if 'num' is not numeric or if 'precision' is not an integer.
+     *
+     * @example
+     * // returns 2.35 rounded to the nearest tenth (2.4)
+     * Hison.utils.getRound(2.35, 1);
+     *
+     * @example
+     * // returns 2 rounded to the nearest whole number (2)
+     * Hison.utils.getRound(2.35);
+     */
     Hison.utils.getRound = function(num, precision) {
         if(!Hison.utils.isNumeric(num)) throw new Error("Please input only number.");
         if(!Hison.utils.isInteger(precision)) precision = 0;
         var factor = Math.pow(10, precision);
         return Math.round(num * factor) / factor;
     };
-    //파라메터 값을 파라메터 지정한 위치로 버림한 값을 반환한다.
+    /**
+     * Truncates a given number to a specified precision. The precision determines the number of decimal places to truncate to.
+     * If the precision is not an integer, it defaults to 0 (truncating to the nearest whole number).
+     * The function throws an error if the provided number is not numeric.
+     *
+     * @param {number} num - The number to be truncated.
+     * @param {number} [precision=0] - The number of decimal places to truncate to. Must be an integer.
+     * @returns {number} Returns the truncated value of the provided number at the specified precision.
+     *
+     * @throws {Error} Throws an error if 'num' is not numeric or if 'precision' is not an integer.
+     *
+     * @example
+     * // returns 2.3, truncating 2.35 to the nearest tenth
+     * Hison.utils.getTrunc(2.35, 1);
+     *
+     * @example
+     * // returns 2, truncating 2.35 to the nearest whole number
+     * Hison.utils.getTrunc(2.35);
+     */
     Hison.utils.getTrunc = function(num, precision) {
         if(!Hison.utils.isNumeric(num)) throw new Error("Please input only number.");
         if(!Hison.utils.isInteger(precision)) precision = 0;
@@ -990,25 +1874,66 @@ var Hison ={};
         return Math.trunc(num * factor) / factor;
     };
 
-    //문자열의 Byte길이를 반환한다.
+    /******************************************
+     * Utils String
+     ******************************************/
+    /**
+     * Calculates the byte length of a given string. This function accounts for character encodings such as ASCII,
+     * 2-byte characters, 3-byte characters, and 4-byte characters (like some emojis). The byte values for character
+     * ranges are stored in constants: LESSOREQ_0X7FF_BYTE (2 bytes), LESSOREQ_0XFFFF_BYTE (3 bytes),
+     * GREATER_0XFFFF_BYTE (4 bytes), which can be adjusted for different encodings like EUC-KR.
+     *
+     * @param {string} str - The string for which the byte length is to be calculated.
+     * @returns {number} Returns the byte length of the string.
+     *
+     * @example
+     * // assuming ASCII characters, returns 5 for 'Hello'
+     * Hison.utils.getByteLength('Hello');
+     *
+     * @example
+     * // returns 16 for a string with 3-byte each '안녕하세요' and 1-byte '.' characters
+     * Hison.utils.getByteLength('안녕하세요.');
+     *
+     * Note: For users utilizing different encodings like EUC-KR, the byte values for character ranges can be modified
+     * in the Hison.const fields: LESSOREQ_0X7FF_BYTE, LESSOREQ_0XFFFF_BYTE, GREATER_0XFFFF_BYTE.
+     */
     Hison.utils.getByteLength = function(str) {
         str = Hison.utils.getToString(str);
         var byteLength = 0;
         for (var i = 0; i < str.length; i++) {
             var charCode = str.charCodeAt(i);
             if (charCode <= 0x7F) {
-                byteLength += 1; // ASCII 문자는 1바이트
+                byteLength += 1;
             } else if (charCode <= 0x7FF) {
-                byteLength += Hison.const.LESSOREQ_0X7FF_BYTE; // 2바이트 문자
+                byteLength += Hison.const.LESSOREQ_0X7FF_BYTE;
             } else if (charCode <= 0xFFFF) {
-                byteLength += Hison.const.LESSOREQ_0XFFFF_BYTE; // 3바이트 문자
+                byteLength += Hison.const.LESSOREQ_0XFFFF_BYTE;
             } else {
-                byteLength += Hison.const.GREATER_0XFFFF_BYTE; // 4바이트 문자 (예: 일부 이모지)
+                byteLength += Hison.const.GREATER_0XFFFF_BYTE;
             }
         }
         return byteLength;
     };
-    //파라메터 문자열을 파라메터 Byte로 자른 값을 반환한다.
+    /**
+     * Truncates a given string to a specified byte length. This function handles multibyte characters appropriately,
+     * ensuring that the string is cut off at the correct byte length without breaking characters.
+     * It uses the same byte values for character ranges as used in the getByteLength function.
+     *
+     * @param {string} str - The string to be truncated.
+     * @param {number} cutByte - The byte length at which the string will be cut.
+     * @returns {string} Returns the truncated string, cut off at the specified byte length.
+     *
+     * @example
+     * // returns a substring of 'Hello'. Because truncated to 5 bytes.
+     * Hison.utils.getCutByteLength('Hello, World!', 5);
+     *
+     * @example
+     * // returns a substring of '안녕'. Becuase truncated to 6 bytes.
+     * Hison.utils.getCutByteLength('안녕하세요', 6);
+     *
+     * Note: The function calculates byte length considering character encodings. 
+     * For characters that take more than one byte, the function ensures not to cut the string in the middle of a character.
+     */
     Hison.utils.getCutByteLength = function(str, cutByte) {
         str = Hison.utils.getToString(str);
         var byteLength = 0;
@@ -1032,7 +1957,27 @@ var Hison ={};
         }
         return str.substring(0, cutIndex);
     };
-    //파라메터 문자열에 사이사이 일정한 공백을 추가하여 길이 규격을 맞춘 값을 반환한다.
+    /**
+     * Adjusts the length of a given string to a specified length by inserting spaces evenly between the characters.
+     * If the string is already equal to or longer than the specified length, it returns the string as is.
+     * Otherwise, it calculates the number of spaces needed and distributes them as evenly as possible between the characters.
+     *
+     * @param {string} str - The string to be formatted.
+     * @param {number} length - The desired length of the string after adding spaces.
+     * @returns {string} Returns the string with spaces added to meet the specified length.
+     *
+     * @example
+     * // returns a string 'H e l l o' with spaces to make its length 9
+     * Hison.utils.getStringLenForm('Hello', 9);
+     *
+     * @example
+     * // returns 'Hello World' as is since its length is already 11
+     * Hison.utils.getStringLenForm('Hello World', 11);
+     *
+     * Note: The function adds spaces between characters. If the string's length is less than the specified length, 
+     * spaces are distributed as evenly as possible. In cases where spaces can't be perfectly even, 
+     * the extra spaces are distributed from the beginning.
+     */
     Hison.utils.getStringLenForm = function(str, length) {
         str = Hison.utils.getToString(str);
         var strLength = str.length;
@@ -1051,39 +1996,162 @@ var Hison ={};
         result += str[strLength - 1];
         return result;
     };
-    //파라메터 문자열 왼쪽에 파라메터 특정 문자를 반복해 채운 값을 반환한다.
-    Hison.utils.getLpad = function(str, padStr, repeat) {
+    /**
+     * Pads the left side of a given string with a specified padding character (or string) up to a certain length.
+     * The function calculates the required number of repetitions of the padding string to reach the specified length.
+     * If the original string is already equal to or longer than the specified length, no padding is added.
+     *
+     * @param {string} str - The string to be padded.
+     * @param {string} padStr - The string to use for padding. If longer than one character, the entire string is repeated.
+     * @param {number} length - The desired total length of the padded string.
+     * @returns {string} Returns the string padded on the left side to the specified length.
+     *
+     * @example
+     * // returns '000Hello' with '0' padding to make its length 7
+     * Hison.utils.getLpad('Hello', '0', 7);
+     *
+     * @example
+     * // returns 'xxHello' with 'x' padding to make its length 7
+     * Hison.utils.getLpad('Hello', 'x', 7);
+     *
+     * Note: If the length of the original string is longer than the specified length, 
+     * the function returns the original string without any padding.
+     */
+    Hison.utils.getLpad = function(str, padStr, length) {
         str = Hison.utils.getToString(str);
         padStr = Hison.utils.getToString(padStr);
 
-        var pad = padStr.repeat((repeat - str.length) / padStr.length);
+        var pad = padStr.repeat((length - str.length) / padStr.length);
         return pad + str;
     };
-    //파라메터 문자열 오른쪽에 파라메터 특정 문자를 반복해 채운 값을 반환한다.
-    Hison.utils.getRpad = function(str, padStr, repeat) {
+    /**
+     * Pads the right side of a given string with a specified padding character (or string) up to a certain length.
+     * The function calculates the required number of repetitions of the padding string to reach the specified length.
+     * If the original string is already equal to or longer than the specified length, no padding is added.
+     *
+     * @param {string} str - The string to be padded.
+     * @param {string} padStr - The string to use for padding. If longer than one character, the entire string is repeated.
+     * @param {number} length - The desired total length of the padded string.
+     * @returns {string} Returns the string padded on the right side to the specified length.
+     *
+     * @example
+     * // returns 'Hello000' with '0' padding to make its length 7
+     * Hison.utils.getRpad('Hello', '0', 7);
+     *
+     * @example
+     * // returns 'Helloxx' with 'x' padding to make its length 7
+     * Hison.utils.getRpad('Hello', 'x', 7);
+     *
+     * Note: If the length of the original string is longer than the specified length, 
+     * the function returns the original string without any padding.
+     */
+    Hison.utils.getRpad = function(str, padStr, length) {
         str = Hison.utils.getToString(str);
         padStr = Hison.utils.getToString(padStr);
 
-        var pad = padStr.repeat((repeat - str.length) / padStr.length);
+        var pad = padStr.repeat((length - str.length) / padStr.length);
         return str + pad;
     };
-    //파라메터 문자열 좌우 공백을 제거한 값을 반환한다.
+    /**
+     * Trims whitespace from both ends of a given string. This function uses the getToString utility to ensure
+     * that the input is always treated as a string, making it robust against inputs like null that do not have a trim method.
+     * This approach prevents errors that would normally occur when trying to trim non-string types.
+     *
+     * @param {*} str - The value to be trimmed. If not a string, it is converted to a string.
+     * @returns {string} Returns the trimmed string.
+     *
+     * @example
+     * // returns 'Hello World' with surrounding whitespace removed
+     * Hison.utils.getTrim('  Hello World  ');
+     *
+     * @example
+     * // returns an empty string for null
+     * Hison.utils.getTrim(null);
+     *
+     * Note: This function is useful for sanitizing inputs where leading and trailing whitespace is not desired,
+     * and it ensures that even non-string values can be safely trimmed.
+     */
     Hison.utils.getTrim = function(str) {
         str = Hison.utils.getToString(str);
         return str.trim();
     };
-    //파라메터 문자열의 파라메터 문자일부를 파라메터 문자열로 치환한 값을 반환한다.
-    Hison.utils.getReplaceAll = function(str, searchStr, replaceStr) {
+    /**
+     * Replaces all occurrences of a specified target string within a given string with another specified string.
+     * This function ensures all inputs are treated as strings, including the target and replacement strings,
+     * by using the getToString utility. It is a robust method for string replacement that handles various input types.
+     *
+     * @param {*} str - The original string in which replacements are to be made. Converted to a string if not already.
+     * @param {*} targetStr - The string to be replaced. Converted to a string if not already.
+     * @param {*} replaceStr - The string to replace targetStr with. Converted to a string if not already.
+     * @returns {string} Returns a new string with all occurrences of targetStr replaced by replaceStr.
+     *
+     * @example
+     * // returns 'Hello World' with 'l' replaced by 'x'
+     * Hison.utils.getReplaceAll('Hello World', 'l', 'x');
+     *
+     * @example
+     * // returns 'Hello World' with 'World' replaced by 'Universe'
+     * Hison.utils.getReplaceAll('Hello World', 'World', 'Universe');
+     *
+     * Note: This function is useful for making multiple replacements in a string in one go. It ensures that non-string values
+     * are converted to strings before the replacement operation, thus preventing errors related to non-string operations.
+     */
+    Hison.utils.getReplaceAll = function(str, targetStr, replaceStr) {
         str = Hison.utils.getToString(str);
-        searchStr = Hison.utils.getToString(searchStr);
+        targetStr = Hison.utils.getToString(targetStr);
         replaceStr = Hison.utils.getToString(replaceStr);
-        return str.split(searchStr).join(replaceStr);
+        return str.split(targetStr).join(replaceStr);
     };
-    //값이 undifined, null인 경우 지정된 값을 반환한다.
+    /**
+     * Returns a default value if the given value is undefined or null. This function is useful for providing fallback values
+     * in cases where a variable might not be initialized or could be explicitly set to null.
+     *
+     * @param {*} val - The value to check for null or undefined.
+     * @param {*} defaultValue - The default value to return if val is null or undefined.
+     * @returns {*} Returns val if it is neither undefined nor null; otherwise, returns defaultValue.
+     *
+     * @example
+     * // returns 'default' when val is undefined
+     * Hison.utils.nvl(undefined, 'default');
+     *
+     * @example
+     * // returns 'default' when val is null
+     * Hison.utils.nvl(null, 'default');
+     *
+     * @example
+     * // returns 'Hello' when val is 'Hello'
+     * Hison.utils.nvl('Hello', 'default');
+     *
+     * Note: This function is particularly useful for handling optional parameters in functions or for setting default values 
+     * for variables that may not be present in certain contexts.
+     */
     Hison.utils.nvl = function(val, defaultValue) {
-        return val == null ? defaultValue : val;
+        return (val === null || val === undefined) ? defaultValue : val;
     };
-    //파라메터 값을 파라메터 숫자 형식으로 변환한 값을 반환한다.
+    /**
+     * Formats a numeric value according to a specified format string. This function first checks if the value is numeric.
+     * The format string can include a prefix, a numeric pattern, and a suffix. The numeric pattern dictates how the number
+     * should be formatted, including the placement of commas and decimals. The function supports different patterns for integer
+     * and decimal parts and can also handle percentage formatting.
+     *
+     * @param {*} value - The numeric value to be formatted.
+     * @param {string} format - The format string defining how the number should be formatted.
+     * @returns {string} Returns the formatted number as a string.
+     * 
+     * @throws {Error} Throws an error if the input value is not numeric or if the format string is invalid.
+     *
+     * @example
+     * // returns '$1,234.5'
+     * Hison.utils.getNumberFormat(1234.54, '$#,###.#');
+     *
+     * @example
+     * // returns '1234%'
+     * Hison.utils.getNumberFormat(12.34, '#,##0%');
+     *
+     * Note: The function is designed to handle various formatting requirements, such as different grouping styles,
+     * decimal places, and inclusion of currency symbols or percentage signs. It's particularly useful for presenting
+     * numbers in a user-friendly format in UIs or reports.
+     */
     Hison.utils.getNumberFormat = function(value, format) {
         if (!Hison.utils.isNumeric(value)) {
             throw new Error("Invalid number");
@@ -1150,23 +2218,108 @@ var Hison ={};
     
         return prefix + result + suffix;
     };
-    //파라메터 문자열의 모든 문자를 제거한 값을 반환한다.
+    /**
+     * Removes all characters from a given string except for numeric digits. This function ensures that the input is treated as a string,
+     * then applies a regular expression to remove all non-numeric characters. It's useful for extracting only the numeric part from a mixed string.
+     *
+     * @param {*} str - The string from which non-numeric characters are to be removed.
+     * @returns {string} Returns a string containing only the numeric characters from the original string.
+     *
+     * @example
+     * // returns '12345' from a string mixed with letters and numbers
+     * Hison.utils.getRemoveExceptNumbers('abc12345xyz');
+     *
+     * @example
+     * // returns '2023' from a string with various characters
+     * Hison.utils.getRemoveExceptNumbers('Year: 2023!');
+     *
+     * Note: This function is particularly useful in situations where you need to extract or isolate the numerical part of a string,
+     * such as processing text input fields that should contain only numbers.
+     */
     Hison.utils.getRemoveExceptNumbers = function(str) {
         str = Hison.utils.getToString(str);
-        return str.replace(/[^0-9]/g, ''); // 숫자를 제외한 모든 문자를 제거
+        return str.replace(/[^0-9]/g, '');
     };
-    //파라메터 문자열의 모든 숫자를 제거한 값을 반환한다.
+    /**
+     * Removes all numeric digits from a given string. This function ensures that the input is treated as a string,
+     * then applies a regular expression to remove all numeric characters. It's useful for extracting the non-numeric part from a string.
+     *
+     * @param {*} str - The string from which numeric characters are to be removed.
+     * @returns {string} Returns a string with all numeric characters removed from the original string.
+     *
+     * @example
+     * // returns 'abcxyz' from a string mixed with letters and numbers
+     * Hison.utils.getRemoveNumbers('abc12345xyz');
+     *
+     * @example
+     * // returns 'Year: !' from a string with various characters
+     * Hison.utils.getRemoveNumbers('Year: 2023!');
+     *
+     * Note: This function is particularly useful in situations where you need to remove or filter out numeric characters from a string,
+     * such as processing text input fields that should not contain numbers.
+     */
     Hison.utils.getRemoveNumbers = function(str) {
         str = Hison.utils.getToString(str);
-        return str.replace(/[0-9]/g, ''); // 모든 숫자를 제거
+        return str.replace(/[0-9]/g, '');
     };
-    //파라메터 문자열의 반전값을 반환한다.
+    /**
+     * Reverses the characters in a given string. The function converts the input to a string (if it is not already),
+     * then splits it into individual characters, reverses the character array, and joins it back into a string.
+     * This is useful for creating the reverse of a string for various purposes.
+     *
+     * @param {*} str - The string to be reversed.
+     * @returns {string} Returns a string that is the reverse of the input string.
+     *
+     * @example
+     * // returns 'olleH' for 'Hello'
+     * Hison.utils.getReverse('Hello');
+     *
+     * @example
+     * // returns '321' for '123'
+     * Hison.utils.getReverse('123');
+     *
+     * Note: This function can be used in scenarios such as palindrome checking, text effects, or other situations 
+     * where the reverse order of characters in a string is needed.
+     */
     Hison.utils.getReverse = function(str) {
         str = Hison.utils.getToString(str);
         return str.split('').reverse().join('');
     };
-    
-    //파라메터 값에 대해 Boolean타입으로 형변환 한 값을 반환한다. (0을 제외한 모든 숫자(문자열숫자) 또는 true, 'true/TRUE', 'y/Y', 'yes/YES', 'check/CHECK', 'c/C', '참'이면 true)
+   
+    /******************************************
+     * Utils Converts
+     ******************************************/
+    /**
+     * Converts a given value to a boolean. The conversion rules are as follows:
+     * - Any numeric value (including numeric strings) that is not 0 converts to true.
+     * - The boolean value true converts to true.
+     * - String values 'true', 'y', 'yes', 'check', 'c', '참' (case insensitive) convert to true.
+     * - All other values convert to false.
+     * This function is useful for interpreting different types of truthy values as boolean true or false.
+     *
+     * @param {*} val - The value to be converted to a boolean.
+     * @returns {boolean} Returns true or false based on the conversion rules.
+     *
+     * @example
+     * // returns true
+     * Hison.utils.getToBoolean('yes');
+     *
+     * @example
+     * // returns false
+     * Hison.utils.getToBoolean(0);
+     *
+     * @example
+     * // returns true
+     * Hison.utils.getToBoolean('TRUE');
+     *
+     * @example
+     * // returns false
+     * Hison.utils.getToBoolean('false');
+     *
+     * Note: This function is designed to handle various inputs that can be interpreted as boolean true,
+     * while treating everything else as false. This is especially useful in contexts where user input
+     * or data representation might vary but needs to be interpreted in a boolean context.
+     */
     Hison.utils.getToBoolean = function(val) {
         if(Hison.utils.isNumeric(val)) {
             return Number(val) != 0;
@@ -1181,29 +2334,122 @@ var Hison ={};
             return false;
         }
     };
-    //파라메터 값에 대해 Number타입으로 형변환 한 값을 반환한다. 형변환 불가 시 0반환
-    Hison.utils.getToNumber = function(val) {
+    /**
+     * Converts a given value to a number. If the value cannot be converted to a number, it returns a specified 'impossible value'.
+     * The function first checks if the value is numeric using the isNumeric utility function.
+     * If it is numeric, it converts the value to a number using the Number() function; otherwise, it returns the 'impossible value'.
+     *
+     * @param {*} val - The value to be converted to a number.
+     * @param {*} [impossibleValue=0] - The value to return if conversion to a number is not possible. Defaults to 0.
+     * @returns {number} Returns the number representation of the input value, or the 'impossible value' if the value is not numeric.
+     *
+     * @example
+     * // returns 123 for a numeric string
+     * Hison.utils.getToNumber('123');
+     *
+     * @example
+     * // returns -1 for a non-numeric string when -1 is specified as the impossible value
+     * Hison.utils.getToNumber('Hello', -1);
+     *
+     * Note: This function allows for flexibility in handling non-numeric values, 
+     * providing the option to specify an alternative return value when conversion is not possible.
+     */
+    Hison.utils.getToNumber = function(val, impossibleValue) {
+        impossibleValue = impossibleValue === undefined ? 0 : impossibleValue;
         if (!Hison.utils.isNumeric(val)) {
-            return 0;
+            return impossibleValue;
         }
         return Number(val);
     };
-    //파라메터 값에 대해 Number타입으로 형변환 한 값을 반환한다. 형변환 불가 시 0반환
-    Hison.utils.getToFloat = function(val) {
+    /**
+     * Converts a given value to a floating-point number. If the value cannot be converted to a float, it returns a specified 'impossible value'.
+     * The function first checks if the value is numeric using the isNumeric utility function.
+     * If it is numeric, it converts the value to a float using the parseFloat() function; otherwise, it returns the 'impossible value'.
+     *
+     * @param {*} val - The value to be converted to a floating-point number.
+     * @param {*} [impossibleValue=0] - The value to return if conversion to a float is not possible. Defaults to 0.
+     * @returns {number} Returns the floating-point representation of the input value, or the 'impossible value' if the value is not numeric.
+     *
+     * @example
+     * // returns 123.45 for a numeric string
+     * Hison.utils.getToFloat('123.45');
+     *
+     * @example
+     * // returns -1.0 for a non-numeric string when -1.0 is specified as the impossible value
+     * Hison.utils.getToFloat('Hello', -1.0);
+     *
+     * Note: This function allows for flexibility in handling non-numeric values, 
+     * providing the option to specify an alternative return value when conversion is not possible.
+     */
+    Hison.utils.getToFloat = function(val, impossibleValue) {
+        impossibleValue = impossibleValue === undefined ? 0 : impossibleValue;
         if (!Hison.utils.isNumeric(val)) {
-            return 0;
+            return impossibleValue;
         }
         return parseFloat(val);
     };
-    //파라메터 값에 대해 Integer타입으로 형변환 한 값을 반환한다. 형변환 불가 시 0반환. 소수점은 버린다.
-    Hison.utils.getToInteger = function(val) {
+    /**
+     * Converts a given value to an integer. If the value cannot be converted to an integer, it returns a specified 'impossible value'.
+     * The function first checks if the value is numeric using the isNumeric utility function.
+     * If it is numeric, it converts the value to an integer using the parseInt() function, discarding any decimal points; otherwise, it returns the 'impossible value'.
+     *
+     * @param {*} val - The value to be converted to an integer.
+     * @param {*} [impossibleValue=0] - The value to return if conversion to an integer is not possible. Defaults to 0.
+     * @returns {number} Returns the integer representation of the input value, or the 'impossible value' if the value is not numeric.
+     *
+     * @example
+     * // returns 123 for a numeric string
+     * Hison.utils.getToInteger('123.45');
+     *
+     * @example
+     * // returns -1 for a non-numeric string when -1 is specified as the impossible value
+     * Hison.utils.getToInteger('Hello', -1);
+     *
+     * Note: This function converts values to integers, truncating any fractional parts. 
+     * It provides flexibility in handling non-numeric values by allowing the specification of an alternative return value when conversion is not possible.
+     */
+    Hison.utils.getToInteger = function(val, impossibleValue) {
+        impossibleValue = impossibleValue === undefined ? 0 : impossibleValue;
         if (!Hison.utils.isNumeric(val)) {
-            return 0;
+            return impossibleValue;
         }
         return parseInt(val, 10);
     };
-    //파라메터 값에 대해 String타입으로 형변환 한 값을 반환한다. 적절한 형변환 불가 시 ""반환.
-    Hison.utils.getToString = function(val) {
+    /**
+     * Converts a given value to a string representation. If the value cannot be converted to a string, it returns a specified 'impossible value'.
+     * The function handles strings, numbers, booleans, bigints, and symbols. If the value is a string, it is returned as is.
+     * For numbers, booleans, and bigints, the value is converted to its string equivalent.
+     * Symbols are converted to their description. For other types, the 'impossible value' is returned.
+     *
+     * @param {*} val - The value to be converted to a string.
+     * @param {*} [impossibleValue=''] - The value to return if conversion to a string is not possible. Defaults to an empty string.
+     * @returns {string} Returns the string representation of the input value, or the 'impossible value' if the value cannot be converted to a string.
+     *
+     * @example
+     * // returns 'Hello'
+     * Hison.utils.getToString('Hello');
+     *
+     * @example
+     * // returns '123' for a number
+     * Hison.utils.getToString(123);
+     *
+     * @example
+     * // returns 'true' for a boolean
+     * Hison.utils.getToString(true);
+     *
+     * @example
+     * // returns the description of the symbol
+     * Hison.utils.getToString(Symbol('mySymbol'));
+     *
+     * @example
+     * // returns 'default' for an object when 'default' is specified as the impossible value
+     * Hison.utils.getToString({}, 'default');
+     *
+     * Note: This function allows for flexibility in handling values that may not be directly convertible to strings,
+     * providing the option to specify an alternative return value when conversion is not possible.
+     */
+    Hison.utils.getToString = function(val, impossibleValue) {
+        impossibleValue = impossibleValue === undefined ? '' : impossibleValue;
         var rtn;
         if (typeof val === 'string') {
             rtn = val;
@@ -1212,51 +2458,152 @@ var Hison ={};
         } else if (typeof val === 'symbol') {
             rtn = val.description;
         } else {
-            rtn = "";
+            rtn = impossibleValue;
         }
         return rtn;
     };
     
-    //파라메터 URL 또는 파일명에서 확장자를 추출한 값을 반환한다.
+    /******************************************
+     * Utils etc
+     ******************************************/
+    /**
+     * Extracts the file extension from a given URL or filename. The function splits the string on the '.' character
+     * and returns the last segment as the file extension. If the string does not contain a '.', indicating no file extension,
+     * an empty string is returned. This function is useful for extracting file extensions from file names or URLs.
+     *
+     * @param {*} str - The URL or filename from which the file extension is to be extracted.
+     * @returns {string} Returns the file extension if present; otherwise, returns an empty string.
+     *
+     * @example
+     * // returns 'jpg' for a filename
+     * Hison.utils.getFileExtension('image.jpg');
+     *
+     * @example
+     * // returns 'html' for a URL
+     * Hison.utils.getFileExtension('https://example.com/page.html');
+     *
+     * @example
+     * // returns an empty string for a string without a file extension
+     * Hison.utils.getFileExtension('filename');
+     *
+     * Note: This function assumes that the file extension (if present) is the part of the string following the last '.' character.
+     * It is useful in contexts where file types need to be determined based on file names or URLs.
+     */
     Hison.utils.getFileExtension = function(str) {
         str = Hison.utils.getToString(str);
     
         var extension = str.split('.').pop();
         if (extension === str) {
-            return ''; // 확장자가 없는 경우
+            return '';
         }
         return extension;
     };
-    //파라메터 URL 또는 파일명에서 확장자를 제외한 파일명 값을 반환한다.
+    /**
+     * Extracts the file name without the extension from a given URL or filename. The function first isolates the file name
+     * by splitting the string on '/' and taking the last segment. It then looks for the last '.' character to separate the file name
+     * from its extension. If there is no '.', the entire file name is returned as is.
+     * This function is useful for obtaining just the name part of a file from a full path or URL.
+     *
+     * @param {*} str - The URL or filename from which the file name is to be extracted.
+     * @returns {string} Returns the file name without the extension.
+     *
+     * @example
+     * // returns 'image' for a filename
+     * Hison.utils.getFileName('image.jpg');
+     *
+     * @example
+     * // returns 'page' for a URL
+     * Hison.utils.getFileName('https://example.com/page.html');
+     *
+     * @example
+     * // returns 'filename' for a string without an extension
+     * Hison.utils.getFileName('filename');
+     *
+     * Note: This function focuses on extracting the file name before the last period, assuming that what follows the last period
+     * is the file extension. It is useful when the file extension is not needed or should be processed separately.
+     */
     Hison.utils.getFileName = function(str) {
         str = Hison.utils.getToString(str);
     
-        var fileName = str.split('/').pop(); // 경로에서 파일명만 추출
+        var fileName = str.split('/').pop();
         var lastDotIndex = fileName.lastIndexOf('.');
     
-        if (lastDotIndex === -1) return fileName; // 마침표가 없는 경우
-        return fileName.substring(0, lastDotIndex); // 마지막 마침표 이전까지의 문자열 반환
+        if (lastDotIndex === -1) return fileName;
+        return fileName.substring(0, lastDotIndex);
     };
-    
-    //파라메터 값을 파라메터 문자포맷으로 Base64 디코딩한 값을 반환한다.
-    //var decoded = Hison.utils.getDecodeBase64(encoded);
-    //console.log(decoded); // Hello World!
+    /**
+     * Decodes a Base64 encoded string to its original format using a specified character encoding. 
+     * The function first converts the Base64 encoded string to a binary string using atob(), 
+     * then decodes the binary string to the original string format using decodeURIComponent().
+     * This is particularly useful for decoding Base64 encoded data back to its original string format.
+     *
+     * @param {*} str - The Base64 encoded string to be decoded.
+     * @returns {string} Returns the decoded string from Base64 format.
+     *
+     * @example
+     * // Assume 'encoded' is a Base64 encoded string of 'Hello World!'
+     * var encoded = 'SGVsbG8gV29ybGQh';
+     * var decoded = Hison.utils.getDecodeBase64(encoded);
+     * console.log(decoded); // Outputs: 'Hello World!'
+     *
+     * Note: This function handles the conversion of Base64 encoded strings to their original string format. 
+     * It's particularly useful when dealing with data that has been Base64 encoded for transmission or storage and needs to be decoded.
+     */
     Hison.utils.getDecodeBase64 = function(str) {
         str = Hison.utils.getToString(str);
         return decodeURIComponent(Array.prototype.map.call(atob(str), function(c) {
             return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
         }).join(''));
     };
-    //파라메터 값을 파라메터 문자포맷으로 Base64 인코딩한 값을 반환한다.
-    //var encoded = Hison.utils.getEncodeBase64("Hello World!");
-    //console.log(encoded); // SGVsbG8gV29ybGQh
+    /**
+     * Encodes a given string to Base64 format. The function first uses encodeURIComponent() to handle special characters,
+     * then converts each escaped sequence to its equivalent character using String.fromCharCode() before finally encoding the string
+     * in Base64 format using btoa(). This is useful for encoding data into Base64 format for safe transmission or storage.
+     *
+     * @param {*} str - The string to be encoded into Base64.
+     * @returns {string} Returns the Base64 encoded string.
+     *
+     * @example
+     * // Encode 'Hello World!' to Base64
+     * var encoded = Hison.utils.getEncodeBase64("Hello World!");
+     * console.log(encoded); // Outputs: 'SGVsbG8gV29ybGQh'
+     *
+     * Note: This function is useful for encoding strings into Base64, a common requirement when handling data that needs to be
+     * transmitted over mediums that do not support all character sets or when storing data in a format that is compact and safe from
+     * alteration during transmission.
+     */
     Hison.utils.getEncodeBase64 = function(str) {
         str = Hison.utils.getToString(str);
         return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(_, p1) {
             return String.fromCharCode('0x' + p1);
         }));
     };
-
+    /**
+     * Performs a deep copy of a given object, ensuring that nested objects are also copied rather than just their references.
+     * The function handles objects and arrays, recursively copying their properties and elements. For objects that are instances
+     * of custom classes (excluding plain objects and arrays), the function checks for `isDataWrapper` or `isDataModel` properties
+     * and uses the `clone()` method if available; otherwise, it returns the object itself. The function also handles circular references.
+     *
+     * @param {*} object - The object to be deeply copied.
+     * @param {Array} [visited=[]] - Internal parameter used for tracking visited objects to handle circular references.
+     * @returns {*} Returns a deep copy of the object.
+     *
+     * @example
+     * // Deep copy an object
+     * var original = { a: 1, b: { c: 2 } };
+     * var copy = Hison.utils.deepCopy(original);
+     * console.log(copy); // { a: 1, b: { c: 2 } }
+     *
+     * @example
+     * // Deep copy an array
+     * var original = [1, [2, 3]];
+     * var copy = Hison.utils.deepCopy(original);
+     * console.log(copy); // [1, [2, 3]]
+     *
+     * Note: This function is useful for creating a true copy of an object or array, including all nested elements,
+     * without sharing references with the original structure. This is essential in many programming scenarios
+     * where modifications to a copied object should not affect the original object.
+     */
     Hison.utils.deepCopy = function(object, visited) {
         if (object === null || typeof object !== 'object') {
             return object;
@@ -1264,9 +2611,8 @@ var Hison ={};
         if (object.constructor !== Object && object.constructor !== Array) {
             if(object.isDataWrapper || object.isDataModel) {
                 return object.clone();
-            } else {
-                throw new Error("The object does not support deep copy.");
             }
+            return object;
         }
         if (!visited) visited = [];
         for (var i = 0; i < visited.length; i++) {

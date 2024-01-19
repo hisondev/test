@@ -15,6 +15,7 @@
  */
 var Hison ={};
 (function() {
+    Hison.const = {};
     Hison.const.LESSOREQ_0X7FF_BYTE = 2;    //charCode <= 0x7FF
     Hison.const.LESSOREQ_0XFFFF_BYTE = 3;   //charCode <= 0xFFFF
     Hison.const.GREATER_0XFFFF_BYTE = 4;    //charCode > 0xFFFF
@@ -133,6 +134,7 @@ var Hison ={};
      * Checks if the given string consists only of numbers and special characters.
      * This method uses a regular expression to test whether the input string contains
      * only numeric characters (0 through 9) and special characters such as !@#$%^&*()_+\\-=[]{};':"\\|,.<>/?~.
+     * The regular expression is designed to ensure that the string includes only these characters.
      *
      * @param {string} str - The string to be tested.
      * @returns {boolean} Returns true if the string consists only of numbers and special characters; otherwise, false.
@@ -146,7 +148,7 @@ var Hison ={};
      * Hison.utils.isNumberSymbols("1234ABC");
      */
     Hison.utils.isNumberSymbols = function(str) {
-        return /^[0-9!@#$%^&*()_+\\-=\[\]{};':"\\|,.<>\/?~]+$/.test(str);
+        return /^[0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]+$/.test(str);
     };
     /**
      * Checks if the given string includes any special characters.
@@ -165,7 +167,7 @@ var Hison ={};
      * Hison.utils.isIncludeSymbols("HelloWorld");
      */
     Hison.utils.isIncludeSymbols = function(str) {
-        return /[!@#$%^&*()_+\\-=\[\]{};':"\\|,.<>\/?~]/.test(str);
+        return /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/.test(str);
     };
     /**
      * Checks if the given string consists only of lowercase English alphabet characters.
@@ -505,9 +507,9 @@ var Hison ={};
      * // returns false
      * Hison.utils.isDatetime({ y: 2020, m: 13, d: 25, h: 10, mi: 30, s: 45 });
      */
-    Hison.utils.isDatetime = function(datatimeObj) {
-        if(!Hison.utils.isDate(datatimeObj.y, datatimeObj.m, datatimeObj.d)) return false;
-        if(!Hison.utils.isTime(datatimeObj.h, datatimeObj.mi, datatimeObj.s)) return false;
+    Hison.utils.isDatetime = function(datetimeObj) {
+        if(!Hison.utils.isDate(datetimeObj)) return false;
+        if(!Hison.utils.isTime(datetimeObj)) return false;
         return true;
     };
     /**
@@ -604,270 +606,6 @@ var Hison ={};
         }
         return true;
     };
-    /**
-     * Checks if the given string is a valid Korean business registration number.
-     * The business registration number format is 'xxx-xx-xxxxx'. The method uses a regular expression
-     * to verify if the input string matches this format.
-     * It then removes hyphens and converts each digit into an array.
-     * A specific calculation is performed to validate the business registration number.
-     * This calculation involves multiplying each digit by a specific weight and summing these values,
-     * then taking the remainder when divided by 10.
-     * Finally, the method checks if the calculated number matches the last digit of the business registration number.
-     *
-     * @param {string} bizNoStr - The business registration number string to be tested.
-     * @returns {boolean} Returns true if the string is a valid Korean business registration number; otherwise, false.
-     *
-     * @example
-     * // returns true
-     * Hison.utils.isBizNo("123-45-67890");
-     *
-     * @example
-     * // returns false
-     * Hison.utils.isBizNo("123-45-67891");
-     */
-    Hison.utils.isBizNo = function(bizNoStr) {
-        var regex = /^\d{3}-\d{2}-\d{5}$/;
-        if (!regex.test(bizNoStr)) {
-            return false;
-        }
-    
-        bizNoStr = bizNoStr.replace(/-/g, '');
-        var arrBizNo = bizNoStr.split('').map(function(num) {
-            return parseInt(num, 10);
-        });
-    
-        var checkSum = (1 * arrBizNo[0] + 3 * arrBizNo[1] + 7 * arrBizNo[2] + 1 * arrBizNo[3] + 3 * arrBizNo[4] + 7 * arrBizNo[5] + 1 * arrBizNo[6] + 3 * arrBizNo[7]) % 10;
-        var checkNum = (10 - checkSum) % 10;
-    
-        return checkNum === arrBizNo[8];
-    };
-    /**
-     * Checks if the given string is a valid Korean corporate registration number.
-     * The corporate registration number format in Korea is typically '6 digits-7 digits'.
-     * This method uses a regular expression to verify if the input string matches this specific format.
-     *
-     * @param {string} corpNoStr - The corporate registration number string to be tested.
-     * @returns {boolean} Returns true if the string is a valid Korean corporate registration number format; otherwise, false.
-     *
-     * @example
-     * // returns true
-     * Hison.utils.isCorpNo("123456-1234567");
-     */
-    Hison.utils.isCorpNo = function(corpNoStr) {
-        var regex = /^\d{6}-\d{7}$/;
-        return regex.test(corpNoStr);
-    };
-    /**
-     * Checks if the given string is in a valid Korean birth date format.
-     * The birth date format in Korea is typically 'YYMMDD' (6 digits).
-     * This method uses a regular expression to verify if the input string matches this specific format.
-     * It then parses the string into year, month, and day components.
-     * Years less than '40' are considered as 2000s, otherwise as 1900s.
-     * Finally, it validates the full date using `Hison.utils.isDate` method.
-     *
-     * @param {string} birthDateStr - The birth date string to be tested.
-     * @returns {boolean} Returns true if the string is a valid birth date format; otherwise, false.
-     *
-     * @example
-     * // returns true
-     * Hison.utils.isBirthDate("850123");
-     *
-     * @example
-     * // returns false
-     * Hison.utils.isBirthDate("851332"); // Invalid day
-     */
-    Hison.utils.isBirthDate = function(birthDateStr) {
-        var regex = /^\d{6}$/;
-        if(!regex.test(birthDateStr)) return false;
-        var yy = birthDateStr.substring(0,2);
-        yy = parseInt(yy, 10) < 40 ? "20" + yy : "19" + yy;
-        var mm = birthDateStr.substring(2,4);
-        var dd = birthDateStr.substring(4,6);
-
-        return Hison.utils.isDate(yy, mm, dd);
-    };
-    /**
-     * Checks if the given string is a valid Korean resident registration number.
-     * The format for the resident registration number is 'xxxxxx-xxxxxxx' where the first part is the birth date
-     * and the second part begins with either 1, 2, 3, or 4.
-     * This method uses a regular expression to verify the format and the specific criteria for the second part.
-     * It then applies a unique weight to each digit of the number and calculates the sum.
-     * The sum is divided by 11, and this remainder is subtracted from 11 and again divided by 10.
-     * The final remainder should match the last digit of the resident registration number.
-     *
-     * @param {string} resNoStr - The resident registration number string to be tested.
-     * @returns {boolean} Returns true if the string is a valid Korean resident registration number; otherwise, false.
-     *
-     * @example
-     * // returns true
-     * Hison.utils.isResNo("990101-1234567");
-     *
-     * @example
-     * // returns false
-     * Hison.utils.isResNo("990101-7234567"); // Invalid format
-     */
-    Hison.utils.isResNo = function(resNoStr) {
-        var regex = /^\d{6}-[1234]\d{6}$/;
-        if (!regex.test(resNoStr)) {
-            return false;
-        }
-    
-        var nums = resNoStr.replace('-', '').split('').map(Number);
-        var sum = 0;
-        var multipliers = [2, 3, 4, 5, 6, 7, 8, 9, 2, 3, 4, 5];
-        
-        for (var i = 0; i < 12; i++) {
-            sum += nums[i] * multipliers[i];
-        }
-    
-        var lastDigit = (11 - (sum % 11)) % 10;
-        return lastDigit === nums[12];
-    };
-    /**
-     * Checks if the given string is a valid Korean foreign resident registration number.
-     * The format for the foreign resident registration number is 'xxxxxx-xxxxxxx', similar to the Korean resident registration number,
-     * but the second part begins with either 5, 6, 7, or 8.
-     * This method uses a regular expression to verify if the input string matches this specific format.
-     *
-     * @param {string} fgnResNoStr - The foreign resident registration number string to be tested.
-     * @returns {boolean} Returns true if the string is a valid Korean foreign resident registration number; otherwise, false.
-     *
-     * @example
-     * // returns true
-     * Hison.utils.isFgnResNo("990101-5123456");
-     *
-     * @example
-     * // returns false
-     * Hison.utils.isFgnResNo("990101-3123456");
-     * // Invalid format as it doesn't start with 5, 6, 7, or 8
-     */
-    Hison.utils.isFgnResNo = function(fgnResNoStr) {
-        var regex = /^\d{6}-[5678]\d{6}$/;
-        return regex.test(fgnResNoStr);
-    };
-    /**
-     * Checks if the given string is in the format of a local Korean telephone number.
-     * The format for local telephone numbers in Korea typically starts with an area code,
-     * followed by a three or four-digit exchange number, and ends with a four-digit line number.
-     * Area codes start with '02' for Seoul, or '0' followed by a 1 or 2-digit number for other regions.
-     * The format is generally 'AreaCode-Exchange-Line' (e.g., '02-1234-5678' or '031-123-4567').
-     * This method uses a regular expression to validate the format of the telephone number.
-     *
-     * @param {string} telNoStr - The telephone number string to be tested.
-     * @returns {boolean} Returns true if the string is a valid local Korean telephone number; otherwise, false.
-     *
-     * @example
-     * // returns true
-     * Hison.utils.isLocalTelNo("02-1234-5678");
-     *
-     * @example
-     * // returns false
-     * Hison.utils.isLocalTelNo("02-123-567"); // Invalid format
-     */
-    Hison.utils.isLocalTelNo = function(telNoStr) {
-        var regex = /^(02|0[3-9][0-9]?)-\d{3,4}-\d{4}$/;
-        return regex.test(telNoStr);
-    };
-    /**
-     * Checks if the given string is in the format of a Korean mobile telephone number.
-     * The format for Korean mobile numbers typically starts with a three-digit mobile carrier prefix,
-     * followed by a three or four-digit middle number, and ends with a four-digit line number.
-     * The mobile carrier prefixes include '010', '011', '016', '017', '018', and '019'.
-     * The format is generally 'CarrierPrefix-Middle-Line' (e.g., '010-1234-5678' or '011-123-4567').
-     * This method uses a regular expression to validate the format of the mobile telephone number.
-     *
-     * @param {string} telNoStr - The mobile telephone number string to be tested.
-     * @returns {boolean} Returns true if the string is a valid Korean mobile telephone number; otherwise, false.
-     *
-     * @example
-     * // returns true
-     * Hison.utils.isCellTelNo("010-1234-5678");
-     *
-     * @example
-     * // returns false
-     * Hison.utils.isCellTelNo("012-3456-7890"); // Invalid format
-     */
-    Hison.utils.isCellTelNo = function(telNoStr) {
-        var regex = /^(010|011|016|017|018|019)-\d{3,4}-\d{4}$/;
-        return regex.test(telNoStr);
-    };
-    /**
-     * Checks if the given string is in the format of a Korean internet telephone number.
-     * Korean internet telephone numbers typically start with the prefix '070',
-     * followed by a four-digit middle number, and end with a four-digit line number.
-     * The format is generally '070-Middle-Line' (e.g., '070-1234-5678').
-     * This method uses a regular expression to validate the format of the internet telephone number.
-     *
-     * @param {string} telNoStr - The internet telephone number string to be tested.
-     * @returns {boolean} Returns true if the string is a valid Korean internet telephone number; otherwise, false.
-     *
-     * @example
-     * // returns true
-     * Hison.utils.isInternetTelNo("070-1234-5678");
-     *
-     * @example
-     * // returns false
-     * Hison.utils.isInternetTelNo("071-1234-5678"); // Invalid format
-     */
-    Hison.utils.isInternetTelNo = function(telNoStr) {
-        var regex = /^070-\d{4}-\d{4}$/;
-        return regex.test(telNoStr);
-    };
-    /**
-     * Checks if the given string is in the format of a Korean customer service telephone number.
-     * Korean customer service numbers typically consist of two groups of four digits,
-     * separated by a hyphen (e.g., '1234-5678'). These numbers are often used for businesses
-     * and organizations to provide customer support or information services.
-     * This method uses a regular expression to validate the format of the customer service telephone number.
-     *
-     * @param {string} telNoStr - The customer service telephone number string to be tested.
-     * @returns {boolean} Returns true if the string is a valid Korean customer service telephone number; otherwise, false.
-     *
-     * @example
-     * // returns true
-     * Hison.utils.isCSTelNo("1234-5678");
-     *
-     * @example
-     * // returns false
-     * Hison.utils.isCSTelNo("123-45678"); // Invalid format
-     */
-    Hison.utils.isCSTelNo = function(telNoStr) {
-        var regex = /^\d{4}-\d{4}$/;
-        return regex.test(telNoStr);
-    };
-    /**
-     * Checks if the given string is in the format of any Korean telephone number type,
-     * including local, mobile, internet, or customer service numbers.
-     * This method internally utilizes other specific functions to check for each telephone number type:
-     * - Local telephone numbers (checked by Hison.utils.isLocalTelNo)
-     * - Mobile telephone numbers (checked by Hison.utils.isCellTelNo)
-     * - Internet telephone numbers (checked by Hison.utils.isInternetTelNo)
-     * - Customer service telephone numbers (checked by Hison.utils.isCSTelNo)
-     * If the given string matches any of these formats, the method returns true.
-     *
-     * @param {string} telNoStr - The telephone number string to be tested.
-     * @returns {boolean} Returns true if the string is a valid Korean telephone number of any type; otherwise, false.
-     *
-     * @example
-     * // returns true
-     * Hison.utils.isTelNo("02-1234-5678"); // Local number
-     *
-     * @example
-     * // returns true
-     * Hison.utils.isTelNo("010-1234-5678"); // Mobile number
-     *
-     * @example
-     * // returns false
-     * Hison.utils.isTelNo("123-4567"); // Invalid format
-     */
-    Hison.utils.isTelNo = function(telNoStr) {
-        var result = false;
-        if(Hison.utils.isLocalTelNo(telNoStr)) result = true;
-        if(Hison.utils.isCellTelNo(telNoStr)) result = true;
-        if(Hison.utils.isInternetTelNo(telNoStr)) result = true;
-        if(Hison.utils.isCSTelNo(telNoStr)) result = true;
-        return result;
-    };
     
     /******************************************
      * Utils Date
@@ -877,8 +615,9 @@ var Hison ={};
      * The function accepts a date object and a value to add, with an optional type of the value (years, months, days, etc.).
      * If no type is specified, days are added by default. The function throws errors for invalid input or date format.
      * It adjusts the given date accordingly and returns a new date object in a structured format.
+     * The original object does not change.
      *
-     * @param {object} datatimeObj - The date object to which time will be added. Should contain year (y), and optionally month (m), day (d), hours (h), minutes (mi), and seconds (s).
+     * @param {object} datetimeObj - The date object to which time will be added. Should contain year (y), and optionally month (m), day (d), hours (h), minutes (mi), and seconds (s).
      * @param {number} addValue - The value to add to the date. Must be an integer.
      * @param {string} [addType='d'] - The type of value to add ('y' for years, 'm' for months, 'd' for days, 'h' for hours, 'mi' for minutes, 's' for seconds). Default is days ('d').
      * @returns {object} Returns a new date object with the added time.
@@ -893,55 +632,57 @@ var Hison ={};
      * // returns a date object with 3 months added
      * Hison.utils.addDate({ y: 2024, m: 1, d: 15 }, 3, 'm');
      */
-    Hison.utils.addDate = function(datatimeObj, addValue, addType) {
-        if (!datatimeObj.y || (addValue !== 0 && !addValue)) {
+    Hison.utils.addDate = function(datetimeObj, addValue, addType) {
+        if (!datetimeObj.y || (addValue !== 0 && !addValue)) {
             throw new Error("Required parameters have not been entered.");
         }
         if(!addType) addType ="";
+
+        var dObj = Hison.utils.deepCopy(datetimeObj);
     
         if(!Hison.utils.isInteger(addValue)) throw new Error("addValue must be an integer");
     
-        datatimeObj.m = datatimeObj.m === null || datatimeObj.m === undefined ? 1 : datatimeObj.m;
-        datatimeObj.d = datatimeObj.d === null || datatimeObj.d === undefined ? 1 : datatimeObj.d;
-        datatimeObj.h = datatimeObj.h === null || datatimeObj.h === undefined ? 0 : datatimeObj.h;
-        datatimeObj.mi = datatimeObj.mi === null || datatimeObj.mi === undefined ? 0 : datatimeObj.mi;
-        datatimeObj.s = datatimeObj.s === null || datatimeObj.s === undefined ? 0 : datatimeObj.s;
+        dObj.m = dObj.m === null || dObj.m === undefined ? 1 : dObj.m;
+        dObj.d = dObj.d === null || dObj.d === undefined ? 1 : dObj.d;
+        dObj.h = dObj.h === null || dObj.h === undefined ? 0 : dObj.h;
+        dObj.mi = dObj.mi === null || dObj.mi === undefined ? 0 : dObj.mi;
+        dObj.s = dObj.s === null || dObj.s === undefined ? 0 : dObj.s;
 
-        if(!Hison.utils.isDate(datatimeObj)) throw new Error("Please input a valid date.");
-        if(!Hison.utils.isTime(datatimeObj)) throw new Error("Please input a valid date.");
+        if(!Hison.utils.isDate(dObj)) throw new Error("Please input a valid date.");
+        if(!Hison.utils.isTime(dObj)) throw new Error("Please input a valid date.");
     
-        var date = new Date(datatimeObj.y, datatimeObj.m - 1, datatimeObj.d, datatimeObj.h, datatimeObj.mi, datatimeObj.s);
+        var d = new Date(dObj.y, dObj.m - 1, dObj.d, dObj.h, dObj.mi, dObj.s);
     
         switch (addType.toLowerCase()) {
             case 'y':
-                date.setFullYear(date.getFullYear() + addValue);
+                d.setFullYear(d.getFullYear() + addValue);
                 break;
             case 'm':
-                date.setMonth(date.getMonth() + addValue);
+                d.setMonth(d.getMonth() + addValue);
                 break;
             case 'd':
-                date.setDate(date.getDate() + addValue);
+                d.setDate(d.getDate() + addValue);
                 break;
             case 'h':
-                date.setHours(date.getHours() + addValue);
+                d.setHours(d.getHours() + addValue);
                 break;
             case 'mi':
-                date.setMinutes(date.getMinutes() + addValue);
+                d.setMinutes(d.getMinutes() + addValue);
                 break;
             case 's':
-                date.setSeconds(date.getSeconds() + addValue);
+                d.setSeconds(d.getSeconds() + addValue);
                 break;
             default:
-                date.setDate(date.getDate() + addValue);
+                d.setDate(d.getDate() + addValue);
         }
 
         return {
-            y: date.getFullYear().toString().padStart(4, '0'),
-            m: (date.getMonth() + 1).toString().padStart(2, '0'),
-            d: date.getDate().toString().padStart(2, '0'),
-            h: date.getHours().toString().padStart(2, '0'),
-            mi: date.getMinutes().toString().padStart(2, '0'),
-            s: date.getSeconds().toString().padStart(2, '0')
+            y: d.getFullYear().toString().padStart(4, '0'),
+            m: (d.getMonth() + 1).toString().padStart(2, '0'),
+            d: d.getDate().toString().padStart(2, '0'),
+            h: d.getHours().toString().padStart(2, '0'),
+            mi: d.getMinutes().toString().padStart(2, '0'),
+            s: d.getSeconds().toString().padStart(2, '0')
         };
     };
     /**
@@ -968,37 +709,39 @@ var Hison ={};
         if (!datetimeObj1.y || !datetimeObj2.y) {
             throw new Error("Required parameters have not been entered.");
         }
+        var dObj1 = Hison.utils.deepCopy(datetimeObj1);
+        var dObj2 = Hison.utils.deepCopy(datetimeObj2);
         if(!diffType) diffType = "";
     
-        datetimeObj1.m = datetimeObj1.m || 1; datetimeObj2.m = datetimeObj2.m || 1;
-        datetimeObj1.d = datetimeObj1.d || 1; datetimeObj2.d = datetimeObj2.d || 1;
-        datetimeObj1.h = datetimeObj1.h || 0; datetimeObj2.h = datetimeObj2.h || 0;
-        datetimeObj1.mi = datetimeObj1.mi || 0; datetimeObj2.mi = datetimeObj2.mi || 0;
-        datetimeObj1.s = datetimeObj1.s || 0; datetimeObj2.s = datetimeObj2.s || 0;
+        dObj1.m = dObj1.m || 1; dObj2.m = dObj2.m || 1;
+        dObj1.d = dObj1.d || 1; dObj2.d = dObj2.d || 1;
+        dObj1.h = dObj1.h || 0; dObj2.h = dObj2.h || 0;
+        dObj1.mi = dObj1.mi || 0; dObj2.mi = dObj2.mi || 0;
+        dObj1.s = dObj1.s || 0; dObj2.s = dObj2.s || 0;
 
-        if(!Hison.utils.isDate(datetimeObj1)) throw new Error("Please input a valid date.");
-        if(!Hison.utils.isTime(datetimeObj1)) throw new Error("Please input a valid date.");
-        if(!Hison.utils.isDate(datetimeObj2)) throw new Error("Please input a valid date.");
-        if(!Hison.utils.isTime(datetimeObj2)) throw new Error("Please input a valid date.");
+        if(!Hison.utils.isDate(dObj1)) throw new Error("Please input a valid date.");
+        if(!Hison.utils.isTime(dObj1)) throw new Error("Please input a valid date.");
+        if(!Hison.utils.isDate(dObj2)) throw new Error("Please input a valid date.");
+        if(!Hison.utils.isTime(dObj2)) throw new Error("Please input a valid date.");
     
-        var date1 = new Date(datetimeObj1.y, datetimeObj1.m - 1, datetimeObj1.d, datetimeObj1.h, datetimeObj1.mi, datetimeObj1.s);
-        var date2 = new Date(datetimeObj2.y, datetimeObj2.m - 1, datetimeObj2.d, datetimeObj2.h, datetimeObj2.mi, datetimeObj2.s);
+        var d1 = new Date(dObj1.y, dObj1.m - 1, dObj1.d, dObj1.h, dObj1.mi, dObj1.s);
+        var d2 = new Date(dObj2.y, dObj2.m - 1, dObj2.d, dObj2.h, dObj2.mi, dObj2.s);
     
         switch (diffType.toLowerCase()) {
             case 'y':
-                return date2.getFullYear() - date1.getFullYear();
+                return d2.getFullYear() - d1.getFullYear();
             case 'm':
-                return (date2.getFullYear() - date1.getFullYear()) * 12 + date2.getMonth() - date1.getMonth();
+                return (d2.getFullYear() - d1.getFullYear()) * 12 + d2.getMonth() - d1.getMonth();
             case 'd':
-                return Math.floor((date2 - date1) / (24 * 60 * 60 * 1000));
+                return Math.floor((d2 - d1) / (24 * 60 * 60 * 1000));
             case 'h':
-                return Math.floor((date2 - date1) / (60 * 60 * 1000));
+                return Math.floor((d2 - d1) / (60 * 60 * 1000));
             case 'mi':
-                return Math.floor((date2 - date1) / (60 * 1000));
+                return Math.floor((d2 - d1) / (60 * 1000));
             case 's':
-                return Math.floor((date2 - date1) / 1000);
+                return Math.floor((d2 - d1) / 1000);
             default:
-                return Math.floor((date2 - date1) / (24 * 60 * 60 * 1000));
+                return Math.floor((d2 - d1) / (24 * 60 * 60 * 1000));
         }
     };
     /**
@@ -1038,6 +781,7 @@ var Hison ={};
      * Formats a given date object according to a specified format string. The default format is "mn ddth, yyyy".
      * This function supports a wide range of format specifiers, allowing for various date representations.
      * It throws an error for invalid date inputs or unsupported format strings.
+     * The original object does not change.
      *
      * @param {object} datetimeObj - The date object to format. Should contain year (y), and optionally month (m), day (d), hours (h), minutes (mi), and seconds (s).
      * @param {string} [format='mn ddth, yyyy'] - The format string specifying the desired output format. Supports various combinations of 'yyyy', 'mm', 'dd', 'hh', 'mi', 'ss', along with separators.
@@ -1057,357 +801,359 @@ var Hison ={};
         if(!datetimeObj.y) throw new Error("Required parameters have not been entered.");
         if(!format) format = "mn ddth, yyyy";
 
-        datetimeObj.m = (datetimeObj.m || 1).toString().padStart(2, '0');
-        datetimeObj.d = (datetimeObj.d || 1).toString().padStart(2, '0');
-        datetimeObj.h = (datetimeObj.h || 0).toString().padStart(2, '0');
-        datetimeObj.mi = (datetimeObj.mi || 0).toString().padStart(2, '0');
-        datetimeObj.s = (datetimeObj.s || 0).toString().padStart(2, '0');
+        var dObj = Hison.utils.deepCopy(datetimeObj);
 
-        if(!Hison.utils.isDate(datetimeObj)) throw new Error("Please input a valid date.");
-        if(!Hison.utils.isTime(datetimeObj)) throw new Error("Please input a valid date.");
+        dObj.m = (dObj.m || 1).toString().padStart(2, '0');
+        dObj.d = (dObj.d || 1).toString().padStart(2, '0');
+        dObj.h = (dObj.h || 0).toString().padStart(2, '0');
+        dObj.mi = (dObj.mi || 0).toString().padStart(2, '0');
+        dObj.s = (dObj.s || 0).toString().padStart(2, '0');
 
-        var mn = Hison.utils.getMonthName(datetimeObj.m);
-        var mnabb = Hison.utils.getMonthName(datetimeObj.m, false);
+        if(!Hison.utils.isDate(dObj)) throw new Error("Please input a valid date.");
+        if(!Hison.utils.isTime(dObj)) throw new Error("Please input a valid date.");
+
+        var mn = Hison.utils.getMonthName(dObj.m);
+        var mnabb = Hison.utils.getMonthName(dObj.m, false);
     
         switch (format.toLowerCase()) {
             case 'yyyy':
-                return datetimeObj.y;
+                return dObj.y;
                 
             case 'yyyymm':
-                return datetimeObj.y + datetimeObj.m;
+                return dObj.y + dObj.m;
             case 'yyyy-mm':
-                return datetimeObj.y + '-' + datetimeObj.m;
+                return dObj.y + '-' + dObj.m;
             case 'yyyy/mm':
-                return datetimeObj.y + '/' + datetimeObj.m;
+                return dObj.y + '/' + dObj.m;
             case 'yyyy. mm':
-                return datetimeObj.y + '. ' + datetimeObj.m;
+                return dObj.y + '. ' + dObj.m;
             case 'yyyy mm':
-                return datetimeObj.y + ' ' + datetimeObj.m;
+                return dObj.y + ' ' + dObj.m;
 
             case 'yyyymmdd':
-                return datetimeObj.y + datetimeObj.m + datetimeObj.d;
+                return dObj.y + dObj.m + dObj.d;
             case 'yyyy-mm-dd':
-                return datetimeObj.y + '-' + datetimeObj.m + '-' + datetimeObj.d;
+                return dObj.y + '-' + dObj.m + '-' + dObj.d;
             case 'yyyy/mm/dd':
-                return datetimeObj.y + '/' + datetimeObj.m + '/' + datetimeObj.d;
+                return dObj.y + '/' + dObj.m + '/' + dObj.d;
             case 'yyyy. mm. dd':
-                return datetimeObj.y + '. ' + datetimeObj.m + '. ' + datetimeObj.d;
+                return dObj.y + '. ' + dObj.m + '. ' + dObj.d;
             case 'yyyy mm dd':
-                return datetimeObj.y + ' ' + datetimeObj.m + ' ' + datetimeObj.d;
+                return dObj.y + ' ' + dObj.m + ' ' + dObj.d;
 
             case 'yyyymmdd hh':
-                return datetimeObj.y + datetimeObj.m + datetimeObj.d + ' ' + datetimeObj.h;
+                return dObj.y + dObj.m + dObj.d + ' ' + dObj.h;
             case 'yyyymmdd hhmi':
-                return datetimeObj.y + datetimeObj.m + datetimeObj.d + ' ' + datetimeObj.h + datetimeObj.mi;
+                return dObj.y + dObj.m + dObj.d + ' ' + dObj.h + dObj.mi;
             case 'yyyymmdd hhmiss':
-                return datetimeObj.y + datetimeObj.m + datetimeObj.d + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
+                return dObj.y + dObj.m + dObj.d + ' ' + dObj.h + dObj.mi + dObj.s;
             case 'yyyymmdd hh:mi':
-                return datetimeObj.y + datetimeObj.m + datetimeObj.d + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
+                return dObj.y + dObj.m + dObj.d + ' ' + dObj.h + ':' + dObj.mi;
             case 'yyyymmdd hh:mi:ss':
-                return datetimeObj.y + datetimeObj.m + datetimeObj.d + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
+                return dObj.y + dObj.m + dObj.d + ' ' + dObj.h + ':' + dObj.mi + ':' + dObj.s;
             case 'yyyy-mm-dd hh':
-                return datetimeObj.y + '-' + datetimeObj.m + '-' + datetimeObj.d + ' ' + datetimeObj.h;
+                return dObj.y + '-' + dObj.m + '-' + dObj.d + ' ' + dObj.h;
             case 'yyyy-mm-dd hhmi':
-                return datetimeObj.y + '-' + datetimeObj.m + '-' + datetimeObj.d + ' ' + datetimeObj.h + datetimeObj.mi;
+                return dObj.y + '-' + dObj.m + '-' + dObj.d + ' ' + dObj.h + dObj.mi;
             case 'yyyy-mm-dd hhmiss':
-                return datetimeObj.y + '-' + datetimeObj.m + '-' + datetimeObj.d + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
+                return dObj.y + '-' + dObj.m + '-' + dObj.d + ' ' + dObj.h + dObj.mi + dObj.s;
             case 'yyyy-mm-dd hh:mi':
-                return datetimeObj.y + '-' + datetimeObj.m + '-' + datetimeObj.d + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
+                return dObj.y + '-' + dObj.m + '-' + dObj.d + ' ' + dObj.h + ':' + dObj.mi;
             case 'yyyy-mm-dd hh:mi:ss':
-                return datetimeObj.y + '-' + datetimeObj.m + '-' + datetimeObj.d + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
+                return dObj.y + '-' + dObj.m + '-' + dObj.d + ' ' + dObj.h + ':' + dObj.mi + ':' + dObj.s;
             case 'yyyy/mm/dd hh':
-                return datetimeObj.y + '/' + datetimeObj.m + '/' + datetimeObj.d + ' ' + datetimeObj.h;
+                return dObj.y + '/' + dObj.m + '/' + dObj.d + ' ' + dObj.h;
             case 'yyyy/mm/dd hhmi':
-                return datetimeObj.y + '/' + datetimeObj.m + '/' + datetimeObj.d + ' ' + datetimeObj.h + datetimeObj.mi;
+                return dObj.y + '/' + dObj.m + '/' + dObj.d + ' ' + dObj.h + dObj.mi;
             case 'yyyy/mm/dd hhmiss':
-                return datetimeObj.y + '/' + datetimeObj.m + '/' + datetimeObj.d + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
+                return dObj.y + '/' + dObj.m + '/' + dObj.d + ' ' + dObj.h + dObj.mi + dObj.s;
             case 'yyyy/mm/dd hh:mi':
-                return datetimeObj.y + '/' + datetimeObj.m + '/' + datetimeObj.d + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
+                return dObj.y + '/' + dObj.m + '/' + dObj.d + ' ' + dObj.h + ':' + dObj.mi;
             case 'yyyy/mm/dd hh:mi:ss':
-                return datetimeObj.y + '/' + datetimeObj.m + '/' + datetimeObj.d + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
+                return dObj.y + '/' + dObj.m + '/' + dObj.d + ' ' + dObj.h + ':' + dObj.mi + ':' + dObj.s;
             case 'yyyy. mm. dd hh':
-                return datetimeObj.y + '. ' + datetimeObj.m + '. ' + datetimeObj.d + ' ' + datetimeObj.h;
+                return dObj.y + '. ' + dObj.m + '. ' + dObj.d + ' ' + dObj.h;
             case 'yyyy. mm. dd hhmi':
-                return datetimeObj.y + '. ' + datetimeObj.m + '. ' + datetimeObj.d + ' ' + datetimeObj.h + datetimeObj.mi;
+                return dObj.y + '. ' + dObj.m + '. ' + dObj.d + ' ' + dObj.h + dObj.mi;
             case 'yyyy. mm. dd hhmiss':
-                return datetimeObj.y + '. ' + datetimeObj.m + '. ' + datetimeObj.d + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
+                return dObj.y + '. ' + dObj.m + '. ' + dObj.d + ' ' + dObj.h + dObj.mi + dObj.s;
             case 'yyyy. mm. dd hh:mi':
-                return datetimeObj.y + '. ' + datetimeObj.m + '. ' + datetimeObj.d + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
+                return dObj.y + '. ' + dObj.m + '. ' + dObj.d + ' ' + dObj.h + ':' + dObj.mi;
             case 'yyyy. mm. dd hh:mi:ss':
-                return datetimeObj.y + '. ' + datetimeObj.m + '. ' + datetimeObj.d + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
+                return dObj.y + '. ' + dObj.m + '. ' + dObj.d + ' ' + dObj.h + ':' + dObj.mi + ':' + dObj.s;
             case 'yyyy mm dd hh':
-                return datetimeObj.y + ' ' + datetimeObj.m + ' ' + datetimeObj.d + ' ' + datetimeObj.h;
+                return dObj.y + ' ' + dObj.m + ' ' + dObj.d + ' ' + dObj.h;
             case 'yyyy mm dd hhmi':
-                return datetimeObj.y + ' ' + datetimeObj.m + ' ' + datetimeObj.d + ' ' + datetimeObj.h + datetimeObj.mi;
+                return dObj.y + ' ' + dObj.m + ' ' + dObj.d + ' ' + dObj.h + dObj.mi;
             case 'yyyy mm dd hhmiss':
-                return datetimeObj.y + ' ' + datetimeObj.m + ' ' + datetimeObj.d + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
+                return dObj.y + ' ' + dObj.m + ' ' + dObj.d + ' ' + dObj.h + dObj.mi + dObj.s;
             case 'yyyy mm dd hh:mi':
-                return datetimeObj.y + ' ' + datetimeObj.m + ' ' + datetimeObj.d + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
+                return dObj.y + ' ' + dObj.m + ' ' + dObj.d + ' ' + dObj.h + ':' + dObj.mi;
             case 'yyyy mm dd hh:mi:ss':
-                return datetimeObj.y + ' ' + datetimeObj.m + ' ' + datetimeObj.d + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
+                return dObj.y + ' ' + dObj.m + ' ' + dObj.d + ' ' + dObj.h + ':' + dObj.mi + ':' + dObj.s;
 
             case 'mmyyyy':
-                return datetimeObj.m + datetimeObj.y;
+                return dObj.m + dObj.y;
             case 'mm-yyyy':
-                return datetimeObj.m + '-' + datetimeObj.y;
+                return dObj.m + '-' + dObj.y;
             case 'mm/yyyy':
-                return datetimeObj.m + '/' + datetimeObj.y;
+                return dObj.m + '/' + dObj.y;
             case 'mm. yyyy':
-                return datetimeObj.m + '/' + datetimeObj.y;
+                return dObj.m + '/' + dObj.y;
             case 'mm yyyy':
-                return datetimeObj.m + '/' + datetimeObj.y;
+                return dObj.m + '/' + dObj.y;
             case 'mn yyyy':
-                return mn + ' ' + datetimeObj.y;
+                return mn + ' ' + dObj.y;
             case 'mn, yyyy':
-                return mn + ', ' + datetimeObj.y;
+                return mn + ', ' + dObj.y;
             case 'mnabb yyyy':
-                return mnabb + ' ' + datetimeObj.y;
+                return mnabb + ' ' + dObj.y;
             case 'mnabb, yyyy':
-                return mnabb + ', ' + datetimeObj.y;
+                return mnabb + ', ' + dObj.y;
 
             case 'mmddyyyy':
-                return datetimeObj.m + datetimeObj.d + datetimeObj.y;
+                return dObj.m + dObj.d + dObj.y;
             case 'mm-dd-yyyy':
-                return datetimeObj.m + '-' + datetimeObj.d + '-' + datetimeObj.y;
+                return dObj.m + '-' + dObj.d + '-' + dObj.y;
             case 'mm/dd/yyyy':
-                return datetimeObj.m + '/' + datetimeObj.d + '/' + datetimeObj.y;
+                return dObj.m + '/' + dObj.d + '/' + dObj.y;
             case 'mm. dd. yyyy':
-                return datetimeObj.m + '. ' + datetimeObj.d + '. ' + datetimeObj.y;
+                return dObj.m + '. ' + dObj.d + '. ' + dObj.y;
             case 'mn dd yyyy':
-                return mn + ' ' + datetimeObj.d + ' ' + datetimeObj.y;
+                return mn + ' ' + dObj.d + ' ' + dObj.y;
             case 'mn dd, yyyy':
-                return mn + ' ' + datetimeObj.d + ', ' + datetimeObj.y;
+                return mn + ' ' + dObj.d + ', ' + dObj.y;
             case 'mnabb dd yyyy':
-                return mnabb + ' ' + datetimeObj.d + ' ' + datetimeObj.y;
+                return mnabb + ' ' + dObj.d + ' ' + dObj.y;
             case 'mnabb dd, yyyy':
-                return mnabb + ' ' + datetimeObj.d + ', ' + datetimeObj.y;
+                return mnabb + ' ' + dObj.d + ', ' + dObj.y;
             case 'mn ddth yyyy':
-                return mn + ' ' + datetimeObj.d + 'th ' + datetimeObj.y;
+                return mn + ' ' + dObj.d + 'th ' + dObj.y;
             case 'mn ddth, yyyy':
-                return mn + ' ' + datetimeObj.d + 'th, ' + datetimeObj.y;
+                return mn + ' ' + dObj.d + 'th, ' + dObj.y;
             case 'mnabb ddth yyyy':
-                return mnabb + ' ' + datetimeObj.d + 'th ' + datetimeObj.y;
+                return mnabb + ' ' + dObj.d + 'th ' + dObj.y;
             case 'mnabb ddth, yyyy':
-                return mnabb + ' ' + datetimeObj.d + 'th, ' + datetimeObj.y;
+                return mnabb + ' ' + dObj.d + 'th, ' + dObj.y;
 
             case 'mmddyyyy hh':
-                return datetimeObj.m + datetimeObj.d + datetimeObj.y + ' ' + datetimeObj.h;
+                return dObj.m + dObj.d + dObj.y + ' ' + dObj.h;
             case 'mmddyyyy hhmi':
-                return datetimeObj.m + datetimeObj.d + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
+                return dObj.m + dObj.d + dObj.y + ' ' + dObj.h + dObj.mi;
             case 'mmddyyyy hhmiss':
-                return datetimeObj.m + datetimeObj.d + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
+                return dObj.m + dObj.d + dObj.y + ' ' + dObj.h + dObj.mi + dObj.s;
             case 'mmddyyyy hh:mi':
-                return datetimeObj.m + datetimeObj.d + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
+                return dObj.m + dObj.d + dObj.y + ' ' + dObj.h + ':' + dObj.mi;
             case 'mmddyyyy hh:mi:ss':
-                return datetimeObj.m + datetimeObj.d + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
+                return dObj.m + dObj.d + dObj.y + ' ' + dObj.h + ':' + dObj.mi + ':' + dObj.s;
             case 'mm-dd-yyyy hh':
-                return datetimeObj.m + '-' + datetimeObj.d + '-' + datetimeObj.y + ' ' + datetimeObj.h;
+                return dObj.m + '-' + dObj.d + '-' + dObj.y + ' ' + dObj.h;
             case 'mm-dd-yyyy hhmi':
-                return datetimeObj.m + '-' + datetimeObj.d + '-' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
+                return dObj.m + '-' + dObj.d + '-' + dObj.y + ' ' + dObj.h + dObj.mi;
             case 'mm-dd-yyyy hhmiss':
-                return datetimeObj.m + '-' + datetimeObj.d + '-' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
+                return dObj.m + '-' + dObj.d + '-' + dObj.y + ' ' + dObj.h + dObj.mi + dObj.s;
             case 'mm-dd-yyyy hh:mi':
-                return datetimeObj.m + '-' + datetimeObj.d + '-' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
+                return dObj.m + '-' + dObj.d + '-' + dObj.y + ' ' + dObj.h + ':' + dObj.mi;
             case 'mm-dd-yyyy hh:mi:ss':
-                return datetimeObj.m + '-' + datetimeObj.d + '-' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
+                return dObj.m + '-' + dObj.d + '-' + dObj.y + ' ' + dObj.h + ':' + dObj.mi + ':' + dObj.s;
             case 'mm/dd/yyyy hh':
-                return datetimeObj.m + '/' + datetimeObj.d + '/' + datetimeObj.y + ' ' + datetimeObj.h;
+                return dObj.m + '/' + dObj.d + '/' + dObj.y + ' ' + dObj.h;
             case 'mm/dd/yyyy hhmi':
-                return datetimeObj.m + '/' + datetimeObj.d + '/' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
+                return dObj.m + '/' + dObj.d + '/' + dObj.y + ' ' + dObj.h + dObj.mi;
             case 'mm/dd/yyyy hhmiss':
-                return datetimeObj.m + '/' + datetimeObj.d + '/' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
+                return dObj.m + '/' + dObj.d + '/' + dObj.y + ' ' + dObj.h + dObj.mi + dObj.s;
             case 'mm/dd/yyyy hh:mi':
-                return datetimeObj.m + '/' + datetimeObj.d + '/' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
+                return dObj.m + '/' + dObj.d + '/' + dObj.y + ' ' + dObj.h + ':' + dObj.mi;
             case 'mm/dd/yyyy hh:mi:ss':
-                return datetimeObj.m + '/' + datetimeObj.d + '/' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
+                return dObj.m + '/' + dObj.d + '/' + dObj.y + ' ' + dObj.h + ':' + dObj.mi + ':' + dObj.s;
             case 'mm. dd. yyyy hh':
-                return datetimeObj.m + '. ' + datetimeObj.d + '. ' + datetimeObj.y + ' ' + datetimeObj.h;
+                return dObj.m + '. ' + dObj.d + '. ' + dObj.y + ' ' + dObj.h;
             case 'mm. dd. yyyy hhmi':
-                return datetimeObj.m + '. ' + datetimeObj.d + '. ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
+                return dObj.m + '. ' + dObj.d + '. ' + dObj.y + ' ' + dObj.h + dObj.mi;
             case 'mm. dd. yyyy hhmiss':
-                return datetimeObj.m + '. ' + datetimeObj.d + '. ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
+                return dObj.m + '. ' + dObj.d + '. ' + dObj.y + ' ' + dObj.h + dObj.mi + dObj.s;
             case 'mm. dd. yyyy hh:mi':
-                return datetimeObj.m + '. ' + datetimeObj.d + '. ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
+                return dObj.m + '. ' + dObj.d + '. ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi;
             case 'mm. dd. yyyy hh:mi:ss':
-                return datetimeObj.m + '. ' + datetimeObj.d + '. ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
+                return dObj.m + '. ' + dObj.d + '. ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi + ':' + dObj.s;
             case 'mn dd yyyy hh':
-                return mn + ' ' + datetimeObj.d + ' ' + datetimeObj.y + ' ' + datetimeObj.h;
+                return mn + ' ' + dObj.d + ' ' + dObj.y + ' ' + dObj.h;
             case 'mn dd yyyy hhmi':
-                return mn + ' ' + datetimeObj.d + ' ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
+                return mn + ' ' + dObj.d + ' ' + dObj.y + ' ' + dObj.h + dObj.mi;
             case 'mn dd yyyy hhmiss':
-                return mn + ' ' + datetimeObj.d + ' ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
+                return mn + ' ' + dObj.d + ' ' + dObj.y + ' ' + dObj.h + dObj.mi + dObj.s;
             case 'mn dd yyyy hh:mi':
-                return mn + ' ' + datetimeObj.d + ' ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
+                return mn + ' ' + dObj.d + ' ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi;
             case 'mn dd yyyy hh:mi:ss':
-                return mn + ' ' + datetimeObj.d + ' ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
+                return mn + ' ' + dObj.d + ' ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi + ':' + dObj.s;
             case 'mn dd, yyyy hh':
-                return mn + ' ' + datetimeObj.d + ', ' + datetimeObj.y + ' ' + datetimeObj.h;
+                return mn + ' ' + dObj.d + ', ' + dObj.y + ' ' + dObj.h;
             case 'mn dd, yyyy hhmi':
-                return mn + ' ' + datetimeObj.d + ', ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
+                return mn + ' ' + dObj.d + ', ' + dObj.y + ' ' + dObj.h + dObj.mi;
             case 'mn dd, yyyy hhmiss':
-                return mn + ' ' + datetimeObj.d + ', ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
+                return mn + ' ' + dObj.d + ', ' + dObj.y + ' ' + dObj.h + dObj.mi + dObj.s;
             case 'mn dd, yyyy hh:mi':
-                return mn + ' ' + datetimeObj.d + ', ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
+                return mn + ' ' + dObj.d + ', ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi;
             case 'mn dd, yyyy hh:mi:ss':
-                return mn + ' ' + datetimeObj.d + ', ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
+                return mn + ' ' + dObj.d + ', ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi + ':' + dObj.s;
             case 'mnabb dd yyyy hh':
-                return mnabb + ' ' + datetimeObj.d + ' ' + datetimeObj.y + ' ' + datetimeObj.h;
+                return mnabb + ' ' + dObj.d + ' ' + dObj.y + ' ' + dObj.h;
             case 'mnabb dd yyyy hhmi':
-                return mnabb + ' ' + datetimeObj.d + ' ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
+                return mnabb + ' ' + dObj.d + ' ' + dObj.y + ' ' + dObj.h + dObj.mi;
             case 'mnabb dd yyyy hhmiss':
-                return mnabb + ' ' + datetimeObj.d + ' ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
+                return mnabb + ' ' + dObj.d + ' ' + dObj.y + ' ' + dObj.h + dObj.mi + dObj.s;
             case 'mnabb dd yyyy hh:mi':
-                return mnabb + ' ' + datetimeObj.d + ' ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
+                return mnabb + ' ' + dObj.d + ' ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi;
             case 'mnabb dd yyyy hh:mi:ss':
-                return mnabb + ' ' + datetimeObj.d + ' ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
+                return mnabb + ' ' + dObj.d + ' ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi + ':' + dObj.s;
             case 'mnabb dd, yyyy hh':
-                return mnabb + ' ' + datetimeObj.d + ', ' + datetimeObj.y + ' ' + datetimeObj.h;
+                return mnabb + ' ' + dObj.d + ', ' + dObj.y + ' ' + dObj.h;
             case 'mnabb dd, yyyy hhmi':
-                return mnabb + ' ' + datetimeObj.d + ', ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
+                return mnabb + ' ' + dObj.d + ', ' + dObj.y + ' ' + dObj.h + dObj.mi;
             case 'mnabb dd, yyyy hhmiss':
-                return mnabb + ' ' + datetimeObj.d + ', ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
+                return mnabb + ' ' + dObj.d + ', ' + dObj.y + ' ' + dObj.h + dObj.mi + dObj.s;
             case 'mnabb dd, yyyy hh:mi':
-                return mnabb + ' ' + datetimeObj.d + ', ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
+                return mnabb + ' ' + dObj.d + ', ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi;
             case 'mnabb dd, yyyy hh:mi:ss':
-                return mnabb + ' ' + datetimeObj.d + ', ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
+                return mnabb + ' ' + dObj.d + ', ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi + ':' + dObj.s;
             case 'mn ddth yyyy hh':
-                return mn + ' ' + datetimeObj.d + 'th ' + datetimeObj.y + ' ' + datetimeObj.h;
+                return mn + ' ' + dObj.d + 'th ' + dObj.y + ' ' + dObj.h;
             case 'mn ddth yyyy hhmi':
-                return mn + ' ' + datetimeObj.d + 'th ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
+                return mn + ' ' + dObj.d + 'th ' + dObj.y + ' ' + dObj.h + dObj.mi;
             case 'mn ddth yyyy hhmiss':
-                return mn + ' ' + datetimeObj.d + 'th ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
+                return mn + ' ' + dObj.d + 'th ' + dObj.y + ' ' + dObj.h + dObj.mi + dObj.s;
             case 'mn ddth yyyy hh:mi':
-                return mn + ' ' + datetimeObj.d + 'th ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
+                return mn + ' ' + dObj.d + 'th ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi;
             case 'mn ddth yyyy hh:mi:ss':
-                return mn + ' ' + datetimeObj.d + 'th ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
+                return mn + ' ' + dObj.d + 'th ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi + ':' + dObj.s;
             case 'mn ddth, yyyy hh':
-                return mn + ' ' + datetimeObj.d + 'th, ' + datetimeObj.y + ' ' + datetimeObj.h;
+                return mn + ' ' + dObj.d + 'th, ' + dObj.y + ' ' + dObj.h;
             case 'mn ddth, yyyy hhmi':
-                return mn + ' ' + datetimeObj.d + 'th, ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
+                return mn + ' ' + dObj.d + 'th, ' + dObj.y + ' ' + dObj.h + dObj.mi;
             case 'mn ddth, yyyy hhmiss':
-                return mn + ' ' + datetimeObj.d + 'th, ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
+                return mn + ' ' + dObj.d + 'th, ' + dObj.y + ' ' + dObj.h + dObj.mi + dObj.s;
             case 'mn ddth, yyyy hh:mi':
-                return mn + ' ' + datetimeObj.d + 'th, ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
+                return mn + ' ' + dObj.d + 'th, ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi;
             case 'mn ddth, yyyy hh:mi:ss':
-                return mn + ' ' + datetimeObj.d + 'th, ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
+                return mn + ' ' + dObj.d + 'th, ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi + ':' + dObj.s;
             case 'mnabb ddth yyyy hh':
-                return mnabb + ' ' + datetimeObj.d + 'th ' + datetimeObj.y + ' ' + datetimeObj.h;
+                return mnabb + ' ' + dObj.d + 'th ' + dObj.y + ' ' + dObj.h;
             case 'mnabb ddth yyyy hhmi':
-                return mnabb + ' ' + datetimeObj.d + 'th ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
+                return mnabb + ' ' + dObj.d + 'th ' + dObj.y + ' ' + dObj.h + dObj.mi;
             case 'mnabb ddth yyyy hhmiss':
-                return mnabb + ' ' + datetimeObj.d + 'th ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
+                return mnabb + ' ' + dObj.d + 'th ' + dObj.y + ' ' + dObj.h + dObj.mi + dObj.s;
             case 'mnabb ddth yyyy hh:mi':
-                return mnabb + ' ' + datetimeObj.d + 'th ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
+                return mnabb + ' ' + dObj.d + 'th ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi;
             case 'mnabb ddth yyyy hh:mi:ss':
-                return mnabb + ' ' + datetimeObj.d + 'th ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
+                return mnabb + ' ' + dObj.d + 'th ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi + ':' + dObj.s;
             case 'mnabb ddth, yyyy hh':
-                return mnabb + ' ' + datetimeObj.d + 'th, ' + datetimeObj.y + ' ' + datetimeObj.h;
+                return mnabb + ' ' + dObj.d + 'th, ' + dObj.y + ' ' + dObj.h;
             case 'mnabb ddth, yyyy hhmi':
-                return mnabb + ' ' + datetimeObj.d + 'th, ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
+                return mnabb + ' ' + dObj.d + 'th, ' + dObj.y + ' ' + dObj.h + dObj.mi;
             case 'mnabb ddth, yyyy hhmiss':
-                return mnabb + ' ' + datetimeObj.d + 'th, ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
+                return mnabb + ' ' + dObj.d + 'th, ' + dObj.y + ' ' + dObj.h + dObj.mi + dObj.s;
             case 'mnabb ddth, yyyy hh:mi':
-                return mnabb + ' ' + datetimeObj.d + 'th, ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
+                return mnabb + ' ' + dObj.d + 'th, ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi;
             case 'mnabb ddth, yyyy hh:mi:ss':
-                return mnabb + ' ' + datetimeObj.d + 'th, ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
+                return mnabb + ' ' + dObj.d + 'th, ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi + ':' + dObj.s;
 
             case 'ddmmyyyy':
-                return datetimeObj.d + datetimeObj.m + datetimeObj.y;
+                return dObj.d + dObj.m + dObj.y;
             case 'dd-mm-yyyy':
-                return datetimeObj.d + '-' + datetimeObj.m + '-' + datetimeObj.y;
+                return dObj.d + '-' + dObj.m + '-' + dObj.y;
             case 'dd/mm/yyyy':
-                return datetimeObj.d + '/' + datetimeObj.m + '/' + datetimeObj.y;
+                return dObj.d + '/' + dObj.m + '/' + dObj.y;
             case 'dd. mm. yyyy':
-                return datetimeObj.d + '. ' + datetimeObj.m + '. ' + datetimeObj.y;
+                return dObj.d + '. ' + dObj.m + '. ' + dObj.y;
             case 'dd mn yyyy':
-                return datetimeObj.d + ' ' + mn + ' ' + datetimeObj.y;
+                return dObj.d + ' ' + mn + ' ' + dObj.y;
             case 'dd mnabb yyyy':
-                return datetimeObj.d + ' ' + mnabb + ' ' + datetimeObj.y;
+                return dObj.d + ' ' + mnabb + ' ' + dObj.y;
             case 'ddth mn yyyy':
-                return datetimeObj.d + 'th ' + mn + ' ' + datetimeObj.y;
+                return dObj.d + 'th ' + mn + ' ' + dObj.y;
             case 'ddth mnabb yyyy':
-                return datetimeObj.d + 'th ' + mnabb + ' ' + datetimeObj.y;
+                return dObj.d + 'th ' + mnabb + ' ' + dObj.y;
 
             case 'ddmmyyyy hh':
-                return datetimeObj.d + datetimeObj.m + datetimeObj.y + ' ' + datetimeObj.h;
+                return dObj.d + dObj.m + dObj.y + ' ' + dObj.h;
             case 'ddmmyyyy hhmi':
-                return datetimeObj.d + datetimeObj.m + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
+                return dObj.d + dObj.m + dObj.y + ' ' + dObj.h + dObj.mi;
             case 'ddmmyyyy hhmiss':
-                return datetimeObj.d + datetimeObj.m + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
+                return dObj.d + dObj.m + dObj.y + ' ' + dObj.h + dObj.mi + dObj.s;
             case 'ddmmyyyy hh:mi':
-                return datetimeObj.d + datetimeObj.m + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
+                return dObj.d + dObj.m + dObj.y + ' ' + dObj.h + ':' + dObj.mi;
             case 'ddmmyyyy hh:mi:ss':
-                return datetimeObj.d + datetimeObj.m + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
+                return dObj.d + dObj.m + dObj.y + ' ' + dObj.h + ':' + dObj.mi + ':' + dObj.s;
             case 'dd-mm-yyyy hh':
-                return datetimeObj.d + '-' + datetimeObj.m + '-' + datetimeObj.y + ' ' + datetimeObj.h;
+                return dObj.d + '-' + dObj.m + '-' + dObj.y + ' ' + dObj.h;
             case 'dd-mm-yyyy hhmi':
-                return datetimeObj.d + '-' + datetimeObj.m + '-' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
+                return dObj.d + '-' + dObj.m + '-' + dObj.y + ' ' + dObj.h + dObj.mi;
             case 'dd-mm-yyyy hhmiss':
-                return datetimeObj.d + '-' + datetimeObj.m + '-' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
+                return dObj.d + '-' + dObj.m + '-' + dObj.y + ' ' + dObj.h + dObj.mi + dObj.s;
             case 'dd-mm-yyyy hh:mi':
-                return datetimeObj.d + '-' + datetimeObj.m + '-' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
+                return dObj.d + '-' + dObj.m + '-' + dObj.y + ' ' + dObj.h + ':' + dObj.mi;
             case 'dd-mm-yyyy hh:mi:ss':
-                return datetimeObj.d + '-' + datetimeObj.m + '-' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
+                return dObj.d + '-' + dObj.m + '-' + dObj.y + ' ' + dObj.h + ':' + dObj.mi + ':' + dObj.s;
             case 'dd/mm/yyyy hh':
-                return datetimeObj.d + '/' + datetimeObj.m + '/' + datetimeObj.y + ' ' + datetimeObj.h;
+                return dObj.d + '/' + dObj.m + '/' + dObj.y + ' ' + dObj.h;
             case 'dd/mm/yyyy hhmi':
-                return datetimeObj.d + '/' + datetimeObj.m + '/' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
+                return dObj.d + '/' + dObj.m + '/' + dObj.y + ' ' + dObj.h + dObj.mi;
             case 'dd/mm/yyyy hhmiss':
-                return datetimeObj.d + '/' + datetimeObj.m + '/' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
+                return dObj.d + '/' + dObj.m + '/' + dObj.y + ' ' + dObj.h + dObj.mi + dObj.s;
             case 'dd/mm/yyyy hh:mi':
-                return datetimeObj.d + '/' + datetimeObj.m + '/' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
+                return dObj.d + '/' + dObj.m + '/' + dObj.y + ' ' + dObj.h + ':' + dObj.mi;
             case 'dd/mm/yyyy hh:mi:ss':
-                return datetimeObj.d + '/' + datetimeObj.m + '/' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
+                return dObj.d + '/' + dObj.m + '/' + dObj.y + ' ' + dObj.h + ':' + dObj.mi + ':' + dObj.s;
             case 'dd. mm. yyyy hh':
-                return datetimeObj.d + '. ' + datetimeObj.m + '. ' + datetimeObj.y + ' ' + datetimeObj.h;
+                return dObj.d + '. ' + dObj.m + '. ' + dObj.y + ' ' + dObj.h;
             case 'dd. mm. yyyy hhmi':
-                return datetimeObj.d + '. ' + datetimeObj.m + '. ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
+                return dObj.d + '. ' + dObj.m + '. ' + dObj.y + ' ' + dObj.h + dObj.mi;
             case 'dd. mm. yyyy hhmiss':
-                return datetimeObj.d + '. ' + datetimeObj.m + '. ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
+                return dObj.d + '. ' + dObj.m + '. ' + dObj.y + ' ' + dObj.h + dObj.mi + dObj.s;
             case 'dd. mm. yyyy hh:mi':
-                return datetimeObj.d + '. ' + datetimeObj.m + '. ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
+                return dObj.d + '. ' + dObj.m + '. ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi;
             case 'dd. mm. yyyy hh:mi:ss':
-                return datetimeObj.d + '. ' + datetimeObj.m + '. ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
+                return dObj.d + '. ' + dObj.m + '. ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi + ':' + dObj.s;
             case 'dd mn yyyy hh':
-                return datetimeObj.d + ' ' + mn + ' ' + datetimeObj.y + ' ' + datetimeObj.h;
+                return dObj.d + ' ' + mn + ' ' + dObj.y + ' ' + dObj.h;
             case 'dd mn yyyy hhmi':
-                return datetimeObj.d + ' ' + mn + ' ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
+                return dObj.d + ' ' + mn + ' ' + dObj.y + ' ' + dObj.h + dObj.mi;
             case 'dd mn yyyy hhmiss':
-                return datetimeObj.d + ' ' + mn + ' ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
+                return dObj.d + ' ' + mn + ' ' + dObj.y + ' ' + dObj.h + dObj.mi + dObj.s;
             case 'dd mn yyyy hh:mi':
-                return datetimeObj.d + ' ' + mn + ' ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
+                return dObj.d + ' ' + mn + ' ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi;
             case 'dd mn yyyy hh:mi:ss':
-                return datetimeObj.d + ' ' + mn + ' ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
+                return dObj.d + ' ' + mn + ' ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi + ':' + dObj.s;
             case 'dd mnabb yyyy hh':
-                return datetimeObj.d + ' ' + mnabb + ' ' + datetimeObj.y + ' ' + datetimeObj.h;
+                return dObj.d + ' ' + mnabb + ' ' + dObj.y + ' ' + dObj.h;
             case 'dd mnabb yyyy hhmi':
-                return datetimeObj.d + ' ' + mnabb + ' ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
+                return dObj.d + ' ' + mnabb + ' ' + dObj.y + ' ' + dObj.h + dObj.mi;
             case 'dd mnabb yyyy hhmiss':
-                return datetimeObj.d + ' ' + mnabb + ' ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
+                return dObj.d + ' ' + mnabb + ' ' + dObj.y + ' ' + dObj.h + dObj.mi + dObj.s;
             case 'dd mnabb yyyy hh:mi':
-                return datetimeObj.d + ' ' + mnabb + ' ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
+                return dObj.d + ' ' + mnabb + ' ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi;
             case 'dd mnabb yyyy hh:mi:ss':
-                return datetimeObj.d + ' ' + mnabb + ' ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
+                return dObj.d + ' ' + mnabb + ' ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi + ':' + dObj.s;
             case 'ddth mn yyyy hh':
-                return datetimeObj.d + 'th ' + mn + ' ' + datetimeObj.y + ' ' + datetimeObj.h;
+                return dObj.d + 'th ' + mn + ' ' + dObj.y + ' ' + dObj.h;
             case 'ddth mn yyyy hhmi':
-                return datetimeObj.d + 'th ' + mn + ' ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
+                return dObj.d + 'th ' + mn + ' ' + dObj.y + ' ' + dObj.h + dObj.mi;
             case 'ddth mn yyyy hhmiss':
-                return datetimeObj.d + 'th ' + mn + ' ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
+                return dObj.d + 'th ' + mn + ' ' + dObj.y + ' ' + dObj.h + dObj.mi + dObj.s;
             case 'ddth mn yyyy hh:mi':
-                return datetimeObj.d + 'th ' + mn + ' ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
+                return dObj.d + 'th ' + mn + ' ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi;
             case 'ddth mn yyyy hh:mi:ss':
-                return datetimeObj.d + 'th ' + mn + ' ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
+                return dObj.d + 'th ' + mn + ' ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi + ':' + dObj.s;
             case 'ddth mnabb yyyy hh':
-                return datetimeObj.d + 'th ' + mnabb + ' ' + datetimeObj.y + ' ' + datetimeObj.h;
+                return dObj.d + 'th ' + mnabb + ' ' + dObj.y + ' ' + dObj.h;
             case 'ddth mnabb yyyy hhmi':
-                return datetimeObj.d + 'th ' + mnabb + ' ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
+                return dObj.d + 'th ' + mnabb + ' ' + dObj.y + ' ' + dObj.h + dObj.mi;
             case 'ddth mnabb yyyy hhmiss':
-                return datetimeObj.d + 'th ' + mnabb + ' ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
+                return dObj.d + 'th ' + mnabb + ' ' + dObj.y + ' ' + dObj.h + dObj.mi + dObj.s;
             case 'ddth mnabb yyyy hh:mi':
-                return datetimeObj.d + 'th ' + mnabb + ' ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
+                return dObj.d + 'th ' + mnabb + ' ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi;
             case 'ddth mnabb yyyy hh:mi:ss':
-                return datetimeObj.d + 'th ' + mnabb + ' ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
+                return dObj.d + 'th ' + mnabb + ' ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi + ':' + dObj.s;
 
             default:
                 throw new Error("Invalid format");
@@ -1474,9 +1220,11 @@ var Hison ={};
         if (!dateObj.y || !dateObj.m) {
             return '';
         }
-        dateObj.d = 1;
-        if(!Hison.utils.isDate(dateObj)) return '';
-        var nextMonthFirstDay = new Date(dateObj.y, dateObj.m, 1);
+        var dObj = Hison.utils.deepCopy(dateObj);
+
+        dObj.d = 1;
+        if(!Hison.utils.isDate(dObj)) return '';
+        var nextMonthFirstDay = new Date(dObj.y, dObj.m, 1);
         nextMonthFirstDay.setDate(0);
         return nextMonthFirstDay.getDate();
     };
@@ -2169,7 +1917,7 @@ var Hison ={};
         var intergerFormat = numberFormat.split('.')[0];
         var decimalFormat = numberFormat.split('.').length > 1 ? numberFormat.split('.')[1] : '';
 
-        if(suffix === '%') value = value * 100;
+        if(suffix === '%' || suffix === ' %') value = value * 100;
 
         numStr = Hison.utils.getToString(value);
         var isNegative = numStr[0] === '-';
@@ -2328,7 +2076,7 @@ var Hison ={};
             return val
         }
         else if (typeof val === "string"){
-            return ['true','y','yes','check','c','참'].indexOf(val.toLowerCase()) >= 0;
+            return ['t','true','y','yes','check','c','checked','selected','참'].indexOf(val.toLowerCase()) >= 0;
         }
         else {
             return false;

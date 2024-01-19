@@ -393,27 +393,69 @@ var Hison ={};
     Hison.utils.isObject = function(obj) {
         return obj !== null && typeof obj === 'object' && !Array.isArray(obj) && obj.constructor === Object;
     };
+    var _getToString = function(str) {
+        if (typeof str === 'number' || typeof str === 'boolean' || typeof str === 'bigint') {
+            str = String(str);
+        } else if (typeof str === 'symbol') {
+            str = str.description;
+        } else {
+            throw new Error('Invalid date format');
+        }
+        return str
+    }
+    var _getDateObject = function(dateStr) {
+        dateStr = _getToString(dateStr);
+        var year, month, day;
+        if (dateStr.includes('-')) {
+            [year, month, day] = dateStr.split('-').map(num => parseInt(num, 10));
+        } else if (dateStr.length === 6) {
+            year = parseInt('20' + dateStr.substring(0, 2), 10);
+            month = parseInt(dateStr.substring(2, 4), 10);
+            day = parseInt(dateStr.substring(4, 6), 10);
+        } else if (dateStr.length === 8) {
+            year = parseInt(dateStr.substring(0, 4), 10);
+            month = parseInt(dateStr.substring(4, 6), 10);
+            day = parseInt(dateStr.substring(6, 8), 10);
+        } else {
+            throw new Error('Invalid date format');
+        }
+    
+        return { y: year, m: month, d: day };
+    }
     /**
-     * Checks if the given date object's year, month, and day values form a valid date.
-     * This method validates dates in the range of 100.01.01 to 9999.12.31.
-     * Dates from 1600.01.01 to 9999.12.31 are checked using a regular expression.
-     * Dates before 1600.01.01 are validated using JavaScript's Date object.
-     *
-     * The method first checks if the year, month, and day are valid integers.
-     * Then it constructs a date string and validates it based on the above criteria.
-     *
-     * @param {object} dateObj - The date object to be tested, with properties 'y' for year, 'm' for month, and 'd' for day.
-     * @returns {boolean} Returns true if the date object represents a valid date within the allowed range; otherwise, false.
+     * Validates whether a given date object or date string represents a valid date. 
+     * The method supports dates in the range from 100.01.01 to 9999.12.31.
+     * For dates from 1600.01.01 to 9999.12.31, it uses a regular expression for validation.
+     * For dates before 1600.01.01, it uses JavaScript's Date object for validation.
+     * 
+     * The method first determines if the input is an object or a string and converts it to a date object if necessary.
+     * It then checks if the year, month, and day are valid integers and within the valid range.
+     * 
+     * @param {object|string} dateObj_or_dateStr - The date object or string to be tested. The date object should have properties 'y' for year, 'm' for month, and 'd' for day.
+     * @returns {boolean} Returns true if the date is valid within the specified range; otherwise, false.
      * 
      * @example
-     * // returns true
-     * Hison.utils.isDate({y:2000, m:2, d:29});
+     * // returns true for a valid date
+     * Hison.utils.isDate({y: 2000, m: 2, d: 29});
      * 
      * @example
-     * // returns false
-     * Hison.utils.isDate({y:2001, m:2, d:29});
+     * // returns false for an invalid date
+     * Hison.utils.isDate({y: 2001, m: 2, d: 29});
+     *
+     * @example
+     * // returns true for a valid date string
+     * Hison.utils.isDate("2000-02-29");
+     *
+     * @example
+     * // returns false for an invalid date string
+     * Hison.utils.isDate("2001-02-29");
+     *
+     * Note: This function is versatile as it can handle both date objects and date strings. It is particularly useful 
+     * for validating user input in forms or data processing where date validity is crucial.
      */
-    Hison.utils.isDate = function(dateObj) {
+    Hison.utils.isDate = function(dateObj_or_dateStr) {
+        var dateObj = Hison.utils.isObject(dateObj_or_dateStr) ? dateObj_or_dateStr : _getDateObject(dateObj_or_dateStr);
+
         var yyyy = dateObj.y;
         var mm = dateObj.m;
         var dd = dateObj.d;
@@ -455,24 +497,50 @@ var Hison ={};
         }    
         return result;
     };
+    var _getTimeObject = function(timeStr) {
+        timeStr = _getToString(timeStr);
+        var hours, minutes, seconds;
+
+        if (timeStr.includes(':')) {
+            [hours, minutes, seconds] = timeStr.split(':').map(num => parseInt(num, 10));
+        } else if (timeStr.length === 6) {
+            hours = parseInt(timeStr.substring(0, 2), 10);
+            minutes = parseInt(timeStr.substring(2, 4), 10);
+            seconds = parseInt(timeStr.substring(4, 6), 10);
+        } else {
+            throw new Error('Invalid time format');
+        }
+    
+        return { h: hours, mi: minutes, s: seconds };
+    }
     /**
-     * Checks if the given time object's hour, minute, and second values form a valid time.
-     * This method first validates if the hour (hh), minute (mi), and second (s) are valid integers.
-     * It then checks each time part (hour, minute, second) to ensure they are within the valid range.
-     * Hours must be between 0 and 23, minutes and seconds must be between 0 and 59.
+     * Checks if the given time object or time string represents a valid time.
+     * The method first determines if the input is an object or a string and converts it to a time object if necessary.
+     * It then validates if the hour (h), minute (mi), and second (s) are valid integers within the appropriate ranges:
+     * - Hours (h) must be between 0 and 23.
+     * - Minutes (mi) and seconds (s) must be between 0 and 59.
      *
-     * @param {object} timeObj - The time object to be tested, with properties 'h' for hour, 'mi' for minute, and 's' for second.
-     * @returns {boolean} Returns true if the time object represents a valid time; otherwise, false.
-     *
-     * @example
-     * // returns true
-     * Hison.utils.isTime({ h: "12", mi: "30", s: "45" });
+     * @param {object|string} timeObj_or_timeStr - The time object or string to be tested. The time object should have properties 'h' for hour, 'mi' for minute, and 's' for second.
+     * @returns {boolean} Returns true if the time is valid; otherwise, false.
      *
      * @example
-     * // returns false
-     * Hison.utils.isTime({ h: "24", mi: "00", s: "00" });
+     * // returns true for a valid time object
+     * Hison.utils.isTime({ h: 12, mi: 30, s: 45 });
+     *
+     * @example
+     * // returns true for a valid time string
+     * Hison.utils.isTime("12:30:45");
+     *
+     * @example
+     * // returns false for an invalid time
+     * Hison.utils.isTime({ h: 24, mi: 00, s: 00 });
+     *
+     * Note: This function is versatile as it can handle both time objects and time strings. It is particularly useful 
+     * for validating user input in forms or data processing where time validity is crucial.
      */
-    Hison.utils.isTime = function(timeObj) {
+    Hison.utils.isTime = function(timeObj_or_timeStr) {
+        var timeObj = Hison.utils.isObject(timeObj_or_timeStr) ? timeObj_or_timeStr : _getTimeObject(timeObj_or_timeStr);
+
         var hh = timeObj.h;
         var mm = timeObj.mi;
         var ss = timeObj.s;
@@ -490,24 +558,40 @@ var Hison ={};
     
         return isValidTimePart(hh, 23) && isValidTimePart(mm, 59) && isValidTimePart(ss, 59);
     };
+    var _getDatetimeObject = function(datetimeStr) {
+        datetimeStr = _getToString(datetimeStr);
+        var datetimeArr = datetimeStr.split(' ');
+        var dateObj = datetimeArr[0];
+        var timeObj = datetimeArr.length > 1 ? datetimeArr[1] : {};
+
+        return Object.assign({}, dateObj, timeObj)
+    }
     /**
-     * Checks if the given parameter object represents a valid date and time.
-     * This method validates a datetime object by separately checking the date and time components.
-     * It uses `Hison.utils.isDate` to validate the date part (year, month, day)
-     * and `Hison.utils.isTime` to validate the time part (hour, minute, second).
+     * Validates whether a given datetime object or datetime string represents a valid date and time.
+     * The method first determines if the input is an object or a string and converts it to a datetime object if necessary.
+     * It then uses `Hison.utils.isDate` to validate the date part (year, month, day)
+     * and `Hison.utils.isTime` to validate the time part (hour, minute, second) of the datetime object.
      *
-     * @param {object} datetimeObj - The datetime object to be tested, with properties 'y' for year, 'm' for month, 'd' for day, 'h' for hour, 'mi' for minute, and 's' for second.
-     * @returns {boolean} Returns true if both the date and time parts of the object are valid; otherwise, false.
+     * @param {object|string} datetimeObj_or_datetimeStr - The datetime object or string to be tested. The datetime object should have properties 'y' for year, 'm' for month, 'd' for day, 'h' for hour, 'mi' for minute, and 's' for second.
+     * @returns {boolean} Returns true if both the date and time parts of the object or string are valid; otherwise, false.
      *
      * @example
-     * // returns true
+     * // returns true for a valid datetime object
      * Hison.utils.isDatetime({ y: 2020, m: 12, d: 25, h: 10, mi: 30, s: 45 });
      *
      * @example
-     * // returns false
+     * // returns true for a valid datetime string
+     * Hison.utils.isDatetime("2020-12-25 10:30:45");
+     *
+     * @example
+     * // returns false for an invalid datetime
      * Hison.utils.isDatetime({ y: 2020, m: 13, d: 25, h: 10, mi: 30, s: 45 });
+     *
+     * Note: This function is versatile as it can handle both datetime objects and datetime strings. It is particularly useful 
+     * for validating user input in forms or data processing where both date and time validity are crucial.
      */
-    Hison.utils.isDatetime = function(datetimeObj) {
+    Hison.utils.isDatetime = function(datetimeObj_or_datetimeStr) {
+        var datetimeObj = Hison.utils.isObject(datetimeObj_or_datetimeStr) ? datetimeObj_or_datetimeStr : _getDatetimeObject(datetimeObj_or_datetimeStr);
         if(!Hison.utils.isDate(datetimeObj)) return false;
         if(!Hison.utils.isTime(datetimeObj)) return false;
         return true;
@@ -632,7 +716,9 @@ var Hison ={};
      * // returns a date object with 3 months added
      * Hison.utils.addDate({ y: 2024, m: 1, d: 15 }, 3, 'm');
      */
-    Hison.utils.addDate = function(datetimeObj, addValue, addType) {
+    Hison.utils.addDate = function(datetimeObj_or_datetimeStr, addValue, addType, format) {
+        var datetimeObj = Hison.utils.isObject(datetimeObj_or_datetimeStr) ? datetimeObj_or_datetimeStr : _getDatetimeObject(datetimeObj_or_datetimeStr);
+
         if (!datetimeObj.y || (addValue !== 0 && !addValue)) {
             throw new Error("Required parameters have not been entered.");
         }
@@ -676,14 +762,16 @@ var Hison ={};
                 d.setDate(d.getDate() + addValue);
         }
 
-        return {
+        var rtnObj = {
             y: d.getFullYear().toString().padStart(4, '0'),
             m: (d.getMonth() + 1).toString().padStart(2, '0'),
             d: d.getDate().toString().padStart(2, '0'),
             h: d.getHours().toString().padStart(2, '0'),
             mi: d.getMinutes().toString().padStart(2, '0'),
             s: d.getSeconds().toString().padStart(2, '0')
-        };
+        }
+
+        return Hison.utils.isObject(datetimeObj_or_datetimeStr) ? rtnObj : Hison.utils.getDateWithFormat(rtnObj, format);
     };
     /**
      * Calculates the difference between two date objects. The difference can be measured in years, months, days, hours, minutes, or seconds.
@@ -778,16 +866,21 @@ var Hison ={};
         return isFullName ? monthsFullName[month - 1] : monthsShortName[month - 1];
     };
     /**
-     * Formats a given date object according to a specified format string. The default format is "mn ddth, yyyy".
-     * This function supports a wide range of format specifiers, allowing for various date representations.
-     * It throws an error for invalid date inputs or unsupported format strings.
-     * The original object does not change.
+     * Formats a given datetime object or datetime string according to a specified format string.
+     * The default format is "mn ddth, yyyy". The function supports a wide range of format specifiers,
+     * allowing for various representations of the date and time. The method first determines if the input
+     * is an object or a string and converts it to a datetime object if necessary.
+     * It throws an error for invalid datetime inputs or unsupported format strings.
+     * The original object or string does not change.
      *
-     * @param {object} datetimeObj - The date object to format. Should contain year (y), and optionally month (m), day (d), hours (h), minutes (mi), and seconds (s).
-     * @param {string} [format='mn ddth, yyyy'] - The format string specifying the desired output format. Supports various combinations of 'yyyy', 'mm', 'dd', 'hh', 'mi', 'ss', along with separators.
+     * @param {object|string} datetimeObj_or_datetimeStr - The datetime object or string to format. 
+     *        Should contain year (y), and optionally month (m), day (d), hours (h), minutes (mi), and seconds (s).
+     * @param {string} [format='mn ddth, yyyy'] - The format string specifying the desired output format. 
+     *        Supports various combinations of 'yyyy', 'mm', 'dd', 'hh', 'mi', 'ss', along with separators.
      * @returns {string} Returns the formatted date as a string.
      *
-     * @throws {Error} Throws an error if required parameters are not entered, if the date is invalid, or if the format string is unsupported.
+     * @throws {Error} Throws an error if required parameters are not entered, if the datetime is invalid, 
+     *         or if the format string is unsupported.
      *
      * @example
      * // returns 'January 15th, 2024'
@@ -796,8 +889,14 @@ var Hison ={};
      * @example
      * // returns '2024-01-15'
      * Hison.utils.getDateWithFormat({ y: 2024, m: 1, d: 15 }, 'yyyy-mm-dd');
+     *
+     * Note: This function is versatile as it can handle both datetime objects and datetime strings. 
+     * It is particularly useful for formatting user input or data for display where specific date and time 
+     * formats are required.
      */
-    Hison.utils.getDateWithFormat = function(datetimeObj, format) {
+    Hison.utils.getDateWithFormat = function(datetimeObj_or_datetimeStr, format) {
+        var datetimeObj = Hison.utils.isObject(datetimeObj_or_datetimeStr) ? datetimeObj_or_datetimeStr : _getDatetimeObject(datetimeObj_or_datetimeStr);
+
         if(!datetimeObj.y) throw new Error("Required parameters have not been entered.");
         if(!format) format = "mn ddth, yyyy";
 

@@ -375,13 +375,13 @@ var Hison ={};
      *
      * @example
      * // returns true
-     * Hison.utils.isAlphaAndNumber("HelloWorld123");
+     * Hison.utils.isAlphaNumber("HelloWorld123");
      *
      * @example
      * // returns false
-     * Hison.utils.isAlphaAndNumber("Hello World! 123");
+     * Hison.utils.isAlphaNumber("Hello World! 123");
      */
-    Hison.utils.isAlphaAndNumber = function(str) {
+    Hison.utils.isAlphaNumber = function(str) {
         return /^[A-Za-z0-9]+$/.test(str);
     };
     /**
@@ -475,15 +475,15 @@ var Hison ={};
      *
      * @example
      * // returns true
-     * Hison.utils.isLowerAlphaAndNumber("hello123");
+     * Hison.utils.isLowerAlphaNumber("hello123");
      *
      * @example
      * // returns false
-     * Hison.utils.isLowerAlphaAndNumber("HelloWorld123");
+     * Hison.utils.isLowerAlphaNumber("HelloWorld123");
      * 
      * @example
      * // returns false
-     * Hison.utils.isLowerAlphaAndNumber("hello@world");
+     * Hison.utils.isLowerAlphaNumber("hello@world");
      */
     Hison.utils.isLowerAlphaAndNumber = function(str) {
         return /^[a-z0-9]+$/.test(str);
@@ -525,13 +525,13 @@ var Hison ={};
      *
      * @example
      * // returns false
-     * Hison.utils.isUpperAlphaAndNumber("HelloWorld123");
+     * Hison.utils.isUpperAlphaNumber("HelloWorld123");
      * 
      * @example
      * // returns false
-     * Hison.utils.isUpperAlphaAndNumber("HELLO@123");
+     * Hison.utils.isUpperAlphaNumber("HELLO@123");
      */
-    Hison.utils.isUpperAlphaAndNumber = function(str) {
+    Hison.utils.isUpperAlphaNumber = function(str) {
         return /^[A-Z0-9]+$/.test(str);
     };
     

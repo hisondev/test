@@ -334,7 +334,7 @@ var newCachingModule = (function() {
 /**
  * newApiLink is an Immediately Invoked Function Expression (IIFE) that returns a factory function for creating instances of ApiLink.
  * This module is designed for managing API requests and handling the associated events in web applications.
- * It should be used in conjunction with the Maven Java project 'io.github.hisondev.api-link' for seamless integration and functionality.
+ * It should be used in conjunction with the Maven Java project 'com.example.demo.commondev.api-link' for seamless integration and functionality.
  *
  * Constructor: ApiLink(cmd, options)
  * - cmd: A string representing the command to be used for API requests. It is a required parameter for all request types except GET.
@@ -357,7 +357,7 @@ var newCachingModule = (function() {
  * - onEventEmit: Allows subscribing to custom events related to API requests.
  * - isApiLink: A boolean property set to true, indicating that the object is an instance of ApiLink.
  *
- * Note: The usage of this module is tied closely to the 'io.github.hisondev.api-link' Maven Java project. Ensure that the project is included in your Java backend for full compatibility and functionality.
+ * Note: The usage of this module is tied closely to the 'com.example.demo.commondev.api-link' Maven Java project. Ensure that the project is included in your Java backend for full compatibility and functionality.
  *
  * This module is essential for applications requiring streamlined, event-driven, and customizable API request handling.
  */

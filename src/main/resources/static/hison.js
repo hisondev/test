@@ -10,20 +10,53 @@
  * 
  * The Hison object is finally defined in the shield.js file through the finalDefineHison() method.
  * After its definition, it is frozen and hidden to prevent external access and modification.
- *
+ * All utils' methods have no dependency on each other.
+ * 
  * @namespace Hison
  */
 var Hison ={};
 (function() {
-    Hison.const = {};
-    Hison.const.LESSOREQ_0X7FF_BYTE = 2;    //charCode <= 0x7FF
-    Hison.const.LESSOREQ_0XFFFF_BYTE = 3;   //charCode <= 0xFFFF
-    Hison.const.GREATER_0XFFFF_BYTE = 4;    //charCode > 0xFFFF
-
     /******************************************
      * Data
      ******************************************/
     Hison.data = {};
+    /**
+     * Converts special JavaScript objects into a predefined format before they are inserted into the DataModel.
+     * This function allows for custom handling of objects like Date, or other special object types, to ensure
+     * they are stored in the DataModel in a consistent and predictable format. By default, it returns the object as is.
+     *
+     * @param {object} object - The object to be converted. This can be a special object like Date or any other object.
+     * @returns {object} Returns the converted object.
+     *
+     * @example
+     * // When set the Hison.data.convertObject
+     * Hison.data.convertObject = function(object) {
+     *     if (object instanceof Date) {
+     *          var year = object.getFullYear();
+     *          var month = object.getMonth() + 1;
+     *          var day = object.getDate();
+     *          var hour = object.getHours();
+     *          var minute = object.getMinutes();
+     *          var second = object.getSeconds();
+     *          month = month < 10 ? '0' + month : month;
+     *          day = day < 10 ? '0' + day : day;
+     *          hour = hour < 10 ? '0' + hour : hour;
+     *          minute = minute < 10 ? '0' + minute : minute;
+     *          second = second < 10 ? '0' + second : second;
+     *          return year + '-' + month + '-' + day + " " + hour + ":" + minute + ":" + second;
+     *     }
+     *     return object;
+     * };
+     * // Inserting a Date object into DataModel
+     * const dm = newDataModel([{key:"key1",value:new Date()},{key:"key2",value:new Date()}]);
+     * // The value will be in 'yyyy-mm-dd hh:mi:ss' format
+     * 
+     * Note: 
+     * 1. Special objects not processed by convertObject are stored in the DataModel as references. 
+     *    Changes to the original object will also reflect in the DataModel.
+     * 2. After customizing the handling of special objects, ensure to return the object for all other cases.
+     *    This ensures that undefined objects are still stored in the DataModel.
+     */
     Hison.data.convertObject = function(object) {
         return object;
     }
@@ -32,28 +65,229 @@ var Hison ={};
      * Link
      ******************************************/
     Hison.link = {};
+    /** Hison.link.protocol is the protocol value for the URL used to call APIs in apiLink. */
     Hison.link.protocol = 'http://';
+    /** Hison.link.domain is the domain value for the URL used to call APIs in apiLink. */
     Hison.link.domain = 'localhost:8081';
+    /** Hison.link.controllerPath is the RequestMapping value for calling APIs in apiLink. */
     Hison.link.controllerPath = '/hison-api-link';
+    /** Hison.link.timeout is the default value for the timeout after making an API request, measured in milliseconds. */
     Hison.link.timeout = 10000;
+    /**
+     * Defines the behavior to be executed before making a GET request in apiLink.
+     * This function can be customized to perform actions or checks before the actual GET request is sent.
+     * By default, it is set to return true, allowing the GET request to proceed.
+     * Returning false from this function will prevent the GET request from being sent.
+     *
+     * @param {string} resourcePath - The URL address to which the GET request will be sent.
+     * @param {function} callbackWorkedFunc - The callback method to be executed if the GET request succeeds.
+     * @param {function} callbackErrorFunc - The callback method to be executed if the GET request fails.
+     * @param {object} options - Options provided by the user for the GET request.
+     * @returns {boolean} Returns true to proceed with the GET request, or false to prevent the request from being sent.
+     *
+     * @example
+     * Hison.link.beforeGetRequst = function(resourcePath, callbackWorkedFunc, callbackErrorFunc, options) {
+     *     // Custom logic before sending a GET request
+     *     return true; // Proceed with the GET request
+     * };
+     *
+     * @example
+     * // Preventing a GET request
+     * Hison.link.beforeGetRequst = function(resourcePath, callbackWorkedFunc, callbackErrorFunc, options) {
+     *     // Custom logic to determine whether to proceed
+     *     return false; // Prevent the GET request
+     * };
+     *
+     * Note: This function is useful for implementing pre-request validations, logging, or any setup required before 
+     * making a GET request. The function's return value controls whether the GET request should be executed.
+     */
     Hison.link.beforeGetRequst = function(resourcePath, callbackWorkedFunc, callbackErrorFunc, options) {
         return true;
     };
+    /**
+     * Defines the behavior to be executed before making a POST request in apiLink.
+     * This function allows for pre-processing or validation of the data to be sent, as well as other preparatory actions
+     * before the POST request is initiated. By default, it is set to return true, allowing the POST request to proceed.
+     * If it returns false, the POST request will not be sent.
+     *
+     * @param {DataWrapper} requestDw - The DataWrapper object containing data to be sent with the POST request.
+     * @param {function} callbackWorkedFunc - The callback method to be executed if the POST request succeeds.
+     * @param {function} callbackErrorFunc - The callback method to be executed if the POST request fails.
+     * @param {object} options - Options provided by the user for the POST request.
+     * @returns {boolean} Returns true to proceed with the POST request, or false to prevent the request from being sent.
+     *
+     * @example
+     * Hison.link.beforePostRequst = function(requestDw, callbackWorkedFunc, callbackErrorFunc, options) {
+     *     // Custom logic before sending a POST request
+     *     return true; // Proceed with the POST request
+     * };
+     *
+     * @example
+     * // Preventing a POST request
+     * Hison.link.beforePostRequst = function(requestDw, callbackWorkedFunc, callbackErrorFunc, options) {
+     *     // Custom logic to determine whether to proceed
+     *     return false; // Prevent the POST request
+     * };
+     *
+     * Note: This function is particularly useful for implementing validations, manipulations, or checks on the data
+     * before it is sent in the POST request. It offers a way to programmatically control whether or not a POST request
+     * should be initiated based on custom conditions or criteria.
+     */
     Hison.link.beforePostRequst = function(requestDw, callbackWorkedFunc, callbackErrorFunc, options) {
         return true;
     };
+    /**
+     * Defines the behavior to be executed before making a PUT request in apiLink.
+     * This function allows for pre-processing or validation of the data to be sent, as well as other preparatory actions
+     * before the PUT request is initiated. By default, it is set to return true, allowing the PUT request to proceed.
+     * If it returns false, the PUT request will not be sent.
+     *
+     * @param {DataWrapper} requestDw - The DataWrapper object containing data to be sent with the PUT request.
+     * @param {function} callbackWorkedFunc - The callback method to be executed if the PUT request succeeds.
+     * @param {function} callbackErrorFunc - The callback method to be executed if the PUT request fails.
+     * @param {object} options - Options provided by the user for the PUT request.
+     * @returns {boolean} Returns true to proceed with the PUT request, or false to prevent the request from being sent.
+     *
+     * @example
+     * Hison.link.beforePutRequst = function(requestDw, callbackWorkedFunc, callbackErrorFunc, options) {
+     *     // Custom logic before sending a PUT request
+     *     return true; // Proceed with the PUT request
+     * };
+     *
+     * @example
+     * // Preventing a PUT request
+     * Hison.link.beforePutRequst = function(requestDw, callbackWorkedFunc, callbackErrorFunc, options) {
+     *     // Custom logic to determine whether to proceed
+     *     return false; // Prevent the PUT request
+     * };
+     *
+     * Note: This function is particularly useful for implementing validations, manipulations, or checks on the data
+     * before it is sent in the PUT request. It offers a way to programmatically control whether or not a PUT request
+     * should be initiated based on custom conditions or criteria.
+     */
     Hison.link.beforePutRequst = function(requestDw, callbackWorkedFunc, callbackErrorFunc, options) {
         return true;
     };
+    /**
+     * Defines the behavior to be executed before making a PATCH request in apiLink.
+     * This function allows for pre-processing or validation of the data to be sent, as well as other preparatory actions
+     * before the PATCH request is initiated. By default, it is set to return true, allowing the PATCH request to proceed.
+     * If it returns false, the PATCH request will not be sent.
+     *
+     * @param {DataWrapper} requestDw - The DataWrapper object containing data to be sent with the PATCH request.
+     * @param {function} callbackWorkedFunc - The callback method to be executed if the PATCH request succeeds.
+     * @param {function} callbackErrorFunc - The callback method to be executed if the PATCH request fails.
+     * @param {object} options - Options provided by the user for the PATCH request.
+     * @returns {boolean} Returns true to proceed with the PATCH request, or false to prevent the request from being sent.
+     *
+     * @example
+     * Hison.link.beforePatchRequst = function(requestDw, callbackWorkedFunc, callbackErrorFunc, options) {
+     *     // Custom logic before sending a PATCH request
+     *     return true; // Proceed with the PATCH request
+     * };
+     *
+     * @example
+     * // Preventing a PATCH request
+     * Hison.link.beforePatchRequst = function(requestDw, callbackWorkedFunc, callbackErrorFunc, options) {
+     *     // Custom logic to determine whether to proceed
+     *     return false; // Prevent the PATCH request
+     * };
+     *
+     * Note: This function is particularly useful for implementing validations, manipulations, or checks on the data
+     * before it is sent in the PATCH request. It offers a way to programmatically control whether or not a PATCH request
+     * should be initiated based on custom conditions or criteria.
+     */
     Hison.link.beforePatchRequst = function(requestDw, callbackWorkedFunc, callbackErrorFunc, options) {
         return true;
     };
+    /**
+     * Defines the behavior to be executed before making a DELETE request in apiLink.
+     * This function allows for pre-processing or validation of the data to be sent, as well as other preparatory actions
+     * before the DELETE request is initiated. By default, it is set to return true, allowing the DELETE request to proceed.
+     * If it returns false, the DELETE request will not be sent.
+     *
+     * @param {DataWrapper} requestDw - The DataWrapper object containing data to be sent with the DELETE request.
+     * @param {function} callbackWorkedFunc - The callback method to be executed if the DELETE request succeeds.
+     * @param {function} callbackErrorFunc - The callback method to be executed if the DELETE request fails.
+     * @param {object} options - Options provided by the user for the DELETE request.
+     * @returns {boolean} Returns true to proceed with the DELETE request, or false to prevent the request from being sent.
+     *
+     * @example
+     * Hison.link.beforeDeleteRequst = function(requestDw, callbackWorkedFunc, callbackErrorFunc, options) {
+     *     // Custom logic before sending a DELETE request
+     *     return true; // Proceed with the DELETE request
+     * };
+     *
+     * @example
+     * // Preventing a DELETE request
+     * Hison.link.beforeDeleteRequst = function(requestDw, callbackWorkedFunc, callbackErrorFunc, options) {
+     *     // Custom logic to determine whether to proceed
+     *     return false; // Prevent the DELETE request
+     * };
+     *
+     * Note: This function is particularly useful for implementing validations, manipulations, or checks on the data
+     * before it is sent in the DELETE request. It offers a way to programmatically control whether or not a DELETE request
+     * should be initiated based on custom conditions or criteria.
+     */
     Hison.link.beforeDeleteRequst = function(requestDw, callbackWorkedFunc, callbackErrorFunc, options) {
         return true;
     };
+    /**
+     * Defines the behavior to be executed before running the success callback method for any API request made via apiLink.
+     * This function allows for pre-processing or analysis of the response received from the server before the user-defined
+     * success callback method is executed. By default, it is set to return true, allowing the success callback method to proceed.
+     * If it returns false, the user-defined success callback method will not be executed.
+     *
+     * @param {object} result - The result object containing information about the server response, such as status code and headers.
+     * @param {object} response - The data received from the server in response to the API request.
+     * @returns {boolean} Returns true to proceed with executing the user-defined success callback method, or false to prevent it from running.
+     *
+     * @example
+     * Hison.link.beforeCallbackWorked = function(result, response) {
+     *     // Custom logic before executing the success callback
+     *     return true; // Proceed with the success callback
+     * };
+     *
+     * @example
+     * // Preventing the success callback from executing
+     * Hison.link.beforeCallbackWorked = function(result, response) {
+     *     // Custom logic to determine whether to proceed
+     *     return false; // Prevent the success callback
+     * };
+     *
+     * Note: This function is particularly useful for implementing custom logic that needs to be executed right after a successful
+     * API response but before the user-defined success callback. It offers a way to programmatically control whether or not the success
+     * callback should be initiated based on the response content or other custom conditions.
+     */
     Hison.link.beforeCallbackWorked = function(result, response) {
         return true;
     };
+    /**
+     * Defines the behavior to be executed before running the error callback method for any API request made via apiLink.
+     * This function allows for pre-processing or analysis of the error received from the API request before the user-defined
+     * error callback method is executed. By default, it is set to return true, allowing the error callback method to proceed.
+     * If it returns false, the user-defined error callback method will not be executed.
+     *
+     * @param {object} error - The error object containing information about the failure of the API request, such as status code, error message, and any additional data.
+     * @returns {boolean} Returns true to proceed with executing the user-defined error callback method, or false to prevent it from running.
+     *
+     * @example
+     * Hison.link.beforeCallbackError = function(error) {
+     *     // Custom logic before executing the error callback
+     *     return true; // Proceed with the error callback
+     * };
+     *
+     * @example
+     * // Preventing the error callback from executing
+     * Hison.link.beforeCallbackError = function(error) {
+     *     // Custom logic to determine whether to proceed
+     *     return false; // Prevent the error callback
+     * };
+     *
+     * Note: This function is particularly useful for implementing custom logic that needs to be executed right after a failed
+     * API response but before the user-defined error callback. It offers a way to programmatically control whether or not the error
+     * callback should be initiated based on the error information or other custom conditions.
+     */
     Hison.link.beforeCallbackError = function(error) {
         return true;
     };
@@ -62,16 +296,55 @@ var Hison ={};
      * Caching
      ******************************************/
     Hison.caching = {};
+    /** The protocol to be used for WebSocket request URLs in caching. */
     Hison.caching.protocol = 'ws://';
+    /** Endpoint for WebSocket request URL used in caching. */
     Hison.caching.wsEndPoint = '/hison-caching-websocket-endpoint';
+    /** Number of times to perform caching. */
     Hison.caching.limit = 10;
 
     /******************************************
      * Utils
      ******************************************/
+    Hison.const = {};
     Hison.utils = {};
+
+    /** Default format for date. refer to Hison.utils.getDateWithFormat */
+    Hison.const.dateFormat = 'yyyy-mm-dd';
+    /** Default format for time. (hhmiss or hh:mi:ss). */
+    Hison.const.timeFormat = 'hh:mi:ss';
+    /** Default format for date and time. refer to Hison.utils.getDateWithFormat */
+    Hison.const.datetimeFormat = 'yyyy-mm-dd hh:mi:ss';
+    /** Default format for year. (yyyy or yy) */
+    Hison.const.yearFormat = 'yyyy';
+    /** Default format for month. (mm or m) */
+    Hison.const.monthFormat = 'm';
+    /** Default format for monthName. (mn or mnabb) */
+    Hison.const.monthNameFormat = 'mn';
+    /** Default format for year and month. refer to Hison.utils.getDateWithFormat */
+    Hison.const.yearMonthFormat = 'yyyy-mm';
+    /** Default format for day. (dd or d) */
+    Hison.const.dayFormat = 'd';
+    /** Default format for dayOfWeek. (d, dy, day, kdy, kday) */
+    Hison.const.dayOfWeekFormat = 'd';
+    /** Default format for hour. (hh or h) */
+    Hison.const.hourFormat = 'h';
+    /** Default format for hour and minute. (hhmi or hh:mi) */
+    Hison.const.hourMinuteFormat = 'hh:mi';
+    /** Default format for minute. (mi or m) */
+    Hison.const.minuteFormat = 'm';
+    /** Default format for second. (ss or s) */
+    Hison.const.secondFormat = 's';
+    /** Default format for number. refer to Hison.utils.getNumberFormat */
+    Hison.const.numberFormat = '#,##0.##'
+
+    /** Constants used for checking byte size of characters. */
+    Hison.const.LESSOREQ_0X7FF_BYTE = 2;    //charCode <= 0x7FF
+    Hison.const.LESSOREQ_0XFFFF_BYTE = 3;   //charCode <= 0xFFFF
+    Hison.const.GREATER_0XFFFF_BYTE = 4;    //charCode > 0xFFFF
+
     /******************************************
-     * Utils Boolean
+     * Utils for Boolean
      ******************************************/
     /**
      * Checks if the given string consists only of English alphabet characters.
@@ -261,6 +534,10 @@ var Hison ={};
     Hison.utils.isUpperAlphaAndNumber = function(str) {
         return /^[A-Z0-9]+$/.test(str);
     };
+    
+    var _isNumeric = function(num) {
+        return !isNaN(num) && isFinite(num);
+    };
     /**
      * Checks if the given parameter is a valid number.
      * This method uses `isNaN` and `isFinite` to determine if the input is a number and is finite.
@@ -282,7 +559,12 @@ var Hison ={};
      * Hison.utils.isNumeric(Infinity);
      */
     Hison.utils.isNumeric = function(num) {
-        return !isNaN(num) && isFinite(num);
+        return _isNumeric(num);
+    };
+    var _isInteger = function(num) {
+        if(!_isNumeric(num)) return false;
+        num = Number(num);
+        return Number.isInteger(num);
     };
     /**
      * Checks if the given parameter is an integer.
@@ -301,9 +583,7 @@ var Hison ={};
      * Hison.utils.isInteger(123.456);
      */
     Hison.utils.isInteger = function(num) {
-        if(!Hison.utils.isNumeric(num)) return false;
-        num = Number(num);
-        return Number.isInteger(num);
+        return _isInteger(num);
     };
     /**
      * Checks if the given parameter is a positive integer.
@@ -327,7 +607,7 @@ var Hison ={};
      * Hison.utils.isPositiveInteger(0);
      */
     Hison.utils.isPositiveInteger = function(num) {
-        if(!Hison.utils.isNumeric(num)) return false;
+        if(!_isNumeric(num)) return false;
         num = Number(num);
         return Number.isInteger(num) && num > 0;
     };
@@ -349,7 +629,7 @@ var Hison ={};
      * Hison.utils.isNegativeInteger(123);
      */
     Hison.utils.isNegativeInteger = function(num) {
-        if (!Hison.utils.isNumeric(num)) return false;
+        if (!_isNumeric(num)) return false;
         num = Number(num);
         return Number.isInteger(num) && num < 0;
     };
@@ -369,6 +649,9 @@ var Hison ={};
      */
     Hison.utils.isArray = function(arr) {
         return Array.isArray(arr) && arr.constructor === Array;
+    };
+    var _isObject = function(obj) {
+        return obj !== null && typeof obj === 'object' && !Array.isArray(obj) && obj.constructor === Object;
     };
     /**
      * Checks if the given parameter is an object consisting of key-value pairs.
@@ -391,23 +674,17 @@ var Hison ={};
      * Hison.utils.isObject(new Date());
      */
     Hison.utils.isObject = function(obj) {
-        return obj !== null && typeof obj === 'object' && !Array.isArray(obj) && obj.constructor === Object;
+        return _isObject(obj);
     };
-    var _getToString = function(str) {
-        if (typeof str === 'number' || typeof str === 'boolean' || typeof str === 'bigint') {
-            str = String(str);
-        } else if (typeof str === 'symbol') {
-            str = str.description;
-        } else {
-            throw new Error('Invalid date format');
-        }
-        return str
-    }
+    
     var _getDateObject = function(dateStr) {
         dateStr = _getToString(dateStr);
+        dateStr = dateStr.split(' ')[0];
         var year, month, day;
         if (dateStr.includes('-')) {
             [year, month, day] = dateStr.split('-').map(num => parseInt(num, 10));
+        } else if (dateStr.includes('/')) {
+            [year, month, day] = dateStr.split('/').map(num => parseInt(num, 10));
         } else if (dateStr.length === 6) {
             year = parseInt('20' + dateStr.substring(0, 2), 10);
             month = parseInt(dateStr.substring(2, 4), 10);
@@ -417,11 +694,102 @@ var Hison ={};
             month = parseInt(dateStr.substring(4, 6), 10);
             day = parseInt(dateStr.substring(6, 8), 10);
         } else {
-            throw new Error('Invalid date format');
+            return {};
         }
     
         return { y: year, m: month, d: day };
-    }
+    };
+    var _isDate = function(dateObj_or_dateStr) {
+        var dateObj = _isObject(dateObj_or_dateStr) ? dateObj_or_dateStr : _getDateObject(dateObj_or_dateStr);
+
+        var yyyy = dateObj.y;
+        var mm = dateObj.m;
+        var dd = dateObj.d;
+
+        var result = true;
+        try {
+            if(!_isInteger(yyyy) || !_isInteger(mm) || !_isInteger(dd)) {
+                return false;
+            }
+
+            if(!yyyy) {
+                return false;
+            }
+            if(!mm) {
+                mm = "01";
+            } else if (mm.length === 1) {
+                mm = "0" + mm;
+            }
+            if(!dd) {
+                dd = "01";
+            } else if (dd.length === 1) {
+                dd = "0" + dd;
+            }
+
+            if(_getToNumber(yyyy+mm+dd) < 16000101) {
+                var date = new Date(_getToNumber(yyyy), _getToNumber(mm) - 1, _getToNumber(dd));
+                if (date.getFullYear() !== _getToNumber(yyyy) || date.getMonth() !== _getToNumber(mm) - 1 || date.getDate() !== _getToNumber(dd)) {
+                    return false;
+                }
+                return true;
+            }
+            else {
+                var dateRegex = /^(?=\d)(?:(?:31(?!.(?:0?[2469]|11))|(?:30|29)(?!.0?2)|29(?=.0?2.(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00)))(?:\x20|$))|(?:2[0-8]|1\d|0?[1-9]))([-.\/])(?:1[012]|0?[1-9])\1(?:1[6-9]|[2-9]\d)?\d\d(?:(?=\x20\d)\x20|$))?(((0?[1-9]|1[012])(:[0-5]\d){0,2}(\x20[AP]M))|([01]\d|2[0-3])(:[0-5]\d){1,2})?$/;
+                result = dateRegex.test(dd+'-'+mm+'-'+yyyy);
+            }
+            
+        } catch (err) {
+            result = false;
+        }    
+        return result;
+    };
+    var _getTimeObject = function(timeStr) {
+        timeStr = _getToString(timeStr);
+        var dateArr = timeStr.split(' ');
+        timeStr = dateArr.length > 1 ? dateArr[1] : timeStr;
+        var hours, minutes, seconds;
+
+        if (timeStr.includes(':')) {
+            [hours, minutes, seconds] = timeStr.split(':').map(num => parseInt(num, 10));
+        } else if (timeStr.length === 6) {
+            hours = parseInt(timeStr.substring(0, 2), 10);
+            minutes = parseInt(timeStr.substring(2, 4), 10);
+            seconds = parseInt(timeStr.substring(4, 6), 10);
+        } else {
+            return {};
+        }
+    
+        return { h: hours, mi: minutes, s: seconds };
+    };
+    var _isTime = function(timeObj_or_timeStr) {
+        var timeObj = _isObject(timeObj_or_timeStr) ? timeObj_or_timeStr : _getTimeObject(timeObj_or_timeStr);
+
+        var hh = timeObj.h;
+        var mm = timeObj.mi;
+        var ss = timeObj.s;
+
+        if(!_isInteger(hh) || !_isInteger(mm) || !_isInteger(ss)) {
+            return false;
+        }
+        hh = parseInt(hh, 10);
+        mm = parseInt(mm, 10);
+        ss = parseInt(ss, 10);
+
+        function isValidTimePart(time, max) {
+            return !isNaN(time) && time >= 0 && time <= max;
+        }
+    
+        return isValidTimePart(hh, 23) && isValidTimePart(mm, 59) && isValidTimePart(ss, 59);
+    };
+    var _getDatetimeObject = function(datetimeStr) {
+        datetimeStr = _getToString(datetimeStr);
+        var datetimeArr = datetimeStr.split(' ');
+        var dateObj = datetimeArr[0];
+        var timeObj = datetimeArr.length > 1 ? datetimeArr[1] : {};
+
+        console.log(Object.assign({}, _getDateObject(dateObj), _getTimeObject(timeObj)));
+        return Object.assign({}, _getDateObject(dateObj), _getTimeObject(timeObj));
+    };
     /**
      * Validates whether a given date object or date string represents a valid date. 
      * The method supports dates in the range from 100.01.01 to 9999.12.31.
@@ -431,7 +799,9 @@ var Hison ={};
      * The method first determines if the input is an object or a string and converts it to a date object if necessary.
      * It then checks if the year, month, and day are valid integers and within the valid range.
      * 
-     * @param {object|string} dateObj_or_dateStr - The date object or string to be tested. The date object should have properties 'y' for year, 'm' for month, and 'd' for day.
+     * @param {object|string} dateObj_or_dateStr
+     * - The date object or string to be tested. The date object should have properties 'y' for year, 'm' for month, and 'd' for day.
+     * - Allowed formats for strings are yyyymmdd, yyyy-mm-dd, yyyy/mm/dd, and yymmdd.
      * @returns {boolean} Returns true if the date is valid within the specified range; otherwise, false.
      * 
      * @example
@@ -454,65 +824,8 @@ var Hison ={};
      * for validating user input in forms or data processing where date validity is crucial.
      */
     Hison.utils.isDate = function(dateObj_or_dateStr) {
-        var dateObj = Hison.utils.isObject(dateObj_or_dateStr) ? dateObj_or_dateStr : _getDateObject(dateObj_or_dateStr);
-
-        var yyyy = dateObj.y;
-        var mm = dateObj.m;
-        var dd = dateObj.d;
-
-        var result = true;
-        try {
-            if(!Hison.utils.isInteger(yyyy) || !Hison.utils.isInteger(mm) || !Hison.utils.isInteger(dd)) {
-                return false;
-            }
-
-            if(!yyyy) {
-                return false;
-            }
-            if(!mm) {
-                mm = "01";
-            } else if (mm.length === 1) {
-                mm = "0" + mm;
-            }
-            if(!dd) {
-                dd = "01";
-            } else if (dd.length === 1) {
-                dd = "0" + dd;
-            }
-
-            if(Hison.utils.getToNumber(yyyy+mm+dd) < 16000101) {
-                var date = new Date(Hison.utils.getToNumber(yyyy), Hison.utils.getToNumber(mm) - 1, Hison.utils.getToNumber(dd));
-                if (date.getFullYear() !== Hison.utils.getToNumber(yyyy) || date.getMonth() !== Hison.utils.getToNumber(mm) - 1 || date.getDate() !== Hison.utils.getToNumber(dd)) {
-                    return false;
-                }
-                return true;
-            }
-            else {
-                var dateRegex = /^(?=\d)(?:(?:31(?!.(?:0?[2469]|11))|(?:30|29)(?!.0?2)|29(?=.0?2.(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00)))(?:\x20|$))|(?:2[0-8]|1\d|0?[1-9]))([-.\/])(?:1[012]|0?[1-9])\1(?:1[6-9]|[2-9]\d)?\d\d(?:(?=\x20\d)\x20|$))?(((0?[1-9]|1[012])(:[0-5]\d){0,2}(\x20[AP]M))|([01]\d|2[0-3])(:[0-5]\d){1,2})?$/;
-                result = dateRegex.test(dd+'-'+mm+'-'+yyyy);
-            }
-            
-        } catch (err) {
-            result = false;
-        }    
-        return result;
+        return _isDate(dateObj_or_dateStr);
     };
-    var _getTimeObject = function(timeStr) {
-        timeStr = _getToString(timeStr);
-        var hours, minutes, seconds;
-
-        if (timeStr.includes(':')) {
-            [hours, minutes, seconds] = timeStr.split(':').map(num => parseInt(num, 10));
-        } else if (timeStr.length === 6) {
-            hours = parseInt(timeStr.substring(0, 2), 10);
-            minutes = parseInt(timeStr.substring(2, 4), 10);
-            seconds = parseInt(timeStr.substring(4, 6), 10);
-        } else {
-            throw new Error('Invalid time format');
-        }
-    
-        return { h: hours, mi: minutes, s: seconds };
-    }
     /**
      * Checks if the given time object or time string represents a valid time.
      * The method first determines if the input is an object or a string and converts it to a time object if necessary.
@@ -520,7 +833,9 @@ var Hison ={};
      * - Hours (h) must be between 0 and 23.
      * - Minutes (mi) and seconds (s) must be between 0 and 59.
      *
-     * @param {object|string} timeObj_or_timeStr - The time object or string to be tested. The time object should have properties 'h' for hour, 'mi' for minute, and 's' for second.
+     * @param {object|string} timeObj_or_timeStr
+     *  - The time object or string to be tested. The time object should have properties 'h' for hour, 'mi' for minute, and 's' for second.
+     *  - Allowed string formats are hh:mi:ss, hhmiss.
      * @returns {boolean} Returns true if the time is valid; otherwise, false.
      *
      * @example
@@ -539,40 +854,17 @@ var Hison ={};
      * for validating user input in forms or data processing where time validity is crucial.
      */
     Hison.utils.isTime = function(timeObj_or_timeStr) {
-        var timeObj = Hison.utils.isObject(timeObj_or_timeStr) ? timeObj_or_timeStr : _getTimeObject(timeObj_or_timeStr);
-
-        var hh = timeObj.h;
-        var mm = timeObj.mi;
-        var ss = timeObj.s;
-
-        if(!Hison.utils.isInteger(hh) || !Hison.utils.isInteger(mm) || !Hison.utils.isInteger(ss)) {
-            return false;
-        }
-        hh = parseInt(hh, 10);
-        mm = parseInt(mm, 10);
-        ss = parseInt(ss, 10);
-
-        function isValidTimePart(time, max) {
-            return !isNaN(time) && time >= 0 && time <= max;
-        }
-    
-        return isValidTimePart(hh, 23) && isValidTimePart(mm, 59) && isValidTimePart(ss, 59);
+        return _isTime(timeObj_or_timeStr);
     };
-    var _getDatetimeObject = function(datetimeStr) {
-        datetimeStr = _getToString(datetimeStr);
-        var datetimeArr = datetimeStr.split(' ');
-        var dateObj = datetimeArr[0];
-        var timeObj = datetimeArr.length > 1 ? datetimeArr[1] : {};
-
-        return Object.assign({}, dateObj, timeObj)
-    }
     /**
      * Validates whether a given datetime object or datetime string represents a valid date and time.
      * The method first determines if the input is an object or a string and converts it to a datetime object if necessary.
      * It then uses `Hison.utils.isDate` to validate the date part (year, month, day)
      * and `Hison.utils.isTime` to validate the time part (hour, minute, second) of the datetime object.
      *
-     * @param {object|string} datetimeObj_or_datetimeStr - The datetime object or string to be tested. The datetime object should have properties 'y' for year, 'm' for month, 'd' for day, 'h' for hour, 'mi' for minute, and 's' for second.
+     * @param {object|string} datetimeObj_or_datetimeStr
+     *  - The datetime object or string to be tested. The datetime object should have properties 'y' for year, 'm' for month, 'd' for day, 'h' for hour, 'mi' for minute, and 's' for second.
+     *  - Allowed formats for strings of year, month, day are yyyymmdd, yyyy-mm-dd, yyyy/mm/dd, yymmdd. And time are hh:mi:ss, hhmiss.
      * @returns {boolean} Returns true if both the date and time parts of the object or string are valid; otherwise, false.
      *
      * @example
@@ -591,9 +883,9 @@ var Hison ={};
      * for validating user input in forms or data processing where both date and time validity are crucial.
      */
     Hison.utils.isDatetime = function(datetimeObj_or_datetimeStr) {
-        var datetimeObj = Hison.utils.isObject(datetimeObj_or_datetimeStr) ? datetimeObj_or_datetimeStr : _getDatetimeObject(datetimeObj_or_datetimeStr);
-        if(!Hison.utils.isDate(datetimeObj)) return false;
-        if(!Hison.utils.isTime(datetimeObj)) return false;
+        var datetimeObj = _isObject(datetimeObj_or_datetimeStr) ? datetimeObj_or_datetimeStr : _getDatetimeObject(datetimeObj_or_datetimeStr);
+        if(!_isDate(datetimeObj)) return false;
+        if(!_isTime(datetimeObj)) return false;
         return true;
     };
     /**
@@ -692,7 +984,7 @@ var Hison ={};
     };
     
     /******************************************
-     * Utils Date
+     * Utils for Date
      ******************************************/
     /**
      * Adds a specified amount of time to a given date object.
@@ -701,7 +993,9 @@ var Hison ={};
      * It adjusts the given date accordingly and returns a new date object in a structured format.
      * The original object does not change.
      *
-     * @param {object} datetimeObj - The date object to which time will be added. Should contain year (y), and optionally month (m), day (d), hours (h), minutes (mi), and seconds (s).
+     * @param {object|string} datetimeObj_or_datetimeStr
+     *  - The date object to which time will be added. Should contain year (y), and optionally month (m), day (d), hours (h), minutes (mi), and seconds (s).
+     *  - Allowed formats for strings of year, month, day are yyyymmdd, yyyy-mm-dd, yyyy/mm/dd, yymmdd. And time are hh:mi:ss, hhmiss.
      * @param {number} addValue - The value to add to the date. Must be an integer.
      * @param {string} [addType='d'] - The type of value to add ('y' for years, 'm' for months, 'd' for days, 'h' for hours, 'mi' for minutes, 's' for seconds). Default is days ('d').
      * @returns {object} Returns a new date object with the added time.
@@ -717,49 +1011,54 @@ var Hison ={};
      * Hison.utils.addDate({ y: 2024, m: 1, d: 15 }, 3, 'm');
      */
     Hison.utils.addDate = function(datetimeObj_or_datetimeStr, addValue, addType, format) {
-        var datetimeObj = Hison.utils.isObject(datetimeObj_or_datetimeStr) ? datetimeObj_or_datetimeStr : _getDatetimeObject(datetimeObj_or_datetimeStr);
+        var datetimeObj = _isObject(datetimeObj_or_datetimeStr) ? _deepCopy(datetimeObj_or_datetimeStr) : _getDatetimeObject(datetimeObj_or_datetimeStr);
 
         if (!datetimeObj.y || (addValue !== 0 && !addValue)) {
-            throw new Error("Required parameters have not been entered.");
+            throw new Error("Please enter a valid date.");
         }
         if(!addType) addType ="";
+    
+        if(!_isInteger(addValue)) throw new Error("addValue must be an integer");
+    
+        datetimeObj.m = datetimeObj.m === null || datetimeObj.m === undefined ? 1 : datetimeObj.m;
+        datetimeObj.d = datetimeObj.d === null || datetimeObj.d === undefined ? 1 : datetimeObj.d;
+        datetimeObj.h = datetimeObj.h === null || datetimeObj.h === undefined ? 0 : datetimeObj.h;
+        datetimeObj.mi = datetimeObj.mi === null || datetimeObj.mi === undefined ? 0 : datetimeObj.mi;
+        datetimeObj.s = datetimeObj.s === null || datetimeObj.s === undefined ? 0 : datetimeObj.s;
 
-        var dObj = Hison.utils.deepCopy(datetimeObj);
+        if(!_isDate(datetimeObj)) throw new Error("Please input a valid date.");
+        if(!_isTime(datetimeObj)) throw new Error("Please input a valid date.");
     
-        if(!Hison.utils.isInteger(addValue)) throw new Error("addValue must be an integer");
-    
-        dObj.m = dObj.m === null || dObj.m === undefined ? 1 : dObj.m;
-        dObj.d = dObj.d === null || dObj.d === undefined ? 1 : dObj.d;
-        dObj.h = dObj.h === null || dObj.h === undefined ? 0 : dObj.h;
-        dObj.mi = dObj.mi === null || dObj.mi === undefined ? 0 : dObj.mi;
-        dObj.s = dObj.s === null || dObj.s === undefined ? 0 : dObj.s;
-
-        if(!Hison.utils.isDate(dObj)) throw new Error("Please input a valid date.");
-        if(!Hison.utils.isTime(dObj)) throw new Error("Please input a valid date.");
-    
-        var d = new Date(dObj.y, dObj.m - 1, dObj.d, dObj.h, dObj.mi, dObj.s);
+        var d = new Date(datetimeObj.y, datetimeObj.m - 1, datetimeObj.d, datetimeObj.h, datetimeObj.mi, datetimeObj.s);
     
         switch (addType.toLowerCase()) {
             case 'y':
                 d.setFullYear(d.getFullYear() + addValue);
+                format = Hison.const.dateFormat;
                 break;
             case 'm':
                 d.setMonth(d.getMonth() + addValue);
+                format = Hison.const.dateFormat;
                 break;
             case 'd':
                 d.setDate(d.getDate() + addValue);
+                format = Hison.const.dateFormat;
                 break;
             case 'h':
                 d.setHours(d.getHours() + addValue);
+                format = Hison.const.datetimeFormat;
                 break;
             case 'mi':
                 d.setMinutes(d.getMinutes() + addValue);
+                format = Hison.const.datetimeFormat;
                 break;
             case 's':
                 d.setSeconds(d.getSeconds() + addValue);
+                format = Hison.const.datetimeFormat;
                 break;
             default:
                 d.setDate(d.getDate() + addValue);
+                format = Hison.const.dateFormat;
         }
 
         var rtnObj = {
@@ -771,15 +1070,19 @@ var Hison ={};
             s: d.getSeconds().toString().padStart(2, '0')
         }
 
-        return Hison.utils.isObject(datetimeObj_or_datetimeStr) ? rtnObj : Hison.utils.getDateWithFormat(rtnObj, format);
+        return _isObject(datetimeObj_or_datetimeStr) ? rtnObj : _getDateWithFormat(rtnObj, format);
     };
     /**
      * Calculates the difference between two date objects. The difference can be measured in years, months, days, hours, minutes, or seconds.
      * The default measurement is in days if no type is specified. This function throws errors for invalid input or date format.
      * It uses Hison.utils.isDate and Hison.utils.isTime to validate the input dates.
      *
-     * @param {object} datetimeObj1 - The first date object for comparison. Should contain year (y), and optionally month (m), day (d), hours (h), minutes (mi), and seconds (s).
-     * @param {object} datetimeObj2 - The second date object for comparison. Should contain year (y), and optionally month (m), day (d), hours (h), minutes (mi), and seconds (s).
+     * @param {object|string} datetimeObj_or_datetimeStr1
+     *  - The first date object for comparison. Should contain year (y), and optionally month (m), day (d), hours (h), minutes (mi), and seconds (s).
+     *  - Allowed formats for strings of year, month, day are yyyymmdd, yyyy-mm-dd, yyyy/mm/dd, yymmdd. And time are hh:mi:ss, hhmiss.
+     * @param {object|string} datetimeObj_or_datetimeStr2
+     *  - The second date object for comparison. Should contain year (y), and optionally month (m), day (d), hours (h), minutes (mi), and seconds (s).
+     *  - Allowed formats for strings of year, month, day are yyyymmdd, yyyy-mm-dd, yyyy/mm/dd, yymmdd. And time are hh:mi:ss, hhmiss.
      * @param {string} [diffType='d'] - The type of difference to calculate ('y' for years, 'm' for months, 'd' for days, 'h' for hours, 'mi' for minutes, 's' for seconds). Default is days ('d').
      * @returns {number} Returns the difference between the two dates in the specified unit.
      *
@@ -793,27 +1096,28 @@ var Hison ={};
      * // returns the number of months between two dates
      * Hison.utils.getDateDiff({ y: 2023, m: 1, d: 1 }, { y: 2024, m: 1, d: 1 }, 'm');
      */
-    Hison.utils.getDateDiff = function(datetimeObj1, datetimeObj2, diffType) {
+    Hison.utils.getDateDiff = function(datetimeObj_or_datetimeStr1, datetimeObj_or_datetimeStr2, diffType) {
+        var datetimeObj1 = _isObject(datetimeObj_or_datetimeStr1) ? _deepCopy(datetimeObj_or_datetimeStr1) : _getDatetimeObject(datetimeObj_or_datetimeStr1);
+        var datetimeObj2 = _isObject(datetimeObj_or_datetimeStr2) ? _deepCopy(datetimeObj_or_datetimeStr2) : _getDatetimeObject(datetimeObj_or_datetimeStr2);
+        
         if (!datetimeObj1.y || !datetimeObj2.y) {
-            throw new Error("Required parameters have not been entered.");
+            throw new Error("Please enter a valid date.");
         }
-        var dObj1 = Hison.utils.deepCopy(datetimeObj1);
-        var dObj2 = Hison.utils.deepCopy(datetimeObj2);
         if(!diffType) diffType = "";
     
-        dObj1.m = dObj1.m || 1; dObj2.m = dObj2.m || 1;
-        dObj1.d = dObj1.d || 1; dObj2.d = dObj2.d || 1;
-        dObj1.h = dObj1.h || 0; dObj2.h = dObj2.h || 0;
-        dObj1.mi = dObj1.mi || 0; dObj2.mi = dObj2.mi || 0;
-        dObj1.s = dObj1.s || 0; dObj2.s = dObj2.s || 0;
+        datetimeObj1.m = datetimeObj1.m || 1; datetimeObj2.m = datetimeObj2.m || 1;
+        datetimeObj1.d = datetimeObj1.d || 1; datetimeObj2.d = datetimeObj2.d || 1;
+        datetimeObj1.h = datetimeObj1.h || 0; datetimeObj2.h = datetimeObj2.h || 0;
+        datetimeObj1.mi = datetimeObj1.mi || 0; datetimeObj2.mi = datetimeObj2.mi || 0;
+        datetimeObj1.s = datetimeObj1.s || 0; datetimeObj2.s = datetimeObj2.s || 0;
 
-        if(!Hison.utils.isDate(dObj1)) throw new Error("Please input a valid date.");
-        if(!Hison.utils.isTime(dObj1)) throw new Error("Please input a valid date.");
-        if(!Hison.utils.isDate(dObj2)) throw new Error("Please input a valid date.");
-        if(!Hison.utils.isTime(dObj2)) throw new Error("Please input a valid date.");
+        if(!_isDate(datetimeObj1)) throw new Error("Please input a valid date.");
+        if(!_isTime(datetimeObj1)) throw new Error("Please input a valid date.");
+        if(!_isDate(datetimeObj2)) throw new Error("Please input a valid date.");
+        if(!_isTime(datetimeObj2)) throw new Error("Please input a valid date.");
     
-        var d1 = new Date(dObj1.y, dObj1.m - 1, dObj1.d, dObj1.h, dObj1.mi, dObj1.s);
-        var d2 = new Date(dObj2.y, dObj2.m - 1, dObj2.d, dObj2.h, dObj2.mi, dObj2.s);
+        var d1 = new Date(datetimeObj1.y, datetimeObj1.m - 1, datetimeObj1.d, datetimeObj1.h, datetimeObj1.mi, datetimeObj1.s);
+        var d2 = new Date(datetimeObj2.y, datetimeObj2.m - 1, datetimeObj2.d, datetimeObj2.h, datetimeObj2.mi, datetimeObj2.s);
     
         switch (diffType.toLowerCase()) {
             case 'y':
@@ -831,6 +1135,21 @@ var Hison ={};
             default:
                 return Math.floor((d2 - d1) / (24 * 60 * 60 * 1000));
         }
+    };
+    var _getMonthName = function(month, isFullName) {
+        if (isFullName !== false) {
+            isFullName = true;
+        }
+        month = parseInt(month, 10);
+
+        var monthsFullName = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        var monthsShortName = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+        if (month < 1 || month > 12) {
+            throw new Error("Month must be between 1 and 12");
+        }
+
+        return isFullName ? monthsFullName[month - 1] : monthsShortName[month - 1];
     };
     /**
      * Retrieves the English name of a month given its numerical value. The function can return either the full name
@@ -851,19 +1170,369 @@ var Hison ={};
      * Hison.utils.getMonthName(11, false);
      */
     Hison.utils.getMonthName = function(month, isFullName) {
-        if (isFullName !== false) {
-            isFullName = true;
+        return _getMonthName(month, isFullName);
+    };
+    var _getDateWithFormat = function(datetimeObj_or_datetimeStr, format) {
+        var datetimeObj = _isObject(datetimeObj_or_datetimeStr) ? _deepCopy(datetimeObj_or_datetimeStr) : _getDatetimeObject(datetimeObj_or_datetimeStr);
+
+        if(!datetimeObj.y) throw new Error("Please enter a valid date.");
+        if(!format) format = Hison.const.dateFormat;
+
+        datetimeObj.m = (datetimeObj.m || 1).toString().padStart(2, '0');
+        datetimeObj.d = (datetimeObj.d || 1).toString().padStart(2, '0');
+        datetimeObj.h = (datetimeObj.h || 0).toString().padStart(2, '0');
+        datetimeObj.mi = (datetimeObj.mi || 0).toString().padStart(2, '0');
+        datetimeObj.s = (datetimeObj.s || 0).toString().padStart(2, '0');
+
+        if(!_isDate(datetimeObj)) throw new Error("Please input a valid date.");
+        if(!_isTime(datetimeObj)) throw new Error("Please input a valid date.");
+
+        var mn = _getMonthName(datetimeObj.m);
+        var mnabb = _getMonthName(datetimeObj.m, false);
+    
+        switch (format.toLowerCase()) {
+            case 'yyyy':
+                return datetimeObj.y;
+                
+            case 'yyyymm':
+                return datetimeObj.y + datetimeObj.m;
+            case 'yyyy-mm':
+                return datetimeObj.y + '-' + datetimeObj.m;
+            case 'yyyy/mm':
+                return datetimeObj.y + '/' + datetimeObj.m;
+            case 'yyyy. mm':
+                return datetimeObj.y + '. ' + datetimeObj.m;
+            case 'yyyy mm':
+                return datetimeObj.y + ' ' + datetimeObj.m;
+
+            case 'yyyymmdd':
+                return datetimeObj.y + datetimeObj.m + datetimeObj.d;
+            case 'yyyy-mm-dd':
+                return datetimeObj.y + '-' + datetimeObj.m + '-' + datetimeObj.d;
+            case 'yyyy/mm/dd':
+                return datetimeObj.y + '/' + datetimeObj.m + '/' + datetimeObj.d;
+            case 'yyyy. mm. dd':
+                return datetimeObj.y + '. ' + datetimeObj.m + '. ' + datetimeObj.d;
+            case 'yyyy mm dd':
+                return datetimeObj.y + ' ' + datetimeObj.m + ' ' + datetimeObj.d;
+
+            case 'yyyymmdd hh':
+                return datetimeObj.y + datetimeObj.m + datetimeObj.d + ' ' + datetimeObj.h;
+            case 'yyyymmdd hhmi':
+                return datetimeObj.y + datetimeObj.m + datetimeObj.d + ' ' + datetimeObj.h + datetimeObj.mi;
+            case 'yyyymmdd hhmiss':
+                return datetimeObj.y + datetimeObj.m + datetimeObj.d + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
+            case 'yyyymmdd hh:mi':
+                return datetimeObj.y + datetimeObj.m + datetimeObj.d + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
+            case 'yyyymmdd hh:mi:ss':
+                return datetimeObj.y + datetimeObj.m + datetimeObj.d + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
+            case 'yyyy-mm-dd hh':
+                return datetimeObj.y + '-' + datetimeObj.m + '-' + datetimeObj.d + ' ' + datetimeObj.h;
+            case 'yyyy-mm-dd hhmi':
+                return datetimeObj.y + '-' + datetimeObj.m + '-' + datetimeObj.d + ' ' + datetimeObj.h + datetimeObj.mi;
+            case 'yyyy-mm-dd hhmiss':
+                return datetimeObj.y + '-' + datetimeObj.m + '-' + datetimeObj.d + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
+            case 'yyyy-mm-dd hh:mi':
+                return datetimeObj.y + '-' + datetimeObj.m + '-' + datetimeObj.d + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
+            case 'yyyy-mm-dd hh:mi:ss':
+                return datetimeObj.y + '-' + datetimeObj.m + '-' + datetimeObj.d + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
+            case 'yyyy/mm/dd hh':
+                return datetimeObj.y + '/' + datetimeObj.m + '/' + datetimeObj.d + ' ' + datetimeObj.h;
+            case 'yyyy/mm/dd hhmi':
+                return datetimeObj.y + '/' + datetimeObj.m + '/' + datetimeObj.d + ' ' + datetimeObj.h + datetimeObj.mi;
+            case 'yyyy/mm/dd hhmiss':
+                return datetimeObj.y + '/' + datetimeObj.m + '/' + datetimeObj.d + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
+            case 'yyyy/mm/dd hh:mi':
+                return datetimeObj.y + '/' + datetimeObj.m + '/' + datetimeObj.d + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
+            case 'yyyy/mm/dd hh:mi:ss':
+                return datetimeObj.y + '/' + datetimeObj.m + '/' + datetimeObj.d + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
+            case 'yyyy. mm. dd hh':
+                return datetimeObj.y + '. ' + datetimeObj.m + '. ' + datetimeObj.d + ' ' + datetimeObj.h;
+            case 'yyyy. mm. dd hhmi':
+                return datetimeObj.y + '. ' + datetimeObj.m + '. ' + datetimeObj.d + ' ' + datetimeObj.h + datetimeObj.mi;
+            case 'yyyy. mm. dd hhmiss':
+                return datetimeObj.y + '. ' + datetimeObj.m + '. ' + datetimeObj.d + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
+            case 'yyyy. mm. dd hh:mi':
+                return datetimeObj.y + '. ' + datetimeObj.m + '. ' + datetimeObj.d + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
+            case 'yyyy. mm. dd hh:mi:ss':
+                return datetimeObj.y + '. ' + datetimeObj.m + '. ' + datetimeObj.d + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
+            case 'yyyy mm dd hh':
+                return datetimeObj.y + ' ' + datetimeObj.m + ' ' + datetimeObj.d + ' ' + datetimeObj.h;
+            case 'yyyy mm dd hhmi':
+                return datetimeObj.y + ' ' + datetimeObj.m + ' ' + datetimeObj.d + ' ' + datetimeObj.h + datetimeObj.mi;
+            case 'yyyy mm dd hhmiss':
+                return datetimeObj.y + ' ' + datetimeObj.m + ' ' + datetimeObj.d + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
+            case 'yyyy mm dd hh:mi':
+                return datetimeObj.y + ' ' + datetimeObj.m + ' ' + datetimeObj.d + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
+            case 'yyyy mm dd hh:mi:ss':
+                return datetimeObj.y + ' ' + datetimeObj.m + ' ' + datetimeObj.d + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
+
+            case 'mmyyyy':
+                return datetimeObj.m + datetimeObj.y;
+            case 'mm-yyyy':
+                return datetimeObj.m + '-' + datetimeObj.y;
+            case 'mm/yyyy':
+                return datetimeObj.m + '/' + datetimeObj.y;
+            case 'mm. yyyy':
+                return datetimeObj.m + '/' + datetimeObj.y;
+            case 'mm yyyy':
+                return datetimeObj.m + '/' + datetimeObj.y;
+            case 'mn yyyy':
+                return mn + ' ' + datetimeObj.y;
+            case 'mn, yyyy':
+                return mn + ', ' + datetimeObj.y;
+            case 'mnabb yyyy':
+                return mnabb + ' ' + datetimeObj.y;
+            case 'mnabb, yyyy':
+                return mnabb + ', ' + datetimeObj.y;
+
+            case 'mmddyyyy':
+                return datetimeObj.m + datetimeObj.d + datetimeObj.y;
+            case 'mm-dd-yyyy':
+                return datetimeObj.m + '-' + datetimeObj.d + '-' + datetimeObj.y;
+            case 'mm/dd/yyyy':
+                return datetimeObj.m + '/' + datetimeObj.d + '/' + datetimeObj.y;
+            case 'mm. dd. yyyy':
+                return datetimeObj.m + '. ' + datetimeObj.d + '. ' + datetimeObj.y;
+            case 'mn dd yyyy':
+                return mn + ' ' + datetimeObj.d + ' ' + datetimeObj.y;
+            case 'mn dd, yyyy':
+                return mn + ' ' + datetimeObj.d + ', ' + datetimeObj.y;
+            case 'mnabb dd yyyy':
+                return mnabb + ' ' + datetimeObj.d + ' ' + datetimeObj.y;
+            case 'mnabb dd, yyyy':
+                return mnabb + ' ' + datetimeObj.d + ', ' + datetimeObj.y;
+            case 'mn ddth yyyy':
+                return mn + ' ' + datetimeObj.d + 'th ' + datetimeObj.y;
+            case 'mn ddth, yyyy':
+                return mn + ' ' + datetimeObj.d + 'th, ' + datetimeObj.y;
+            case 'mnabb ddth yyyy':
+                return mnabb + ' ' + datetimeObj.d + 'th ' + datetimeObj.y;
+            case 'mnabb ddth, yyyy':
+                return mnabb + ' ' + datetimeObj.d + 'th, ' + datetimeObj.y;
+
+            case 'mmddyyyy hh':
+                return datetimeObj.m + datetimeObj.d + datetimeObj.y + ' ' + datetimeObj.h;
+            case 'mmddyyyy hhmi':
+                return datetimeObj.m + datetimeObj.d + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
+            case 'mmddyyyy hhmiss':
+                return datetimeObj.m + datetimeObj.d + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
+            case 'mmddyyyy hh:mi':
+                return datetimeObj.m + datetimeObj.d + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
+            case 'mmddyyyy hh:mi:ss':
+                return datetimeObj.m + datetimeObj.d + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
+            case 'mm-dd-yyyy hh':
+                return datetimeObj.m + '-' + datetimeObj.d + '-' + datetimeObj.y + ' ' + datetimeObj.h;
+            case 'mm-dd-yyyy hhmi':
+                return datetimeObj.m + '-' + datetimeObj.d + '-' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
+            case 'mm-dd-yyyy hhmiss':
+                return datetimeObj.m + '-' + datetimeObj.d + '-' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
+            case 'mm-dd-yyyy hh:mi':
+                return datetimeObj.m + '-' + datetimeObj.d + '-' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
+            case 'mm-dd-yyyy hh:mi:ss':
+                return datetimeObj.m + '-' + datetimeObj.d + '-' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
+            case 'mm/dd/yyyy hh':
+                return datetimeObj.m + '/' + datetimeObj.d + '/' + datetimeObj.y + ' ' + datetimeObj.h;
+            case 'mm/dd/yyyy hhmi':
+                return datetimeObj.m + '/' + datetimeObj.d + '/' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
+            case 'mm/dd/yyyy hhmiss':
+                return datetimeObj.m + '/' + datetimeObj.d + '/' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
+            case 'mm/dd/yyyy hh:mi':
+                return datetimeObj.m + '/' + datetimeObj.d + '/' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
+            case 'mm/dd/yyyy hh:mi:ss':
+                return datetimeObj.m + '/' + datetimeObj.d + '/' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
+            case 'mm. dd. yyyy hh':
+                return datetimeObj.m + '. ' + datetimeObj.d + '. ' + datetimeObj.y + ' ' + datetimeObj.h;
+            case 'mm. dd. yyyy hhmi':
+                return datetimeObj.m + '. ' + datetimeObj.d + '. ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
+            case 'mm. dd. yyyy hhmiss':
+                return datetimeObj.m + '. ' + datetimeObj.d + '. ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
+            case 'mm. dd. yyyy hh:mi':
+                return datetimeObj.m + '. ' + datetimeObj.d + '. ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
+            case 'mm. dd. yyyy hh:mi:ss':
+                return datetimeObj.m + '. ' + datetimeObj.d + '. ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
+            case 'mn dd yyyy hh':
+                return mn + ' ' + datetimeObj.d + ' ' + datetimeObj.y + ' ' + datetimeObj.h;
+            case 'mn dd yyyy hhmi':
+                return mn + ' ' + datetimeObj.d + ' ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
+            case 'mn dd yyyy hhmiss':
+                return mn + ' ' + datetimeObj.d + ' ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
+            case 'mn dd yyyy hh:mi':
+                return mn + ' ' + datetimeObj.d + ' ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
+            case 'mn dd yyyy hh:mi:ss':
+                return mn + ' ' + datetimeObj.d + ' ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
+            case 'mn dd, yyyy hh':
+                return mn + ' ' + datetimeObj.d + ', ' + datetimeObj.y + ' ' + datetimeObj.h;
+            case 'mn dd, yyyy hhmi':
+                return mn + ' ' + datetimeObj.d + ', ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
+            case 'mn dd, yyyy hhmiss':
+                return mn + ' ' + datetimeObj.d + ', ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
+            case 'mn dd, yyyy hh:mi':
+                return mn + ' ' + datetimeObj.d + ', ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
+            case 'mn dd, yyyy hh:mi:ss':
+                return mn + ' ' + datetimeObj.d + ', ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
+            case 'mnabb dd yyyy hh':
+                return mnabb + ' ' + datetimeObj.d + ' ' + datetimeObj.y + ' ' + datetimeObj.h;
+            case 'mnabb dd yyyy hhmi':
+                return mnabb + ' ' + datetimeObj.d + ' ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
+            case 'mnabb dd yyyy hhmiss':
+                return mnabb + ' ' + datetimeObj.d + ' ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
+            case 'mnabb dd yyyy hh:mi':
+                return mnabb + ' ' + datetimeObj.d + ' ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
+            case 'mnabb dd yyyy hh:mi:ss':
+                return mnabb + ' ' + datetimeObj.d + ' ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
+            case 'mnabb dd, yyyy hh':
+                return mnabb + ' ' + datetimeObj.d + ', ' + datetimeObj.y + ' ' + datetimeObj.h;
+            case 'mnabb dd, yyyy hhmi':
+                return mnabb + ' ' + datetimeObj.d + ', ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
+            case 'mnabb dd, yyyy hhmiss':
+                return mnabb + ' ' + datetimeObj.d + ', ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
+            case 'mnabb dd, yyyy hh:mi':
+                return mnabb + ' ' + datetimeObj.d + ', ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
+            case 'mnabb dd, yyyy hh:mi:ss':
+                return mnabb + ' ' + datetimeObj.d + ', ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
+            case 'mn ddth yyyy hh':
+                return mn + ' ' + datetimeObj.d + 'th ' + datetimeObj.y + ' ' + datetimeObj.h;
+            case 'mn ddth yyyy hhmi':
+                return mn + ' ' + datetimeObj.d + 'th ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
+            case 'mn ddth yyyy hhmiss':
+                return mn + ' ' + datetimeObj.d + 'th ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
+            case 'mn ddth yyyy hh:mi':
+                return mn + ' ' + datetimeObj.d + 'th ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
+            case 'mn ddth yyyy hh:mi:ss':
+                return mn + ' ' + datetimeObj.d + 'th ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
+            case 'mn ddth, yyyy hh':
+                return mn + ' ' + datetimeObj.d + 'th, ' + datetimeObj.y + ' ' + datetimeObj.h;
+            case 'mn ddth, yyyy hhmi':
+                return mn + ' ' + datetimeObj.d + 'th, ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
+            case 'mn ddth, yyyy hhmiss':
+                return mn + ' ' + datetimeObj.d + 'th, ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
+            case 'mn ddth, yyyy hh:mi':
+                return mn + ' ' + datetimeObj.d + 'th, ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
+            case 'mn ddth, yyyy hh:mi:ss':
+                return mn + ' ' + datetimeObj.d + 'th, ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
+            case 'mnabb ddth yyyy hh':
+                return mnabb + ' ' + datetimeObj.d + 'th ' + datetimeObj.y + ' ' + datetimeObj.h;
+            case 'mnabb ddth yyyy hhmi':
+                return mnabb + ' ' + datetimeObj.d + 'th ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
+            case 'mnabb ddth yyyy hhmiss':
+                return mnabb + ' ' + datetimeObj.d + 'th ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
+            case 'mnabb ddth yyyy hh:mi':
+                return mnabb + ' ' + datetimeObj.d + 'th ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
+            case 'mnabb ddth yyyy hh:mi:ss':
+                return mnabb + ' ' + datetimeObj.d + 'th ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
+            case 'mnabb ddth, yyyy hh':
+                return mnabb + ' ' + datetimeObj.d + 'th, ' + datetimeObj.y + ' ' + datetimeObj.h;
+            case 'mnabb ddth, yyyy hhmi':
+                return mnabb + ' ' + datetimeObj.d + 'th, ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
+            case 'mnabb ddth, yyyy hhmiss':
+                return mnabb + ' ' + datetimeObj.d + 'th, ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
+            case 'mnabb ddth, yyyy hh:mi':
+                return mnabb + ' ' + datetimeObj.d + 'th, ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
+            case 'mnabb ddth, yyyy hh:mi:ss':
+                return mnabb + ' ' + datetimeObj.d + 'th, ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
+
+            case 'ddmmyyyy':
+                return datetimeObj.d + datetimeObj.m + datetimeObj.y;
+            case 'dd-mm-yyyy':
+                return datetimeObj.d + '-' + datetimeObj.m + '-' + datetimeObj.y;
+            case 'dd/mm/yyyy':
+                return datetimeObj.d + '/' + datetimeObj.m + '/' + datetimeObj.y;
+            case 'dd. mm. yyyy':
+                return datetimeObj.d + '. ' + datetimeObj.m + '. ' + datetimeObj.y;
+            case 'dd mn yyyy':
+                return datetimeObj.d + ' ' + mn + ' ' + datetimeObj.y;
+            case 'dd mnabb yyyy':
+                return datetimeObj.d + ' ' + mnabb + ' ' + datetimeObj.y;
+            case 'ddth mn yyyy':
+                return datetimeObj.d + 'th ' + mn + ' ' + datetimeObj.y;
+            case 'ddth mnabb yyyy':
+                return datetimeObj.d + 'th ' + mnabb + ' ' + datetimeObj.y;
+
+            case 'ddmmyyyy hh':
+                return datetimeObj.d + datetimeObj.m + datetimeObj.y + ' ' + datetimeObj.h;
+            case 'ddmmyyyy hhmi':
+                return datetimeObj.d + datetimeObj.m + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
+            case 'ddmmyyyy hhmiss':
+                return datetimeObj.d + datetimeObj.m + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
+            case 'ddmmyyyy hh:mi':
+                return datetimeObj.d + datetimeObj.m + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
+            case 'ddmmyyyy hh:mi:ss':
+                return datetimeObj.d + datetimeObj.m + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
+            case 'dd-mm-yyyy hh':
+                return datetimeObj.d + '-' + datetimeObj.m + '-' + datetimeObj.y + ' ' + datetimeObj.h;
+            case 'dd-mm-yyyy hhmi':
+                return datetimeObj.d + '-' + datetimeObj.m + '-' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
+            case 'dd-mm-yyyy hhmiss':
+                return datetimeObj.d + '-' + datetimeObj.m + '-' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
+            case 'dd-mm-yyyy hh:mi':
+                return datetimeObj.d + '-' + datetimeObj.m + '-' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
+            case 'dd-mm-yyyy hh:mi:ss':
+                return datetimeObj.d + '-' + datetimeObj.m + '-' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
+            case 'dd/mm/yyyy hh':
+                return datetimeObj.d + '/' + datetimeObj.m + '/' + datetimeObj.y + ' ' + datetimeObj.h;
+            case 'dd/mm/yyyy hhmi':
+                return datetimeObj.d + '/' + datetimeObj.m + '/' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
+            case 'dd/mm/yyyy hhmiss':
+                return datetimeObj.d + '/' + datetimeObj.m + '/' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
+            case 'dd/mm/yyyy hh:mi':
+                return datetimeObj.d + '/' + datetimeObj.m + '/' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
+            case 'dd/mm/yyyy hh:mi:ss':
+                return datetimeObj.d + '/' + datetimeObj.m + '/' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
+            case 'dd. mm. yyyy hh':
+                return datetimeObj.d + '. ' + datetimeObj.m + '. ' + datetimeObj.y + ' ' + datetimeObj.h;
+            case 'dd. mm. yyyy hhmi':
+                return datetimeObj.d + '. ' + datetimeObj.m + '. ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
+            case 'dd. mm. yyyy hhmiss':
+                return datetimeObj.d + '. ' + datetimeObj.m + '. ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
+            case 'dd. mm. yyyy hh:mi':
+                return datetimeObj.d + '. ' + datetimeObj.m + '. ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
+            case 'dd. mm. yyyy hh:mi:ss':
+                return datetimeObj.d + '. ' + datetimeObj.m + '. ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
+            case 'dd mn yyyy hh':
+                return datetimeObj.d + ' ' + mn + ' ' + datetimeObj.y + ' ' + datetimeObj.h;
+            case 'dd mn yyyy hhmi':
+                return datetimeObj.d + ' ' + mn + ' ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
+            case 'dd mn yyyy hhmiss':
+                return datetimeObj.d + ' ' + mn + ' ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
+            case 'dd mn yyyy hh:mi':
+                return datetimeObj.d + ' ' + mn + ' ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
+            case 'dd mn yyyy hh:mi:ss':
+                return datetimeObj.d + ' ' + mn + ' ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
+            case 'dd mnabb yyyy hh':
+                return datetimeObj.d + ' ' + mnabb + ' ' + datetimeObj.y + ' ' + datetimeObj.h;
+            case 'dd mnabb yyyy hhmi':
+                return datetimeObj.d + ' ' + mnabb + ' ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
+            case 'dd mnabb yyyy hhmiss':
+                return datetimeObj.d + ' ' + mnabb + ' ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
+            case 'dd mnabb yyyy hh:mi':
+                return datetimeObj.d + ' ' + mnabb + ' ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
+            case 'dd mnabb yyyy hh:mi:ss':
+                return datetimeObj.d + ' ' + mnabb + ' ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
+            case 'ddth mn yyyy hh':
+                return datetimeObj.d + 'th ' + mn + ' ' + datetimeObj.y + ' ' + datetimeObj.h;
+            case 'ddth mn yyyy hhmi':
+                return datetimeObj.d + 'th ' + mn + ' ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
+            case 'ddth mn yyyy hhmiss':
+                return datetimeObj.d + 'th ' + mn + ' ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
+            case 'ddth mn yyyy hh:mi':
+                return datetimeObj.d + 'th ' + mn + ' ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
+            case 'ddth mn yyyy hh:mi:ss':
+                return datetimeObj.d + 'th ' + mn + ' ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
+            case 'ddth mnabb yyyy hh':
+                return datetimeObj.d + 'th ' + mnabb + ' ' + datetimeObj.y + ' ' + datetimeObj.h;
+            case 'ddth mnabb yyyy hhmi':
+                return datetimeObj.d + 'th ' + mnabb + ' ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
+            case 'ddth mnabb yyyy hhmiss':
+                return datetimeObj.d + 'th ' + mnabb + ' ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
+            case 'ddth mnabb yyyy hh:mi':
+                return datetimeObj.d + 'th ' + mnabb + ' ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
+            case 'ddth mnabb yyyy hh:mi:ss':
+                return datetimeObj.d + 'th ' + mnabb + ' ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
+
+            default:
+                throw new Error("Invalid format");
         }
-        month = parseInt(month, 10);
-
-        var monthsFullName = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-        var monthsShortName = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-        if (month < 1 || month > 12) {
-            throw new Error("Month must be between 1 and 12");
-        }
-
-        return isFullName ? monthsFullName[month - 1] : monthsShortName[month - 1];
     };
     /**
      * Formats a given datetime object or datetime string according to a specified format string.
@@ -873,8 +1542,9 @@ var Hison ={};
      * It throws an error for invalid datetime inputs or unsupported format strings.
      * The original object or string does not change.
      *
-     * @param {object|string} datetimeObj_or_datetimeStr - The datetime object or string to format. 
-     *        Should contain year (y), and optionally month (m), day (d), hours (h), minutes (mi), and seconds (s).
+     * @param {object|string} datetimeObj_or_datetimeStr
+     *  - The datetime object format. Should contain year (y), and optionally month (m), day (d), hours (h), minutes (mi), and seconds (s).
+     *  - Allowed formats for strings of year, month, day are yyyymmdd, yyyy-mm-dd, yyyy/mm/dd, yymmdd. And time are hh:mi:ss, hhmiss.
      * @param {string} [format='mn ddth, yyyy'] - The format string specifying the desired output format. 
      *        Supports various combinations of 'yyyy', 'mm', 'dd', 'hh', 'mi', 'ss', along with separators.
      * @returns {string} Returns the formatted date as a string.
@@ -894,394 +1564,14 @@ var Hison ={};
      * It is particularly useful for formatting user input or data for display where specific date and time 
      * formats are required.
      */
-    Hison.utils.getDateWithFormat = function(datetimeObj_or_datetimeStr, format) {
-        var datetimeObj = Hison.utils.isObject(datetimeObj_or_datetimeStr) ? datetimeObj_or_datetimeStr : _getDatetimeObject(datetimeObj_or_datetimeStr);
-
-        if(!datetimeObj.y) throw new Error("Required parameters have not been entered.");
-        if(!format) format = "mn ddth, yyyy";
-
-        var dObj = Hison.utils.deepCopy(datetimeObj);
-
-        dObj.m = (dObj.m || 1).toString().padStart(2, '0');
-        dObj.d = (dObj.d || 1).toString().padStart(2, '0');
-        dObj.h = (dObj.h || 0).toString().padStart(2, '0');
-        dObj.mi = (dObj.mi || 0).toString().padStart(2, '0');
-        dObj.s = (dObj.s || 0).toString().padStart(2, '0');
-
-        if(!Hison.utils.isDate(dObj)) throw new Error("Please input a valid date.");
-        if(!Hison.utils.isTime(dObj)) throw new Error("Please input a valid date.");
-
-        var mn = Hison.utils.getMonthName(dObj.m);
-        var mnabb = Hison.utils.getMonthName(dObj.m, false);
-    
-        switch (format.toLowerCase()) {
-            case 'yyyy':
-                return dObj.y;
-                
-            case 'yyyymm':
-                return dObj.y + dObj.m;
-            case 'yyyy-mm':
-                return dObj.y + '-' + dObj.m;
-            case 'yyyy/mm':
-                return dObj.y + '/' + dObj.m;
-            case 'yyyy. mm':
-                return dObj.y + '. ' + dObj.m;
-            case 'yyyy mm':
-                return dObj.y + ' ' + dObj.m;
-
-            case 'yyyymmdd':
-                return dObj.y + dObj.m + dObj.d;
-            case 'yyyy-mm-dd':
-                return dObj.y + '-' + dObj.m + '-' + dObj.d;
-            case 'yyyy/mm/dd':
-                return dObj.y + '/' + dObj.m + '/' + dObj.d;
-            case 'yyyy. mm. dd':
-                return dObj.y + '. ' + dObj.m + '. ' + dObj.d;
-            case 'yyyy mm dd':
-                return dObj.y + ' ' + dObj.m + ' ' + dObj.d;
-
-            case 'yyyymmdd hh':
-                return dObj.y + dObj.m + dObj.d + ' ' + dObj.h;
-            case 'yyyymmdd hhmi':
-                return dObj.y + dObj.m + dObj.d + ' ' + dObj.h + dObj.mi;
-            case 'yyyymmdd hhmiss':
-                return dObj.y + dObj.m + dObj.d + ' ' + dObj.h + dObj.mi + dObj.s;
-            case 'yyyymmdd hh:mi':
-                return dObj.y + dObj.m + dObj.d + ' ' + dObj.h + ':' + dObj.mi;
-            case 'yyyymmdd hh:mi:ss':
-                return dObj.y + dObj.m + dObj.d + ' ' + dObj.h + ':' + dObj.mi + ':' + dObj.s;
-            case 'yyyy-mm-dd hh':
-                return dObj.y + '-' + dObj.m + '-' + dObj.d + ' ' + dObj.h;
-            case 'yyyy-mm-dd hhmi':
-                return dObj.y + '-' + dObj.m + '-' + dObj.d + ' ' + dObj.h + dObj.mi;
-            case 'yyyy-mm-dd hhmiss':
-                return dObj.y + '-' + dObj.m + '-' + dObj.d + ' ' + dObj.h + dObj.mi + dObj.s;
-            case 'yyyy-mm-dd hh:mi':
-                return dObj.y + '-' + dObj.m + '-' + dObj.d + ' ' + dObj.h + ':' + dObj.mi;
-            case 'yyyy-mm-dd hh:mi:ss':
-                return dObj.y + '-' + dObj.m + '-' + dObj.d + ' ' + dObj.h + ':' + dObj.mi + ':' + dObj.s;
-            case 'yyyy/mm/dd hh':
-                return dObj.y + '/' + dObj.m + '/' + dObj.d + ' ' + dObj.h;
-            case 'yyyy/mm/dd hhmi':
-                return dObj.y + '/' + dObj.m + '/' + dObj.d + ' ' + dObj.h + dObj.mi;
-            case 'yyyy/mm/dd hhmiss':
-                return dObj.y + '/' + dObj.m + '/' + dObj.d + ' ' + dObj.h + dObj.mi + dObj.s;
-            case 'yyyy/mm/dd hh:mi':
-                return dObj.y + '/' + dObj.m + '/' + dObj.d + ' ' + dObj.h + ':' + dObj.mi;
-            case 'yyyy/mm/dd hh:mi:ss':
-                return dObj.y + '/' + dObj.m + '/' + dObj.d + ' ' + dObj.h + ':' + dObj.mi + ':' + dObj.s;
-            case 'yyyy. mm. dd hh':
-                return dObj.y + '. ' + dObj.m + '. ' + dObj.d + ' ' + dObj.h;
-            case 'yyyy. mm. dd hhmi':
-                return dObj.y + '. ' + dObj.m + '. ' + dObj.d + ' ' + dObj.h + dObj.mi;
-            case 'yyyy. mm. dd hhmiss':
-                return dObj.y + '. ' + dObj.m + '. ' + dObj.d + ' ' + dObj.h + dObj.mi + dObj.s;
-            case 'yyyy. mm. dd hh:mi':
-                return dObj.y + '. ' + dObj.m + '. ' + dObj.d + ' ' + dObj.h + ':' + dObj.mi;
-            case 'yyyy. mm. dd hh:mi:ss':
-                return dObj.y + '. ' + dObj.m + '. ' + dObj.d + ' ' + dObj.h + ':' + dObj.mi + ':' + dObj.s;
-            case 'yyyy mm dd hh':
-                return dObj.y + ' ' + dObj.m + ' ' + dObj.d + ' ' + dObj.h;
-            case 'yyyy mm dd hhmi':
-                return dObj.y + ' ' + dObj.m + ' ' + dObj.d + ' ' + dObj.h + dObj.mi;
-            case 'yyyy mm dd hhmiss':
-                return dObj.y + ' ' + dObj.m + ' ' + dObj.d + ' ' + dObj.h + dObj.mi + dObj.s;
-            case 'yyyy mm dd hh:mi':
-                return dObj.y + ' ' + dObj.m + ' ' + dObj.d + ' ' + dObj.h + ':' + dObj.mi;
-            case 'yyyy mm dd hh:mi:ss':
-                return dObj.y + ' ' + dObj.m + ' ' + dObj.d + ' ' + dObj.h + ':' + dObj.mi + ':' + dObj.s;
-
-            case 'mmyyyy':
-                return dObj.m + dObj.y;
-            case 'mm-yyyy':
-                return dObj.m + '-' + dObj.y;
-            case 'mm/yyyy':
-                return dObj.m + '/' + dObj.y;
-            case 'mm. yyyy':
-                return dObj.m + '/' + dObj.y;
-            case 'mm yyyy':
-                return dObj.m + '/' + dObj.y;
-            case 'mn yyyy':
-                return mn + ' ' + dObj.y;
-            case 'mn, yyyy':
-                return mn + ', ' + dObj.y;
-            case 'mnabb yyyy':
-                return mnabb + ' ' + dObj.y;
-            case 'mnabb, yyyy':
-                return mnabb + ', ' + dObj.y;
-
-            case 'mmddyyyy':
-                return dObj.m + dObj.d + dObj.y;
-            case 'mm-dd-yyyy':
-                return dObj.m + '-' + dObj.d + '-' + dObj.y;
-            case 'mm/dd/yyyy':
-                return dObj.m + '/' + dObj.d + '/' + dObj.y;
-            case 'mm. dd. yyyy':
-                return dObj.m + '. ' + dObj.d + '. ' + dObj.y;
-            case 'mn dd yyyy':
-                return mn + ' ' + dObj.d + ' ' + dObj.y;
-            case 'mn dd, yyyy':
-                return mn + ' ' + dObj.d + ', ' + dObj.y;
-            case 'mnabb dd yyyy':
-                return mnabb + ' ' + dObj.d + ' ' + dObj.y;
-            case 'mnabb dd, yyyy':
-                return mnabb + ' ' + dObj.d + ', ' + dObj.y;
-            case 'mn ddth yyyy':
-                return mn + ' ' + dObj.d + 'th ' + dObj.y;
-            case 'mn ddth, yyyy':
-                return mn + ' ' + dObj.d + 'th, ' + dObj.y;
-            case 'mnabb ddth yyyy':
-                return mnabb + ' ' + dObj.d + 'th ' + dObj.y;
-            case 'mnabb ddth, yyyy':
-                return mnabb + ' ' + dObj.d + 'th, ' + dObj.y;
-
-            case 'mmddyyyy hh':
-                return dObj.m + dObj.d + dObj.y + ' ' + dObj.h;
-            case 'mmddyyyy hhmi':
-                return dObj.m + dObj.d + dObj.y + ' ' + dObj.h + dObj.mi;
-            case 'mmddyyyy hhmiss':
-                return dObj.m + dObj.d + dObj.y + ' ' + dObj.h + dObj.mi + dObj.s;
-            case 'mmddyyyy hh:mi':
-                return dObj.m + dObj.d + dObj.y + ' ' + dObj.h + ':' + dObj.mi;
-            case 'mmddyyyy hh:mi:ss':
-                return dObj.m + dObj.d + dObj.y + ' ' + dObj.h + ':' + dObj.mi + ':' + dObj.s;
-            case 'mm-dd-yyyy hh':
-                return dObj.m + '-' + dObj.d + '-' + dObj.y + ' ' + dObj.h;
-            case 'mm-dd-yyyy hhmi':
-                return dObj.m + '-' + dObj.d + '-' + dObj.y + ' ' + dObj.h + dObj.mi;
-            case 'mm-dd-yyyy hhmiss':
-                return dObj.m + '-' + dObj.d + '-' + dObj.y + ' ' + dObj.h + dObj.mi + dObj.s;
-            case 'mm-dd-yyyy hh:mi':
-                return dObj.m + '-' + dObj.d + '-' + dObj.y + ' ' + dObj.h + ':' + dObj.mi;
-            case 'mm-dd-yyyy hh:mi:ss':
-                return dObj.m + '-' + dObj.d + '-' + dObj.y + ' ' + dObj.h + ':' + dObj.mi + ':' + dObj.s;
-            case 'mm/dd/yyyy hh':
-                return dObj.m + '/' + dObj.d + '/' + dObj.y + ' ' + dObj.h;
-            case 'mm/dd/yyyy hhmi':
-                return dObj.m + '/' + dObj.d + '/' + dObj.y + ' ' + dObj.h + dObj.mi;
-            case 'mm/dd/yyyy hhmiss':
-                return dObj.m + '/' + dObj.d + '/' + dObj.y + ' ' + dObj.h + dObj.mi + dObj.s;
-            case 'mm/dd/yyyy hh:mi':
-                return dObj.m + '/' + dObj.d + '/' + dObj.y + ' ' + dObj.h + ':' + dObj.mi;
-            case 'mm/dd/yyyy hh:mi:ss':
-                return dObj.m + '/' + dObj.d + '/' + dObj.y + ' ' + dObj.h + ':' + dObj.mi + ':' + dObj.s;
-            case 'mm. dd. yyyy hh':
-                return dObj.m + '. ' + dObj.d + '. ' + dObj.y + ' ' + dObj.h;
-            case 'mm. dd. yyyy hhmi':
-                return dObj.m + '. ' + dObj.d + '. ' + dObj.y + ' ' + dObj.h + dObj.mi;
-            case 'mm. dd. yyyy hhmiss':
-                return dObj.m + '. ' + dObj.d + '. ' + dObj.y + ' ' + dObj.h + dObj.mi + dObj.s;
-            case 'mm. dd. yyyy hh:mi':
-                return dObj.m + '. ' + dObj.d + '. ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi;
-            case 'mm. dd. yyyy hh:mi:ss':
-                return dObj.m + '. ' + dObj.d + '. ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi + ':' + dObj.s;
-            case 'mn dd yyyy hh':
-                return mn + ' ' + dObj.d + ' ' + dObj.y + ' ' + dObj.h;
-            case 'mn dd yyyy hhmi':
-                return mn + ' ' + dObj.d + ' ' + dObj.y + ' ' + dObj.h + dObj.mi;
-            case 'mn dd yyyy hhmiss':
-                return mn + ' ' + dObj.d + ' ' + dObj.y + ' ' + dObj.h + dObj.mi + dObj.s;
-            case 'mn dd yyyy hh:mi':
-                return mn + ' ' + dObj.d + ' ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi;
-            case 'mn dd yyyy hh:mi:ss':
-                return mn + ' ' + dObj.d + ' ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi + ':' + dObj.s;
-            case 'mn dd, yyyy hh':
-                return mn + ' ' + dObj.d + ', ' + dObj.y + ' ' + dObj.h;
-            case 'mn dd, yyyy hhmi':
-                return mn + ' ' + dObj.d + ', ' + dObj.y + ' ' + dObj.h + dObj.mi;
-            case 'mn dd, yyyy hhmiss':
-                return mn + ' ' + dObj.d + ', ' + dObj.y + ' ' + dObj.h + dObj.mi + dObj.s;
-            case 'mn dd, yyyy hh:mi':
-                return mn + ' ' + dObj.d + ', ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi;
-            case 'mn dd, yyyy hh:mi:ss':
-                return mn + ' ' + dObj.d + ', ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi + ':' + dObj.s;
-            case 'mnabb dd yyyy hh':
-                return mnabb + ' ' + dObj.d + ' ' + dObj.y + ' ' + dObj.h;
-            case 'mnabb dd yyyy hhmi':
-                return mnabb + ' ' + dObj.d + ' ' + dObj.y + ' ' + dObj.h + dObj.mi;
-            case 'mnabb dd yyyy hhmiss':
-                return mnabb + ' ' + dObj.d + ' ' + dObj.y + ' ' + dObj.h + dObj.mi + dObj.s;
-            case 'mnabb dd yyyy hh:mi':
-                return mnabb + ' ' + dObj.d + ' ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi;
-            case 'mnabb dd yyyy hh:mi:ss':
-                return mnabb + ' ' + dObj.d + ' ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi + ':' + dObj.s;
-            case 'mnabb dd, yyyy hh':
-                return mnabb + ' ' + dObj.d + ', ' + dObj.y + ' ' + dObj.h;
-            case 'mnabb dd, yyyy hhmi':
-                return mnabb + ' ' + dObj.d + ', ' + dObj.y + ' ' + dObj.h + dObj.mi;
-            case 'mnabb dd, yyyy hhmiss':
-                return mnabb + ' ' + dObj.d + ', ' + dObj.y + ' ' + dObj.h + dObj.mi + dObj.s;
-            case 'mnabb dd, yyyy hh:mi':
-                return mnabb + ' ' + dObj.d + ', ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi;
-            case 'mnabb dd, yyyy hh:mi:ss':
-                return mnabb + ' ' + dObj.d + ', ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi + ':' + dObj.s;
-            case 'mn ddth yyyy hh':
-                return mn + ' ' + dObj.d + 'th ' + dObj.y + ' ' + dObj.h;
-            case 'mn ddth yyyy hhmi':
-                return mn + ' ' + dObj.d + 'th ' + dObj.y + ' ' + dObj.h + dObj.mi;
-            case 'mn ddth yyyy hhmiss':
-                return mn + ' ' + dObj.d + 'th ' + dObj.y + ' ' + dObj.h + dObj.mi + dObj.s;
-            case 'mn ddth yyyy hh:mi':
-                return mn + ' ' + dObj.d + 'th ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi;
-            case 'mn ddth yyyy hh:mi:ss':
-                return mn + ' ' + dObj.d + 'th ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi + ':' + dObj.s;
-            case 'mn ddth, yyyy hh':
-                return mn + ' ' + dObj.d + 'th, ' + dObj.y + ' ' + dObj.h;
-            case 'mn ddth, yyyy hhmi':
-                return mn + ' ' + dObj.d + 'th, ' + dObj.y + ' ' + dObj.h + dObj.mi;
-            case 'mn ddth, yyyy hhmiss':
-                return mn + ' ' + dObj.d + 'th, ' + dObj.y + ' ' + dObj.h + dObj.mi + dObj.s;
-            case 'mn ddth, yyyy hh:mi':
-                return mn + ' ' + dObj.d + 'th, ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi;
-            case 'mn ddth, yyyy hh:mi:ss':
-                return mn + ' ' + dObj.d + 'th, ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi + ':' + dObj.s;
-            case 'mnabb ddth yyyy hh':
-                return mnabb + ' ' + dObj.d + 'th ' + dObj.y + ' ' + dObj.h;
-            case 'mnabb ddth yyyy hhmi':
-                return mnabb + ' ' + dObj.d + 'th ' + dObj.y + ' ' + dObj.h + dObj.mi;
-            case 'mnabb ddth yyyy hhmiss':
-                return mnabb + ' ' + dObj.d + 'th ' + dObj.y + ' ' + dObj.h + dObj.mi + dObj.s;
-            case 'mnabb ddth yyyy hh:mi':
-                return mnabb + ' ' + dObj.d + 'th ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi;
-            case 'mnabb ddth yyyy hh:mi:ss':
-                return mnabb + ' ' + dObj.d + 'th ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi + ':' + dObj.s;
-            case 'mnabb ddth, yyyy hh':
-                return mnabb + ' ' + dObj.d + 'th, ' + dObj.y + ' ' + dObj.h;
-            case 'mnabb ddth, yyyy hhmi':
-                return mnabb + ' ' + dObj.d + 'th, ' + dObj.y + ' ' + dObj.h + dObj.mi;
-            case 'mnabb ddth, yyyy hhmiss':
-                return mnabb + ' ' + dObj.d + 'th, ' + dObj.y + ' ' + dObj.h + dObj.mi + dObj.s;
-            case 'mnabb ddth, yyyy hh:mi':
-                return mnabb + ' ' + dObj.d + 'th, ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi;
-            case 'mnabb ddth, yyyy hh:mi:ss':
-                return mnabb + ' ' + dObj.d + 'th, ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi + ':' + dObj.s;
-
-            case 'ddmmyyyy':
-                return dObj.d + dObj.m + dObj.y;
-            case 'dd-mm-yyyy':
-                return dObj.d + '-' + dObj.m + '-' + dObj.y;
-            case 'dd/mm/yyyy':
-                return dObj.d + '/' + dObj.m + '/' + dObj.y;
-            case 'dd. mm. yyyy':
-                return dObj.d + '. ' + dObj.m + '. ' + dObj.y;
-            case 'dd mn yyyy':
-                return dObj.d + ' ' + mn + ' ' + dObj.y;
-            case 'dd mnabb yyyy':
-                return dObj.d + ' ' + mnabb + ' ' + dObj.y;
-            case 'ddth mn yyyy':
-                return dObj.d + 'th ' + mn + ' ' + dObj.y;
-            case 'ddth mnabb yyyy':
-                return dObj.d + 'th ' + mnabb + ' ' + dObj.y;
-
-            case 'ddmmyyyy hh':
-                return dObj.d + dObj.m + dObj.y + ' ' + dObj.h;
-            case 'ddmmyyyy hhmi':
-                return dObj.d + dObj.m + dObj.y + ' ' + dObj.h + dObj.mi;
-            case 'ddmmyyyy hhmiss':
-                return dObj.d + dObj.m + dObj.y + ' ' + dObj.h + dObj.mi + dObj.s;
-            case 'ddmmyyyy hh:mi':
-                return dObj.d + dObj.m + dObj.y + ' ' + dObj.h + ':' + dObj.mi;
-            case 'ddmmyyyy hh:mi:ss':
-                return dObj.d + dObj.m + dObj.y + ' ' + dObj.h + ':' + dObj.mi + ':' + dObj.s;
-            case 'dd-mm-yyyy hh':
-                return dObj.d + '-' + dObj.m + '-' + dObj.y + ' ' + dObj.h;
-            case 'dd-mm-yyyy hhmi':
-                return dObj.d + '-' + dObj.m + '-' + dObj.y + ' ' + dObj.h + dObj.mi;
-            case 'dd-mm-yyyy hhmiss':
-                return dObj.d + '-' + dObj.m + '-' + dObj.y + ' ' + dObj.h + dObj.mi + dObj.s;
-            case 'dd-mm-yyyy hh:mi':
-                return dObj.d + '-' + dObj.m + '-' + dObj.y + ' ' + dObj.h + ':' + dObj.mi;
-            case 'dd-mm-yyyy hh:mi:ss':
-                return dObj.d + '-' + dObj.m + '-' + dObj.y + ' ' + dObj.h + ':' + dObj.mi + ':' + dObj.s;
-            case 'dd/mm/yyyy hh':
-                return dObj.d + '/' + dObj.m + '/' + dObj.y + ' ' + dObj.h;
-            case 'dd/mm/yyyy hhmi':
-                return dObj.d + '/' + dObj.m + '/' + dObj.y + ' ' + dObj.h + dObj.mi;
-            case 'dd/mm/yyyy hhmiss':
-                return dObj.d + '/' + dObj.m + '/' + dObj.y + ' ' + dObj.h + dObj.mi + dObj.s;
-            case 'dd/mm/yyyy hh:mi':
-                return dObj.d + '/' + dObj.m + '/' + dObj.y + ' ' + dObj.h + ':' + dObj.mi;
-            case 'dd/mm/yyyy hh:mi:ss':
-                return dObj.d + '/' + dObj.m + '/' + dObj.y + ' ' + dObj.h + ':' + dObj.mi + ':' + dObj.s;
-            case 'dd. mm. yyyy hh':
-                return dObj.d + '. ' + dObj.m + '. ' + dObj.y + ' ' + dObj.h;
-            case 'dd. mm. yyyy hhmi':
-                return dObj.d + '. ' + dObj.m + '. ' + dObj.y + ' ' + dObj.h + dObj.mi;
-            case 'dd. mm. yyyy hhmiss':
-                return dObj.d + '. ' + dObj.m + '. ' + dObj.y + ' ' + dObj.h + dObj.mi + dObj.s;
-            case 'dd. mm. yyyy hh:mi':
-                return dObj.d + '. ' + dObj.m + '. ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi;
-            case 'dd. mm. yyyy hh:mi:ss':
-                return dObj.d + '. ' + dObj.m + '. ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi + ':' + dObj.s;
-            case 'dd mn yyyy hh':
-                return dObj.d + ' ' + mn + ' ' + dObj.y + ' ' + dObj.h;
-            case 'dd mn yyyy hhmi':
-                return dObj.d + ' ' + mn + ' ' + dObj.y + ' ' + dObj.h + dObj.mi;
-            case 'dd mn yyyy hhmiss':
-                return dObj.d + ' ' + mn + ' ' + dObj.y + ' ' + dObj.h + dObj.mi + dObj.s;
-            case 'dd mn yyyy hh:mi':
-                return dObj.d + ' ' + mn + ' ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi;
-            case 'dd mn yyyy hh:mi:ss':
-                return dObj.d + ' ' + mn + ' ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi + ':' + dObj.s;
-            case 'dd mnabb yyyy hh':
-                return dObj.d + ' ' + mnabb + ' ' + dObj.y + ' ' + dObj.h;
-            case 'dd mnabb yyyy hhmi':
-                return dObj.d + ' ' + mnabb + ' ' + dObj.y + ' ' + dObj.h + dObj.mi;
-            case 'dd mnabb yyyy hhmiss':
-                return dObj.d + ' ' + mnabb + ' ' + dObj.y + ' ' + dObj.h + dObj.mi + dObj.s;
-            case 'dd mnabb yyyy hh:mi':
-                return dObj.d + ' ' + mnabb + ' ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi;
-            case 'dd mnabb yyyy hh:mi:ss':
-                return dObj.d + ' ' + mnabb + ' ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi + ':' + dObj.s;
-            case 'ddth mn yyyy hh':
-                return dObj.d + 'th ' + mn + ' ' + dObj.y + ' ' + dObj.h;
-            case 'ddth mn yyyy hhmi':
-                return dObj.d + 'th ' + mn + ' ' + dObj.y + ' ' + dObj.h + dObj.mi;
-            case 'ddth mn yyyy hhmiss':
-                return dObj.d + 'th ' + mn + ' ' + dObj.y + ' ' + dObj.h + dObj.mi + dObj.s;
-            case 'ddth mn yyyy hh:mi':
-                return dObj.d + 'th ' + mn + ' ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi;
-            case 'ddth mn yyyy hh:mi:ss':
-                return dObj.d + 'th ' + mn + ' ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi + ':' + dObj.s;
-            case 'ddth mnabb yyyy hh':
-                return dObj.d + 'th ' + mnabb + ' ' + dObj.y + ' ' + dObj.h;
-            case 'ddth mnabb yyyy hhmi':
-                return dObj.d + 'th ' + mnabb + ' ' + dObj.y + ' ' + dObj.h + dObj.mi;
-            case 'ddth mnabb yyyy hhmiss':
-                return dObj.d + 'th ' + mnabb + ' ' + dObj.y + ' ' + dObj.h + dObj.mi + dObj.s;
-            case 'ddth mnabb yyyy hh:mi':
-                return dObj.d + 'th ' + mnabb + ' ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi;
-            case 'ddth mnabb yyyy hh:mi:ss':
-                return dObj.d + 'th ' + mnabb + ' ' + dObj.y + ' ' + dObj.h + ':' + dObj.mi + ':' + dObj.s;
-
-            default:
-                throw new Error("Invalid format");
-        }
+     Hison.utils.getDateWithFormat = function(datetimeObj_or_datetimeStr, format) {
+        return _getDateWithFormat(datetimeObj_or_datetimeStr, format);
     };
-    /**
-     * Returns the day of the week for a given date. The function supports various formats for the day of the week,
-     * including numerical, abbreviated, full name, and Korean formats. If no format is specified, the default numerical format is used.
-     *
-     * @param {object} dateObj - The date object for which the day of the week is to be determined. Should contain year (y), month (m), and day (d).
-     * @param {string} [dayType=''] - The format of the day of the week to return. Options are 'd' for numerical (0-6), 'dy' for 3-letter abbreviation, 'day' for full name, 'kdy' for Korean abbreviation, 'kday' for full Korean name.
-     * @returns {string} Returns the day of the week as per the specified format. Returns an empty string if the date is invalid or required parameters are missing.
-     *
-     * @example
-     * // returns '1' (Monday)
-     * Hison.utils.getDayOfWeek({ y: 2024, m: 1, d: 1 }, 'd');
-     *
-     * @example
-     * // returns 'MONDAY'
-     * Hison.utils.getDayOfWeek({ y: 2024, m: 1, d: 1 }, 'day');
-     */
-    Hison.utils.getDayOfWeek = function(dateObj, dayType) {
-        if (!dateObj.y || !dateObj.m || !dateObj.d) {
-            return '';
-        }
-        if(!dayType) dayType = "";
-
-        if(!Hison.utils.isDate(dateObj)) return '';
-    
+    var _getDayOfWeek = function(dateObj_or_dateStr, dayType) {
+        var dateObj = _isObject(dateObj_or_dateStr) ? dateObj_or_dateStr : _getDateObject(dateObj_or_dateStr);
+        if(!_isDate(dateObj)) throw new Error("Please enter a valid date.");
+        
+        if(!dayType) dayType = Hison.const.dayOfWeekFormat;
         var date = new Date(dateObj.y, dateObj.m - 1, dateObj.d);
         var dayOfWeek = date.getDay();
     
@@ -1301,10 +1591,33 @@ var Hison ={};
         }
     };
     /**
+     * Returns the day of the week for a given date. The function supports various formats for the day of the week,
+     * including numerical, abbreviated, full name, and Korean formats. If no format is specified, the default numerical format is used.
+     *
+     * @param {object|string} dateObj
+     *  - The date object for which the day of the week is to be determined. Should contain year (y), month (m), and day (d).
+     *  - Allowed formats for strings of year, month, day are yyyymmdd, yyyy-mm-dd, yyyy/mm/dd, yymmdd.
+     * @param {string} [dayType=''] - The format of the day of the week to return. Options are 'd' for numerical (0-6), 'dy' for 3-letter abbreviation, 'day' for full name, 'kdy' for Korean abbreviation, 'kday' for full Korean name.
+     * @returns {string} Returns the day of the week as per the specified format. Returns an empty string if the date is invalid or required parameters are missing.
+     *
+     * @example
+     * // returns '1' (Monday)
+     * Hison.utils.getDayOfWeek({ y: 2024, m: 1, d: 1 }, 'd');
+     *
+     * @example
+     * // returns 'MONDAY'
+     * Hison.utils.getDayOfWeek({ y: 2024, m: 1, d: 1 }, 'day');
+     */
+    Hison.utils.getDayOfWeek = function(dateObj_or_dateStr, dayType) {
+        return _getDayOfWeek(dateObj_or_dateStr, dayType);
+    };
+    /**
      * Returns the last day of the month for a given year and month. The function calculates the number of days in the specified month,
      * accounting for leap years as applicable. It returns an empty string for invalid input or missing parameters.
      *
-     * @param {object} dateObj - The date object for which the last day of the month is to be determined. Should contain year (y) and month (m).
+     * @param {object|string} dateObj
+     *  - The date object for which the last day of the month is to be determined. Should contain year (y) and month (m).
+     *  - Allowed formats for strings of year, month, day are yyyymmdd, yyyy-mm-dd, yyyy/mm/dd, yymmdd.
      * @returns {number|string} Returns the last day of the month as a number. Returns an empty string if the year or month is missing or if the date is invalid.
      *
      * @example
@@ -1315,15 +1628,27 @@ var Hison ={};
      * // returns 29 (Last day of February 2024, a leap year)
      * Hison.utils.getLastDay({ y: 2024, m: 2 });
      */
-    Hison.utils.getLastDay = function(dateObj) {
-        if (!dateObj.y || !dateObj.m) {
-            return '';
+    Hison.utils.getLastDay = function(dateObj_or_dateStr) {
+        var dateObj;
+        if(_isObject(dateObj_or_dateStr)) {
+            dateObj = _deepCopy(dateObj_or_dateStr);
+            dateObj.d = 1;
         }
-        var dObj = Hison.utils.deepCopy(dateObj);
+        else {
+            if (dateObj_or_dateStr.includes('-')) {
+                dateObj_or_dateStr = dateObj_or_dateStr + '-01'
+            }
+            else if (dateObj_or_dateStr.includes('/')) {
+                dateObj_or_dateStr = dateObj_or_dateStr + '/01'
+            }
+            else {
+                dateObj_or_dateStr = dateObj_or_dateStr + '01'
+            }
+            dateObj = _getDateObject(dateObj_or_dateStr);
+        }
+        if(!_isDate(dateObj)) throw new Error("Please enter a valid date.");
 
-        dObj.d = 1;
-        if(!Hison.utils.isDate(dObj)) return '';
-        var nextMonthFirstDay = new Date(dObj.y, dObj.m, 1);
+        var nextMonthFirstDay = new Date(dateObj.y, dateObj.m, 1);
         nextMonthFirstDay.setDate(0);
         return nextMonthFirstDay.getDate();
     };
@@ -1343,7 +1668,7 @@ var Hison ={};
      * Hison.utils.getSysYear('yy');
      */
     Hison.utils.getSysYear = function(format) {
-        if(!format) format = "";
+        if(!format) format = Hison.const.yearFormat;
         var currentDate = new Date();
         switch (format.toLowerCase()) {
             case 'yy':
@@ -1354,7 +1679,7 @@ var Hison ={};
     };
     /**
      * Returns the current month in various formats: numerical, full name, or abbreviated name. 
-     * The default is the numerical format without leading zeros. 
+     * The default is the numerical string format without leading zeros. 
      * The function determines the current month based on the system's date settings and formats it as specified.
      *
      * @param {string} [format=''] - The format in which to return the month. 'mm' for two-digit numerical format, 'mn' for full month name, 'mnabb' for abbreviated month name, and any other value for the default numerical format.
@@ -1373,22 +1698,22 @@ var Hison ={};
      * Hison.utils.getSysMonth('mnabb');
      */
     Hison.utils.getSysMonth = function(format) {
-        if(!format) format = "";
+        if(!format) format = Hison.const.monthFormat;
         var currentDate = new Date();
         var sysMonth = currentDate.getMonth() + 1;
         switch (format.toLowerCase()) {
             case 'mm':
                 return sysMonth.toString().padStart(2, '0');
             case 'mn':
-                return Hison.utils.getMonthName(sysMonth);
+                return _getMonthName(sysMonth);
             case 'mnabb':
-                return Hison.utils.getMonthName(sysMonth, false);
+                return _getMonthName(sysMonth, false);
             default:
                 return sysMonth.toString();
         }
     };
     /**
-     * Returns the current year and month formatted as specified. The default format is "mn, yyyy" (e.g., "January, 2024").
+     * Returns the current year and month formatted as specified. The default format is "yyyy-mm" (e.g., "2024-01").
      * This function utilizes the getDateWithFormat function to format the current year and month according to the specified format.
      *
      * @param {string} [format='mn, yyyy'] - The format string specifying how the year and month should be returned. 
@@ -1397,20 +1722,20 @@ var Hison ={};
      *
      * @example
      * // returns 'January, 2024' (assuming the current date is in January 2024)
-     * Hison.utils.getSysYearMonth();
+     * Hison.utils.getSysYearMonth('mn, yyyy');
      *
      * @example
-     * // returns '2024-01' (assuming the current date is in January 2024)
-     * Hison.utils.getSysYearMonth('yyyy-mm');
+     * // returns '2024/01' (assuming the current date is in January 2024)
+     * Hison.utils.getSysYearMonth('yyyy/mm');
      */
     Hison.utils.getSysYearMonth = function(format) {
-        if(!format) format = "mn, yyyy";
+        if(!format) format = Hison.const.yearMonthFormat;
         var currentDate = new Date();
-        return Hison.utils.getDateWithFormat({y:currentDate.getFullYear(),m:currentDate.getMonth() + 1}, format)
+        return _getDateWithFormat({y:currentDate.getFullYear(),m:currentDate.getMonth() + 1}, format)
     };
     /**
      * Returns the current day of the month in either a two-digit or a default format. 
-     * The default format is a numerical representation without leading zeros. 
+     * The default format is a string of numerical representation without leading zeros. 
      * The function determines the current day based on the system's date settings.
      *
      * @param {string} [format=''] - The format in which to return the day. 'dd' for two-digit format, any other value for the default format.
@@ -1425,7 +1750,7 @@ var Hison ={};
      * Hison.utils.getSysDay();
      */
     Hison.utils.getSysDay = function(format) {
-        if(!format) format = "";
+        if(!format) format = Hison.const.dayFormat;
         var currentDate = new Date();
         switch (format.toLowerCase()) {
             case 'dd':
@@ -1452,13 +1777,13 @@ var Hison ={};
      * Hison.utils.getSysDayOfWeek('day');
      */
     Hison.utils.getSysDayOfWeek = function(dayType) {
-        if(!dayType) dayType = "d";
+        if(!dayType) dayType = Hison.const.dayOfWeekFormat;
         var currentDate = new Date();
-        return Hison.utils.getDayOfWeek({y:currentDate.getFullYear(),m:currentDate.getMonth() + 1,d:currentDate.getDate()}, dayType);
+        return _getDayOfWeek({y:currentDate.getFullYear(),m:currentDate.getMonth() + 1,d:currentDate.getDate()}, dayType);
     };
     /**
      * Returns the current hour of the day in either a two-digit or a default format. 
-     * The default format is a numerical representation without leading zeros. 
+     * The default format is a string of numerical representation without leading zeros. 
      * The function determines the current hour based on the system's time settings.
      *
      * @param {string} [format=''] - The format in which to return the hour. 'hh' for two-digit format, any other value for the default format.
@@ -1473,7 +1798,7 @@ var Hison ={};
      * Hison.utils.getSysHour();
      */
     Hison.utils.getSysHour = function(format) {
-        if(!format) format = "";
+        if(!format) format = Hison.const.hourFormat;
         var currentDate = new Date();
         switch (format.toLowerCase()) {
             case 'hh':
@@ -1483,11 +1808,11 @@ var Hison ={};
         }
     };
     /**
-     * Returns the current hour and minute in either a 'hhmi' (continuous string) format or the default 'hh:mm' format.
-     * The default format is 'hh:mm', which includes a colon separator between hours and minutes.
+     * Returns the current hour and minute in either a 'hhmi' (continuous string) format or the default 'hh:mi' format.
+     * The default format is 'hh:mi', which includes a colon separator between hours and minutes.
      * The function determines the current time based on the system's time settings.
      *
-     * @param {string} [format=''] - The format in which to return the time. 'hhmi' for continuous string format (e.g., '0512'), any other value for the default 'hh:mm' format (e.g., '05:12').
+     * @param {string} [format=''] - The format in which to return the time. 'hhmi' for continuous string format (e.g., '0512'), any other value for the default 'hh:mi' format (e.g., '05:12').
      * @returns {string} Returns the current hour and minute as a string in the specified format.
      *
      * @example
@@ -1499,7 +1824,7 @@ var Hison ={};
      * Hison.utils.getSysHourMinute('hhmi');
      */
     Hison.utils.getSysHourMinute = function(format) {
-        if(!format) format = "";
+        if(!format) format = Hison.const.hourMinuteFormat;
         var currentDate = new Date();
         switch (format.toLowerCase()) {
             case 'hhmi':
@@ -1510,7 +1835,7 @@ var Hison ={};
     };
     /**
      * Returns the current minute of the hour in either a two-digit or a default format. 
-     * The default format is a numerical representation without leading zeros. 
+     * The default format is a string of numerical representation without leading zeros. 
      * The function determines the current minute based on the system's time settings.
      *
      * @param {string} [format=''] - The format in which to return the minute. 'mi' for two-digit format, any other value for the default format.
@@ -1525,7 +1850,7 @@ var Hison ={};
      * Hison.utils.getSysMinute();
      */
     Hison.utils.getSysMinute = function(format) {
-        if(!format) format = "";
+        if(!format) format = Hison.const.minuteFormat;
         var currentDate = new Date();
         switch (format.toLowerCase()) {
             case 'mi':
@@ -1536,7 +1861,7 @@ var Hison ={};
     };
     /**
      * Returns the current second of the minute in either a two-digit or a default format. 
-     * The default format is a numerical representation without leading zeros. 
+     * The default format is a string of numerical representation without leading zeros. 
      * The function determines the current second based on the system's time settings.
      *
      * @param {string} [format=''] - The format in which to return the second. 'ss' for two-digit format, any other value for the default format.
@@ -1551,7 +1876,7 @@ var Hison ={};
      * Hison.utils.getSysSecond();
      */
     Hison.utils.getSysSecond = function(format) {
-        if(!format) format = "";
+        if(!format) format = Hison.const.secondFormat;
         var currentDate = new Date();
         switch (format.toLowerCase()) {
             case 'ss':
@@ -1561,11 +1886,11 @@ var Hison ={};
         }
     };
     /**
-     * Returns the current time in either a 'hhmiss' (continuous string) format or the default 'hh:mm:ss' format.
-     * The default format is 'hh:mm:ss', which includes colon separators between hours, minutes, and seconds.
+     * Returns the current time in either a 'hhmiss' (continuous string) format or the default 'hh:mi:ss' format.
+     * The default format is 'hh:mi:ss', which includes colon separators between hours, minutes, and seconds.
      * The function determines the current time based on the system's time settings.
      *
-     * @param {string} [format=''] - The format in which to return the time. 'hhmiss' for continuous string format (e.g., '051230'), any other value for the default 'hh:mm:ss' format (e.g., '05:12:30').
+     * @param {string} [format=''] - The format in which to return the time. 'hhmiss' for continuous string format (e.g., '051230'), any other value for the default 'hh:mi:ss' format (e.g., '05:12:30').
      * @returns {string} Returns the current time as a string in the specified format.
      *
      * @example
@@ -1577,7 +1902,7 @@ var Hison ={};
      * Hison.utils.getSysTime('hhmiss');
      */
     Hison.utils.getSysTime = function(format) {
-        if(!format) format = "";
+        if(!format) format = Hison.const.timeFormat;
         var currentDate = new Date();
         switch (format.toLowerCase()) {
             case 'hhmiss':
@@ -1587,25 +1912,25 @@ var Hison ={};
         }
     };
     /**
-     * Returns the current date and time in a specified format. The default format is "mn ddth, yyyy hh:mi:ss" (e.g., "January 15th, 2024 05:12:30").
+     * Returns the current date and time in a specified format. The default format is "yyyy-mm-dd hh:mi:ss" (e.g., "2024-01-22 13:07:34").
      * This function utilizes the getDateWithFormat function to format the current date and time according to the specified format.
      *
-     * @param {string} [format='mn ddth, yyyy hh:mi:ss'] - The format string specifying how the date and time should be returned. 
+     * @param {string} [format='yyyy-mm-dd hh:mi:ss'] - The format string specifying how the date and time should be returned. 
      *                                                      It can be any format supported by the getDateWithFormat function.
      * @returns {string} Returns the current date and time as a string in the specified format.
      *
      * @example
      * // returns 'January 15th, 2024 05:12:30' (assuming the current date and time)
-     * Hison.utils.getSysDate();
+     * Hison.utils.getSysDate('mn ddth, yyyy hh:mi:ss');
      *
      * @example
-     * // returns '2024-01-15 05:12' (assuming the current date and time)
-     * Hison.utils.getSysDate('yyyy-mm-dd hh:mi');
+     * // returns '2024. 01. 15 05:12' (assuming the current date and time)
+     * Hison.utils.getSysDate('yyyy. mm. dd hh:mi');
      */
     Hison.utils.getSysDate = function(format) {
-        if(!format) format = "mn ddth, yyyy hh:mi:ss";
+        if(!format) format = Hison.const.datetimeFormat;
         var currentDate = new Date();
-        return Hison.utils.getDateWithFormat(
+        return _getDateWithFormat(
             {
                 y:currentDate.getFullYear(),
                 m:currentDate.getMonth() + 1,
@@ -1618,7 +1943,7 @@ var Hison ={};
     };
 
     /******************************************
-     * Utils Number
+     * Utils for Number
      ******************************************/
     /**
      * Rounds up a given number to a specified precision. The precision determines the number of decimal places to round up to.
@@ -1640,8 +1965,8 @@ var Hison ={};
      * Hison.utils.getCeil(2.35);
      */
     Hison.utils.getCeil = function(num, precision) {
-        if(!Hison.utils.isNumeric(num)) throw new Error("Please input only number.");
-        if(!Hison.utils.isInteger(precision)) precision = 0;
+        if(!_isNumeric(num)) throw new Error("Please input only number.");
+        if(!_isInteger(precision)) precision = 0;
         var factor = Math.pow(10, precision);
         return Math.ceil(num * factor) / factor;
     };
@@ -1665,8 +1990,8 @@ var Hison ={};
      * Hison.utils.getFloor(2.35);
      */
     Hison.utils.getFloor = function(num, precision) {
-        if(!Hison.utils.isNumeric(num)) throw new Error("Please input only number.");
-        if(!Hison.utils.isInteger(precision)) precision = 0;
+        if(!_isNumeric(num)) throw new Error("Please input only number.");
+        if(!_isInteger(precision)) precision = 0;
         var factor = Math.pow(10, precision);
         return Math.floor(num * factor) / factor;
     };
@@ -1690,8 +2015,8 @@ var Hison ={};
      * Hison.utils.getRound(2.35);
      */
     Hison.utils.getRound = function(num, precision) {
-        if(!Hison.utils.isNumeric(num)) throw new Error("Please input only number.");
-        if(!Hison.utils.isInteger(precision)) precision = 0;
+        if(!_isNumeric(num)) throw new Error("Please input only number.");
+        if(!_isInteger(precision)) precision = 0;
         var factor = Math.pow(10, precision);
         return Math.round(num * factor) / factor;
     };
@@ -1715,14 +2040,14 @@ var Hison ={};
      * Hison.utils.getTrunc(2.35);
      */
     Hison.utils.getTrunc = function(num, precision) {
-        if(!Hison.utils.isNumeric(num)) throw new Error("Please input only number.");
-        if(!Hison.utils.isInteger(precision)) precision = 0;
+        if(!_isNumeric(num)) throw new Error("Please input only number.");
+        if(!_isInteger(precision)) precision = 0;
         var factor = Math.pow(10, precision);
         return Math.trunc(num * factor) / factor;
     };
 
     /******************************************
-     * Utils String
+     * Utils for String
      ******************************************/
     /**
      * Calculates the byte length of a given string. This function accounts for character encodings such as ASCII,
@@ -1745,7 +2070,7 @@ var Hison ={};
      * in the Hison.const fields: LESSOREQ_0X7FF_BYTE, LESSOREQ_0XFFFF_BYTE, GREATER_0XFFFF_BYTE.
      */
     Hison.utils.getByteLength = function(str) {
-        str = Hison.utils.getToString(str);
+        str = _getToString(str);
         var byteLength = 0;
         for (var i = 0; i < str.length; i++) {
             var charCode = str.charCodeAt(i);
@@ -1782,7 +2107,7 @@ var Hison ={};
      * For characters that take more than one byte, the function ensures not to cut the string in the middle of a character.
      */
     Hison.utils.getCutByteLength = function(str, cutByte) {
-        str = Hison.utils.getToString(str);
+        str = _getToString(str);
         var byteLength = 0;
         var cutIndex = str.length;
     
@@ -1826,7 +2151,7 @@ var Hison ={};
      * the extra spaces are distributed from the beginning.
      */
     Hison.utils.getStringLenForm = function(str, length) {
-        str = Hison.utils.getToString(str);
+        str = _getToString(str);
         var strLength = str.length;
         if (strLength >= length) {
             return str;
@@ -1865,8 +2190,8 @@ var Hison ={};
      * the function returns the original string without any padding.
      */
     Hison.utils.getLpad = function(str, padStr, length) {
-        str = Hison.utils.getToString(str);
-        padStr = Hison.utils.getToString(padStr);
+        str = _getToString(str);
+        padStr = _getToString(padStr);
 
         var pad = padStr.repeat((length - str.length) / padStr.length);
         return pad + str;
@@ -1893,8 +2218,8 @@ var Hison ={};
      * the function returns the original string without any padding.
      */
     Hison.utils.getRpad = function(str, padStr, length) {
-        str = Hison.utils.getToString(str);
-        padStr = Hison.utils.getToString(padStr);
+        str = _getToString(str);
+        padStr = _getToString(padStr);
 
         var pad = padStr.repeat((length - str.length) / padStr.length);
         return str + pad;
@@ -1919,7 +2244,7 @@ var Hison ={};
      * and it ensures that even non-string values can be safely trimmed.
      */
     Hison.utils.getTrim = function(str) {
-        str = Hison.utils.getToString(str);
+        str = _getToString(str);
         return str.trim();
     };
     /**
@@ -1944,9 +2269,9 @@ var Hison ={};
      * are converted to strings before the replacement operation, thus preventing errors related to non-string operations.
      */
     Hison.utils.getReplaceAll = function(str, targetStr, replaceStr) {
-        str = Hison.utils.getToString(str);
-        targetStr = Hison.utils.getToString(targetStr);
-        replaceStr = Hison.utils.getToString(replaceStr);
+        str = _getToString(str);
+        targetStr = _getToString(targetStr);
+        replaceStr = _getToString(replaceStr);
         return str.split(targetStr).join(replaceStr);
     };
     /**
@@ -2000,9 +2325,10 @@ var Hison ={};
      * numbers in a user-friendly format in UIs or reports.
      */
     Hison.utils.getNumberFormat = function(value, format) {
-        if (!Hison.utils.isNumeric(value)) {
+        if (!_isNumeric(value)) {
             throw new Error("Invalid number");
         }
+        format = format ? format : Hison.const.numberFormat;
         var regex = /^(.*?)([#0,.]+)(.*?)$/;
         var matches = format.match(regex);
 
@@ -2018,7 +2344,7 @@ var Hison ={};
 
         if(suffix === '%' || suffix === ' %') value = value * 100;
 
-        numStr = Hison.utils.getToString(value);
+        numStr = _getToString(value);
         var isNegative = numStr[0] === '-';
         var numStr = isNegative ? numStr.substring(1) : numStr;
         var interger = numStr.split('.')[0];
@@ -2026,7 +2352,7 @@ var Hison ={};
         
         var result;
 
-        decimal = Hison.utils.getToFloat('0.' + decimal)
+        decimal = _getToFloat('0.' + decimal)
                 .toLocaleString('en',{
                     minimumFractionDigits: decimalFormat.lastIndexOf('0') + 1,
                     maximumFractionDigits: decimalFormat.length
@@ -2036,20 +2362,20 @@ var Hison ={};
 
         switch (intergerFormat) {
             case "#,###":
-                if(Hison.utils.getToNumber(interger) === 0) {
+                if(_getToNumber(interger) === 0) {
                     result = decimal;
                 }
                 else {
-                    interger = Hison.utils.getToFloat(interger).toLocaleString('en');
+                    interger = _getToFloat(interger).toLocaleString('en');
                     result = interger + decimal;
                 }
                 break;
             case "#,##0":
-                interger = Hison.utils.getToFloat(interger).toLocaleString('en');
+                interger = _getToFloat(interger).toLocaleString('en');
                 result = interger + decimal;
                 break;
             case "#":
-                if(Hison.utils.getToNumber(interger) === 0) {
+                if(_getToNumber(interger) === 0) {
                     result = decimal;
                 }
                 else {
@@ -2084,7 +2410,7 @@ var Hison ={};
      * such as processing text input fields that should contain only numbers.
      */
     Hison.utils.getRemoveExceptNumbers = function(str) {
-        str = Hison.utils.getToString(str);
+        str = _getToString(str);
         return str.replace(/[^0-9]/g, '');
     };
     /**
@@ -2106,7 +2432,7 @@ var Hison ={};
      * such as processing text input fields that should not contain numbers.
      */
     Hison.utils.getRemoveNumbers = function(str) {
-        str = Hison.utils.getToString(str);
+        str = _getToString(str);
         return str.replace(/[0-9]/g, '');
     };
     /**
@@ -2129,12 +2455,12 @@ var Hison ={};
      * where the reverse order of characters in a string is needed.
      */
     Hison.utils.getReverse = function(str) {
-        str = Hison.utils.getToString(str);
+        str = _getToString(str);
         return str.split('').reverse().join('');
     };
    
     /******************************************
-     * Utils Converts
+     * Utils for Converts
      ******************************************/
     /**
      * Converts a given value to a boolean. The conversion rules are as follows:
@@ -2168,7 +2494,7 @@ var Hison ={};
      * or data representation might vary but needs to be interpreted in a boolean context.
      */
     Hison.utils.getToBoolean = function(val) {
-        if(Hison.utils.isNumeric(val)) {
+        if(_isNumeric(val)) {
             return Number(val) != 0;
         }
         else if (typeof val === 'boolean'){
@@ -2180,6 +2506,13 @@ var Hison ={};
         else {
             return false;
         }
+    };
+    var _getToNumber = function(val, impossibleValue) {
+        impossibleValue = impossibleValue === undefined ? 0 : impossibleValue;
+        if (!_isNumeric(val)) {
+            return impossibleValue;
+        }
+        return Number(val);
     };
     /**
      * Converts a given value to a number. If the value cannot be converted to a number, it returns a specified 'impossible value'.
@@ -2202,12 +2535,15 @@ var Hison ={};
      * providing the option to specify an alternative return value when conversion is not possible.
      */
     Hison.utils.getToNumber = function(val, impossibleValue) {
+        return _getToNumber(val, impossibleValue);
+    };
+    var _getToFloat = function(val, impossibleValue) {
         impossibleValue = impossibleValue === undefined ? 0 : impossibleValue;
-        if (!Hison.utils.isNumeric(val)) {
+        if (!_isNumeric(val)) {
             return impossibleValue;
         }
-        return Number(val);
-    };
+        return parseFloat(val);
+    }
     /**
      * Converts a given value to a floating-point number. If the value cannot be converted to a float, it returns a specified 'impossible value'.
      * The function first checks if the value is numeric using the isNumeric utility function.
@@ -2229,11 +2565,7 @@ var Hison ={};
      * providing the option to specify an alternative return value when conversion is not possible.
      */
     Hison.utils.getToFloat = function(val, impossibleValue) {
-        impossibleValue = impossibleValue === undefined ? 0 : impossibleValue;
-        if (!Hison.utils.isNumeric(val)) {
-            return impossibleValue;
-        }
-        return parseFloat(val);
+        return _getToFloat(val, impossibleValue);
     };
     /**
      * Converts a given value to an integer. If the value cannot be converted to an integer, it returns a specified 'impossible value'.
@@ -2257,10 +2589,22 @@ var Hison ={};
      */
     Hison.utils.getToInteger = function(val, impossibleValue) {
         impossibleValue = impossibleValue === undefined ? 0 : impossibleValue;
-        if (!Hison.utils.isNumeric(val)) {
+        if (!_isNumeric(val)) {
             return impossibleValue;
         }
         return parseInt(val, 10);
+    };
+    var _getToString = function(str, impossibleValue) {
+        impossibleValue = impossibleValue === undefined ? '' : impossibleValue;
+        if(typeof str === 'string') {
+        } else if (typeof str === 'number' || typeof str === 'boolean' || typeof str === 'bigint') {
+            str = String(str);
+        } else if (typeof str === 'symbol') {
+            str = str.description;
+        } else {
+            str = impossibleValue;
+        }
+        return str;
     };
     /**
      * Converts a given value to a string representation. If the value cannot be converted to a string, it returns a specified 'impossible value'.
@@ -2296,18 +2640,7 @@ var Hison ={};
      * providing the option to specify an alternative return value when conversion is not possible.
      */
     Hison.utils.getToString = function(val, impossibleValue) {
-        impossibleValue = impossibleValue === undefined ? '' : impossibleValue;
-        var rtn;
-        if (typeof val === 'string') {
-            rtn = val;
-        } else if (typeof val === 'number' || typeof val === 'boolean' || typeof val === 'bigint') {
-            rtn = String(val);
-        } else if (typeof val === 'symbol') {
-            rtn = val.description;
-        } else {
-            rtn = impossibleValue;
-        }
-        return rtn;
+        return _getToString(val, impossibleValue);
     };
     
     /******************************************
@@ -2337,7 +2670,7 @@ var Hison ={};
      * It is useful in contexts where file types need to be determined based on file names or URLs.
      */
     Hison.utils.getFileExtension = function(str) {
-        str = Hison.utils.getToString(str);
+        str = _getToString(str);
     
         var extension = str.split('.').pop();
         if (extension === str) {
@@ -2370,7 +2703,7 @@ var Hison ={};
      * is the file extension. It is useful when the file extension is not needed or should be processed separately.
      */
     Hison.utils.getFileName = function(str) {
-        str = Hison.utils.getToString(str);
+        str = _getToString(str);
     
         var fileName = str.split('/').pop();
         var lastDotIndex = fileName.lastIndexOf('.');
@@ -2397,7 +2730,7 @@ var Hison ={};
      * It's particularly useful when dealing with data that has been Base64 encoded for transmission or storage and needs to be decoded.
      */
     Hison.utils.getDecodeBase64 = function(str) {
-        str = Hison.utils.getToString(str);
+        str = _getToString(str);
         return decodeURIComponent(Array.prototype.map.call(atob(str), function(c) {
             return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
         }).join(''));
@@ -2420,11 +2753,47 @@ var Hison ={};
      * alteration during transmission.
      */
     Hison.utils.getEncodeBase64 = function(str) {
-        str = Hison.utils.getToString(str);
+        str = _getToString(str);
         return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(_, p1) {
             return String.fromCharCode('0x' + p1);
         }));
     };
+    var _deepCopy = function(object, visited) {
+        if (object === null || typeof object !== 'object') {
+            return object;
+        }
+        if (object.constructor !== Object && object.constructor !== Array) {
+            if(object.isDataWrapper || object.isDataModel) {
+                return object.clone();
+            }
+            return object;
+        }
+        if (!visited) visited = [];
+        for (var i = 0; i < visited.length; i++) {
+            if (visited[i].source === object) {
+                return visited[i].copy;
+            }
+        }
+        var copy;
+        if (Array.isArray(object)) {
+            copy = [];
+            visited.push({ source: object, copy: copy });
+    
+            for (var j = 0; j < object.length; j++) {
+                copy[j] = _deepCopy(object[j], visited);
+            }
+        } else {
+            copy = {};
+            visited.push({ source: object, copy: copy });
+    
+            for (var key in object) {
+                if (object.hasOwnProperty(key)) {
+                    copy[key] = _deepCopy(object[key], visited);
+                }
+            }
+        }
+        return copy;
+    }
     /**
      * Performs a deep copy of a given object, ensuring that nested objects are also copied rather than just their references.
      * The function handles objects and arrays, recursively copying their properties and elements. For objects that are instances
@@ -2452,39 +2821,6 @@ var Hison ={};
      * where modifications to a copied object should not affect the original object.
      */
     Hison.utils.deepCopy = function(object, visited) {
-        if (object === null || typeof object !== 'object') {
-            return object;
-        }
-        if (object.constructor !== Object && object.constructor !== Array) {
-            if(object.isDataWrapper || object.isDataModel) {
-                return object.clone();
-            }
-            return object;
-        }
-        if (!visited) visited = [];
-        for (var i = 0; i < visited.length; i++) {
-            if (visited[i].source === object) {
-                return visited[i].copy;
-            }
-        }
-        var copy;
-        if (Array.isArray(object)) {
-            copy = [];
-            visited.push({ source: object, copy: copy });
-    
-            for (var j = 0; j < object.length; j++) {
-                copy[j] = Hison.utils.deepCopy(object[j], visited);
-            }
-        } else {
-            copy = {};
-            visited.push({ source: object, copy: copy });
-    
-            for (var key in object) {
-                if (object.hasOwnProperty(key)) {
-                    copy[key] = Hison.utils.deepCopy(object[key], visited);
-                }
-            }
-        }
-        return copy;
+        return _deepCopy(object, visited);
     };
 })();

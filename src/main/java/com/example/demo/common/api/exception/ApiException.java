@@ -18,7 +18,7 @@ package com.example.demo.common.api.exception;
  *     throw new ApiException("Error processing request", "APIERROR001");
  *     
  *     // Handling in ApiHandler
- *     public ResponseEntity<DataWrapper> handleApiException(ApiException e, DataWrapper dw, HttpServletRequest req) {
+ *     public ResponseEntity&lt;DataWrapper&gt; handleApiException(ApiException e, DataWrapper dw, HttpServletRequest req) {
  *         // Custom error logic here
  *     }
  * </pre>

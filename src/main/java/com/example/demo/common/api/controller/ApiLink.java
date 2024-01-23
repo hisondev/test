@@ -35,7 +35,7 @@ import javax.servlet.http.HttpServletRequest;
  * <p>Usage Example:</p>
  * <pre>
  *    ApiController controller = new ApiController();
- *    ResponseEntity<DataWrapper> response = controller.handlePost(dataWrapper, request);
+ *    ResponseEntity&lt;DataWrapper&gt; response = controller.handlePost(dataWrapper, request);
  * </pre>
  * 
  * @author Hani son
@@ -118,10 +118,6 @@ public class ApiLink {
         } catch (NoSuchBeanDefinitionException e) {
             throw new ApiException("no bean named: " + serviceName, "APIERROR0003");
         }
-
-        if (service == null) {
-            throw new ApiException("Service not found: " + serviceName, "APIERROR0004");
-        }
         
         try {
             MethodHandle targetMethodHandle = MethodHandleUtil.getFlexibleMethodHandle(
@@ -141,12 +137,12 @@ public class ApiLink {
                     return (DataWrapper) targetMethodHandle.invokeExact();
                 }
             } else {
-                throw new ApiException("Method not found: " + methodName, "APIERROR0006");
+                throw new ApiException("Method not found: " + methodName, "APIERROR0004");
             }
         }catch (NoSuchMethodException e) {
-            throw new ApiException("no such method: " + methodName, "APIERROR0007");
+            throw new ApiException("no such method: " + methodName, "APIERROR0005");
         } catch (IllegalAccessException e) {
-            throw new ApiException("This is illegal access: " + cmd, "APIERROR0008");
+            throw new ApiException("This is illegal access: " + cmd, "APIERROR0006");
         }
     }
 

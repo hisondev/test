@@ -49,7 +49,7 @@ var Hison ={};
      * };
      * // Inserting a Date object into DataModel
      * const dm = newDataModel([{key:"key1",value:new Date()},{key:"key2",value:new Date()}]);
-     * // The value will be in 'yyyy-mm-dd hh:mi:ss' format
+     * // The value will be in 'yyyy-MM-dd hh:mm:ss' format
      * 
      * Note: 
      * 1. Special objects not processed by convertObject are stored in the DataModel as references. 
@@ -310,28 +310,28 @@ var Hison ={};
     Hison.utils = {};
 
     /** Default format for date. refer to Hison.utils.getDateWithFormat */
-    Hison.const.dateFormat = 'yyyy-mm-dd';
-    /** Default format for time. (hhmiss or hh:mi:ss). */
-    Hison.const.timeFormat = 'hh:mi:ss';
+    Hison.const.dateFormat = 'yyyy-MM-dd';
+    /** Default format for time. (hhmmss or hh:mm:ss). */
+    Hison.const.timeFormat = 'hh:mm:ss';
     /** Default format for date and time. refer to Hison.utils.getDateWithFormat */
-    Hison.const.datetimeFormat = 'yyyy-mm-dd hh:mi:ss';
+    Hison.const.datetimeFormat = 'yyyy-MM-dd hh:mm:ss';
     /** Default format for year. (yyyy or yy) */
     Hison.const.yearFormat = 'yyyy';
-    /** Default format for month. (mm or m) */
-    Hison.const.monthFormat = 'm';
-    /** Default format for monthName. (mn or mnabb) */
-    Hison.const.monthNameFormat = 'mn';
+    /** Default format for month. (MM or m) */
+    Hison.const.monthFormat = 'M';
+    /** Default format for monthName. (MMMM or MMM) */
+    Hison.const.monthNameFormat = 'MMMM';
     /** Default format for year and month. refer to Hison.utils.getDateWithFormat */
-    Hison.const.yearMonthFormat = 'yyyy-mm';
+    Hison.const.yearMonthFormat = 'yyyy-MM';
     /** Default format for day. (dd or d) */
     Hison.const.dayFormat = 'd';
     /** Default format for dayOfWeek. (d, dy, day, kdy, kday) */
     Hison.const.dayOfWeekFormat = 'd';
     /** Default format for hour. (hh or h) */
     Hison.const.hourFormat = 'h';
-    /** Default format for hour and minute. (hhmi or hh:mi) */
-    Hison.const.hourMinuteFormat = 'hh:mi';
-    /** Default format for minute. (mi or m) */
+    /** Default format for hour and minute. (hhmm or hh:mm) */
+    Hison.const.hourMinuteFormat = 'hh:mm';
+    /** Default format for minute. (mm or m) */
     Hison.const.minuteFormat = 'm';
     /** Default format for second. (ss or s) */
     Hison.const.secondFormat = 's';
@@ -685,10 +685,6 @@ var Hison ={};
             [year, month, day] = dateStr.split('-').map(num => parseInt(num, 10));
         } else if (dateStr.includes('/')) {
             [year, month, day] = dateStr.split('/').map(num => parseInt(num, 10));
-        } else if (dateStr.length === 6) {
-            year = parseInt('20' + dateStr.substring(0, 2), 10);
-            month = parseInt(dateStr.substring(2, 4), 10);
-            day = parseInt(dateStr.substring(4, 6), 10);
         } else if (dateStr.length === 8) {
             year = parseInt(dateStr.substring(0, 4), 10);
             month = parseInt(dateStr.substring(4, 6), 10);
@@ -703,22 +699,22 @@ var Hison ={};
         var dateObj = _isObject(dateObj_or_dateStr) ? dateObj_or_dateStr : _getDateObject(dateObj_or_dateStr);
 
         var yyyy = dateObj.y;
-        var mm = dateObj.m;
+        var MM = dateObj.M;
         var dd = dateObj.d;
 
         var result = true;
         try {
-            if(!_isInteger(yyyy) || !_isInteger(mm) || !_isInteger(dd)) {
+            if(!_isInteger(yyyy) || !_isInteger(MM) || !_isInteger(dd)) {
                 return false;
             }
 
             if(!yyyy) {
                 return false;
             }
-            if(!mm) {
-                mm = "01";
-            } else if (mm.length === 1) {
-                mm = "0" + mm;
+            if(!MM) {
+                MM = "01";
+            } else if (MM.length === 1) {
+                MM = "0" + MM;
             }
             if(!dd) {
                 dd = "01";
@@ -726,16 +722,16 @@ var Hison ={};
                 dd = "0" + dd;
             }
 
-            if(_getToNumber(yyyy+mm+dd) < 16000101) {
-                var date = new Date(_getToNumber(yyyy), _getToNumber(mm) - 1, _getToNumber(dd));
-                if (date.getFullYear() !== _getToNumber(yyyy) || date.getMonth() !== _getToNumber(mm) - 1 || date.getDate() !== _getToNumber(dd)) {
+            if(_getToNumber(yyyy+MM+dd) < 16000101) {
+                var date = new Date(_getToNumber(yyyy), _getToNumber(MM) - 1, _getToNumber(dd));
+                if (date.getFullYear() !== _getToNumber(yyyy) || date.getMonth() !== _getToNumber(MM) - 1 || date.getDate() !== _getToNumber(dd)) {
                     return false;
                 }
                 return true;
             }
             else {
                 var dateRegex = /^(?=\d)(?:(?:31(?!.(?:0?[2469]|11))|(?:30|29)(?!.0?2)|29(?=.0?2.(?:(?:(?:1[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00)))(?:\x20|$))|(?:2[0-8]|1\d|0?[1-9]))([-.\/])(?:1[012]|0?[1-9])\1(?:1[6-9]|[2-9]\d)?\d\d(?:(?=\x20\d)\x20|$))?(((0?[1-9]|1[012])(:[0-5]\d){0,2}(\x20[AP]M))|([01]\d|2[0-3])(:[0-5]\d){1,2})?$/;
-                result = dateRegex.test(dd+'-'+mm+'-'+yyyy);
+                result = dateRegex.test(dd+'-'+MM+'-'+yyyy);
             }
             
         } catch (err) {
@@ -759,13 +755,13 @@ var Hison ={};
             return {};
         }
     
-        return { h: hours, mi: minutes, s: seconds };
+        return { h: hours, m: minutes, s: seconds };
     };
     var _isTime = function(timeObj_or_timeStr) {
         var timeObj = _isObject(timeObj_or_timeStr) ? timeObj_or_timeStr : _getTimeObject(timeObj_or_timeStr);
 
         var hh = timeObj.h;
-        var mm = timeObj.mi;
+        var mm = timeObj.m;
         var ss = timeObj.s;
 
         if(!_isInteger(hh) || !_isInteger(mm) || !_isInteger(ss)) {
@@ -800,8 +796,8 @@ var Hison ={};
      * It then checks if the year, month, and day are valid integers and within the valid range.
      * 
      * @param {object|string} dateObj_or_dateStr
-     * - The date object or string to be tested. The date object should have properties 'y' for year, 'm' for month, and 'd' for day.
-     * - Allowed formats for strings are yyyymmdd, yyyy-mm-dd, yyyy/mm/dd, and yymmdd.
+     * - The date object or string to be tested. The date object should have properties 'y' for year, 'M' for month, and 'd' for day.
+     * - Allowed formats for strings are yyyyMMdd, yyyy-MM-dd, and yyyy/MM/dd.
      * @returns {boolean} Returns true if the date is valid within the specified range; otherwise, false.
      * 
      * @example
@@ -829,18 +825,18 @@ var Hison ={};
     /**
      * Checks if the given time object or time string represents a valid time.
      * The method first determines if the input is an object or a string and converts it to a time object if necessary.
-     * It then validates if the hour (h), minute (mi), and second (s) are valid integers within the appropriate ranges:
+     * It then validates if the hour (h), minute (m), and second (s) are valid integers within the appropriate ranges:
      * - Hours (h) must be between 0 and 23.
-     * - Minutes (mi) and seconds (s) must be between 0 and 59.
+     * - Minutes (m) and seconds (s) must be between 0 and 59.
      *
      * @param {object|string} timeObj_or_timeStr
-     *  - The time object or string to be tested. The time object should have properties 'h' for hour, 'mi' for minute, and 's' for second.
-     *  - Allowed string formats are hh:mi:ss, hhmiss.
+     *  - The time object or string to be tested. The time object should have properties 'h' for hour, 'mm' for minute, and 's' for second.
+     *  - Allowed string formats are hh:mm:ss, hhmmss.
      * @returns {boolean} Returns true if the time is valid; otherwise, false.
      *
      * @example
      * // returns true for a valid time object
-     * Hison.utils.isTime({ h: 12, mi: 30, s: 45 });
+     * Hison.utils.isTime({ h: 12, m: 30, s: 45 });
      *
      * @example
      * // returns true for a valid time string
@@ -848,7 +844,7 @@ var Hison ={};
      *
      * @example
      * // returns false for an invalid time
-     * Hison.utils.isTime({ h: 24, mi: 00, s: 00 });
+     * Hison.utils.isTime({ h: 24, m: 00, s: 00 });
      *
      * Note: This function is versatile as it can handle both time objects and time strings. It is particularly useful 
      * for validating user input in forms or data processing where time validity is crucial.
@@ -863,13 +859,13 @@ var Hison ={};
      * and `Hison.utils.isTime` to validate the time part (hour, minute, second) of the datetime object.
      *
      * @param {object|string} datetimeObj_or_datetimeStr
-     *  - The datetime object or string to be tested. The datetime object should have properties 'y' for year, 'm' for month, 'd' for day, 'h' for hour, 'mi' for minute, and 's' for second.
-     *  - Allowed formats for strings of year, month, day are yyyymmdd, yyyy-mm-dd, yyyy/mm/dd, yymmdd. And time are hh:mi:ss, hhmiss.
+     *  - The datetime object or string to be tested. The datetime object should have properties 'y' for year, 'M' for month, 'd' for day, 'h' for hour, 'm' for minute, and 's' for second.
+     *  - Allowed formats for strings of year, month, day are yyyyMMdd, yyyy-MM-dd, yyyy/MM/dd. And time are hh:mm:ss, hhmmss.
      * @returns {boolean} Returns true if both the date and time parts of the object or string are valid; otherwise, false.
      *
      * @example
      * // returns true for a valid datetime object
-     * Hison.utils.isDatetime({ y: 2020, m: 12, d: 25, h: 10, mi: 30, s: 45 });
+     * Hison.utils.isDatetime({ y: 2020, m: 12, d: 25, h: 10, m: 30, s: 45 });
      *
      * @example
      * // returns true for a valid datetime string
@@ -877,7 +873,7 @@ var Hison ={};
      *
      * @example
      * // returns false for an invalid datetime
-     * Hison.utils.isDatetime({ y: 2020, m: 13, d: 25, h: 10, mi: 30, s: 45 });
+     * Hison.utils.isDatetime({ y: 2020, m: 13, d: 25, h: 10, m: 30, s: 45 });
      *
      * Note: This function is versatile as it can handle both datetime objects and datetime strings. It is particularly useful 
      * for validating user input in forms or data processing where both date and time validity are crucial.
@@ -994,21 +990,21 @@ var Hison ={};
      * The original object does not change.
      *
      * @param {object|string} datetimeObj_or_datetimeStr
-     *  - The date object to which time will be added. Should contain year (y), and optionally month (m), day (d), hours (h), minutes (mi), and seconds (s).
-     *  - Allowed formats for strings of year, month, day are yyyymmdd, yyyy-mm-dd, yyyy/mm/dd, yymmdd. And time are hh:mi:ss, hhmiss.
+     *  - The date object to which time will be added. Should contain year (y), and optionally month (m), day (d), hours (h), minutes (m), and seconds (s).
+     *  - Allowed formats for strings of year, month, day are yyyyMMdd, yyyy-MM-dd, yyyy/MM/dd. And time are hh:mm:ss, hhmmss.
      * @param {number} addValue - The value to add to the date. Must be an integer.
-     * @param {string} [addType='d'] - The type of value to add ('y' for years, 'm' for months, 'd' for days, 'h' for hours, 'mi' for minutes, 's' for seconds). Default is days ('d').
+     * @param {string} [addType='d'] - The type of value to add ('y' for years, 'M' for months, 'd' for days, 'h' for hours, 'm' for minutes, 's' for seconds). Default is days ('d').
      * @returns {object} Returns a new date object with the added time.
      *
      * @throws {Error} Throws an error if required parameters are not entered, if addValue is not an integer, or if the input date is invalid.
      *
      * @example
      * // returns a date object with 5 days added
-     * Hison.utils.addDate({ y: 2024, m: 1, d: 15 }, 5);
+     * Hison.utils.addDate({ y: 2024, M: 1, d: 15 }, 5);
      *
      * @example
      * // returns a date object with 3 months added
-     * Hison.utils.addDate({ y: 2024, m: 1, d: 15 }, 3, 'm');
+     * Hison.utils.addDate({ y: 2024, M: 1, d: 15 }, 3, 'M');
      */
     Hison.utils.addDate = function(datetimeObj_or_datetimeStr, addValue, addType, format) {
         var datetimeObj = _isObject(datetimeObj_or_datetimeStr) ? _deepCopy(datetimeObj_or_datetimeStr) : _getDatetimeObject(datetimeObj_or_datetimeStr);
@@ -1020,23 +1016,23 @@ var Hison ={};
     
         if(!_isInteger(addValue)) throw new Error("addValue must be an integer");
     
-        datetimeObj.m = datetimeObj.m === null || datetimeObj.m === undefined ? 1 : datetimeObj.m;
+        datetimeObj.M = datetimeObj.M === null || datetimeObj.M === undefined ? 1 : datetimeObj.M;
         datetimeObj.d = datetimeObj.d === null || datetimeObj.d === undefined ? 1 : datetimeObj.d;
         datetimeObj.h = datetimeObj.h === null || datetimeObj.h === undefined ? 0 : datetimeObj.h;
-        datetimeObj.mi = datetimeObj.mi === null || datetimeObj.mi === undefined ? 0 : datetimeObj.mi;
+        datetimeObj.m = datetimeObj.m === null || datetimeObj.m === undefined ? 0 : datetimeObj.m;
         datetimeObj.s = datetimeObj.s === null || datetimeObj.s === undefined ? 0 : datetimeObj.s;
 
         if(!_isDate(datetimeObj)) throw new Error("Please input a valid date.");
         if(!_isTime(datetimeObj)) throw new Error("Please input a valid date.");
     
-        var d = new Date(datetimeObj.y, datetimeObj.m - 1, datetimeObj.d, datetimeObj.h, datetimeObj.mi, datetimeObj.s);
+        var d = new Date(datetimeObj.y, datetimeObj.M - 1, datetimeObj.d, datetimeObj.h, datetimeObj.m, datetimeObj.s);
     
         switch (addType.toLowerCase()) {
             case 'y':
                 d.setFullYear(d.getFullYear() + addValue);
                 format = Hison.const.dateFormat;
                 break;
-            case 'm':
+            case 'M':
                 d.setMonth(d.getMonth() + addValue);
                 format = Hison.const.dateFormat;
                 break;
@@ -1048,7 +1044,7 @@ var Hison ={};
                 d.setHours(d.getHours() + addValue);
                 format = Hison.const.datetimeFormat;
                 break;
-            case 'mi':
+            case 'm':
                 d.setMinutes(d.getMinutes() + addValue);
                 format = Hison.const.datetimeFormat;
                 break;
@@ -1063,10 +1059,10 @@ var Hison ={};
 
         var rtnObj = {
             y: d.getFullYear().toString().padStart(4, '0'),
-            m: (d.getMonth() + 1).toString().padStart(2, '0'),
+            M: (d.getMonth() + 1).toString().padStart(2, '0'),
             d: d.getDate().toString().padStart(2, '0'),
             h: d.getHours().toString().padStart(2, '0'),
-            mi: d.getMinutes().toString().padStart(2, '0'),
+            m: d.getMinutes().toString().padStart(2, '0'),
             s: d.getSeconds().toString().padStart(2, '0')
         }
 
@@ -1078,12 +1074,12 @@ var Hison ={};
      * It uses Hison.utils.isDate and Hison.utils.isTime to validate the input dates.
      *
      * @param {object|string} datetimeObj_or_datetimeStr1
-     *  - The first date object for comparison. Should contain year (y), and optionally month (m), day (d), hours (h), minutes (mi), and seconds (s).
-     *  - Allowed formats for strings of year, month, day are yyyymmdd, yyyy-mm-dd, yyyy/mm/dd, yymmdd. And time are hh:mi:ss, hhmiss.
+     *  - The first date object for comparison. Should contain year (y), and optionally month (m), day (d), hours (h), minutes (m), and seconds (s).
+     *  - Allowed formats for strings of year, month, day are yyyyMMdd, yyyy-MM-dd, yyyy/MM/dd. And time are hh:mm:ss, hhmmss.
      * @param {object|string} datetimeObj_or_datetimeStr2
-     *  - The second date object for comparison. Should contain year (y), and optionally month (m), day (d), hours (h), minutes (mi), and seconds (s).
-     *  - Allowed formats for strings of year, month, day are yyyymmdd, yyyy-mm-dd, yyyy/mm/dd, yymmdd. And time are hh:mi:ss, hhmiss.
-     * @param {string} [diffType='d'] - The type of difference to calculate ('y' for years, 'm' for months, 'd' for days, 'h' for hours, 'mi' for minutes, 's' for seconds). Default is days ('d').
+     *  - The second date object for comparison. Should contain year (y), and optionally month (m), day (d), hours (h), minutes (m), and seconds (s).
+     *  - Allowed formats for strings of year, month, day are yyyyMMdd, yyyy-MM-dd, yyyy/MM/dd. And time are hh:mm:ss, hhmmss.
+     * @param {string} [diffType='d'] - The type of difference to calculate ('y' for years, 'M' for months, 'd' for days, 'h' for hours, 'm' for minutes, 's' for seconds). Default is days ('d').
      * @returns {number} Returns the difference between the two dates in the specified unit.
      *
      * @throws {Error} Throws an error if required parameters are not entered, or if the input dates are invalid.
@@ -1094,7 +1090,7 @@ var Hison ={};
      *
      * @example
      * // returns the number of months between two dates
-     * Hison.utils.getDateDiff({ y: 2023, m: 1, d: 1 }, { y: 2024, m: 1, d: 1 }, 'm');
+     * Hison.utils.getDateDiff({ y: 2023, m: 1, d: 1 }, { y: 2024, m: 1, d: 1 }, 'M');
      */
     Hison.utils.getDateDiff = function(datetimeObj_or_datetimeStr1, datetimeObj_or_datetimeStr2, diffType) {
         var datetimeObj1 = _isObject(datetimeObj_or_datetimeStr1) ? _deepCopy(datetimeObj_or_datetimeStr1) : _getDatetimeObject(datetimeObj_or_datetimeStr1);
@@ -1105,10 +1101,10 @@ var Hison ={};
         }
         if(!diffType) diffType = "";
     
-        datetimeObj1.m = datetimeObj1.m || 1; datetimeObj2.m = datetimeObj2.m || 1;
+        datetimeObj1.M = datetimeObj1.M || 1; datetimeObj2.M = datetimeObj2.M || 1;
         datetimeObj1.d = datetimeObj1.d || 1; datetimeObj2.d = datetimeObj2.d || 1;
         datetimeObj1.h = datetimeObj1.h || 0; datetimeObj2.h = datetimeObj2.h || 0;
-        datetimeObj1.mi = datetimeObj1.mi || 0; datetimeObj2.mi = datetimeObj2.mi || 0;
+        datetimeObj1.m = datetimeObj1.m || 0; datetimeObj2.m = datetimeObj2.m || 0;
         datetimeObj1.s = datetimeObj1.s || 0; datetimeObj2.s = datetimeObj2.s || 0;
 
         if(!_isDate(datetimeObj1)) throw new Error("Please input a valid date.");
@@ -1116,19 +1112,19 @@ var Hison ={};
         if(!_isDate(datetimeObj2)) throw new Error("Please input a valid date.");
         if(!_isTime(datetimeObj2)) throw new Error("Please input a valid date.");
     
-        var d1 = new Date(datetimeObj1.y, datetimeObj1.m - 1, datetimeObj1.d, datetimeObj1.h, datetimeObj1.mi, datetimeObj1.s);
-        var d2 = new Date(datetimeObj2.y, datetimeObj2.m - 1, datetimeObj2.d, datetimeObj2.h, datetimeObj2.mi, datetimeObj2.s);
+        var d1 = new Date(datetimeObj1.y, datetimeObj1.M - 1, datetimeObj1.d, datetimeObj1.h, datetimeObj1.m, datetimeObj1.s);
+        var d2 = new Date(datetimeObj2.y, datetimeObj2.M - 1, datetimeObj2.d, datetimeObj2.h, datetimeObj2.m, datetimeObj2.s);
     
         switch (diffType.toLowerCase()) {
             case 'y':
                 return d2.getFullYear() - d1.getFullYear();
-            case 'm':
+            case 'M':
                 return (d2.getFullYear() - d1.getFullYear()) * 12 + d2.getMonth() - d1.getMonth();
             case 'd':
                 return Math.floor((d2 - d1) / (24 * 60 * 60 * 1000));
             case 'h':
                 return Math.floor((d2 - d1) / (60 * 60 * 1000));
-            case 'mi':
+            case 'm':
                 return Math.floor((d2 - d1) / (60 * 1000));
             case 's':
                 return Math.floor((d2 - d1) / 1000);
@@ -1178,357 +1174,285 @@ var Hison ={};
         if(!datetimeObj.y) throw new Error("Please enter a valid date.");
         if(!format) format = Hison.const.dateFormat;
 
-        datetimeObj.m = (datetimeObj.m || 1).toString().padStart(2, '0');
+        datetimeObj.M = (datetimeObj.M || 1).toString().padStart(2, '0');
         datetimeObj.d = (datetimeObj.d || 1).toString().padStart(2, '0');
         datetimeObj.h = (datetimeObj.h || 0).toString().padStart(2, '0');
-        datetimeObj.mi = (datetimeObj.mi || 0).toString().padStart(2, '0');
+        datetimeObj.m = (datetimeObj.m || 0).toString().padStart(2, '0');
         datetimeObj.s = (datetimeObj.s || 0).toString().padStart(2, '0');
 
         if(!_isDate(datetimeObj)) throw new Error("Please input a valid date.");
         if(!_isTime(datetimeObj)) throw new Error("Please input a valid date.");
 
-        var mn = _getMonthName(datetimeObj.m);
-        var mnabb = _getMonthName(datetimeObj.m, false);
+        var MMMM = _getMonthName(datetimeObj.M);
+        var MMM = _getMonthName(datetimeObj.M, false);
     
         switch (format.toLowerCase()) {
             case 'yyyy':
                 return datetimeObj.y;
                 
-            case 'yyyymm':
-                return datetimeObj.y + datetimeObj.m;
-            case 'yyyy-mm':
-                return datetimeObj.y + '-' + datetimeObj.m;
-            case 'yyyy/mm':
-                return datetimeObj.y + '/' + datetimeObj.m;
-            case 'yyyy. mm':
-                return datetimeObj.y + '. ' + datetimeObj.m;
-            case 'yyyy mm':
-                return datetimeObj.y + ' ' + datetimeObj.m;
+            case 'yyyyMM':
+                return datetimeObj.y + datetimeObj.M;
+            case 'yyyy-MM':
+                return datetimeObj.y + '-' + datetimeObj.M;
+            case 'yyyy/MM':
+                return datetimeObj.y + '/' + datetimeObj.M;
+            case 'yyyy. MM':
+                return datetimeObj.y + '. ' + datetimeObj.M;
+            case 'yyyy MM':
+                return datetimeObj.y + ' ' + datetimeObj.M;
 
-            case 'yyyymmdd':
-                return datetimeObj.y + datetimeObj.m + datetimeObj.d;
-            case 'yyyy-mm-dd':
-                return datetimeObj.y + '-' + datetimeObj.m + '-' + datetimeObj.d;
-            case 'yyyy/mm/dd':
-                return datetimeObj.y + '/' + datetimeObj.m + '/' + datetimeObj.d;
-            case 'yyyy. mm. dd':
-                return datetimeObj.y + '. ' + datetimeObj.m + '. ' + datetimeObj.d;
-            case 'yyyy mm dd':
-                return datetimeObj.y + ' ' + datetimeObj.m + ' ' + datetimeObj.d;
+            case 'yyyyMMdd':
+                return datetimeObj.y + datetimeObj.M + datetimeObj.d;
+            case 'yyyy-MM-dd':
+                return datetimeObj.y + '-' + datetimeObj.M + '-' + datetimeObj.d;
+            case 'yyyy/MM/dd':
+                return datetimeObj.y + '/' + datetimeObj.M + '/' + datetimeObj.d;
+            case 'yyyy. MM. dd':
+                return datetimeObj.y + '. ' + datetimeObj.M + '. ' + datetimeObj.d;
+            case 'yyyy MM dd':
+                return datetimeObj.y + ' ' + datetimeObj.M + ' ' + datetimeObj.d;
 
-            case 'yyyymmdd hh':
-                return datetimeObj.y + datetimeObj.m + datetimeObj.d + ' ' + datetimeObj.h;
-            case 'yyyymmdd hhmi':
-                return datetimeObj.y + datetimeObj.m + datetimeObj.d + ' ' + datetimeObj.h + datetimeObj.mi;
-            case 'yyyymmdd hhmiss':
-                return datetimeObj.y + datetimeObj.m + datetimeObj.d + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
-            case 'yyyymmdd hh:mi':
-                return datetimeObj.y + datetimeObj.m + datetimeObj.d + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
-            case 'yyyymmdd hh:mi:ss':
-                return datetimeObj.y + datetimeObj.m + datetimeObj.d + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
-            case 'yyyy-mm-dd hh':
-                return datetimeObj.y + '-' + datetimeObj.m + '-' + datetimeObj.d + ' ' + datetimeObj.h;
-            case 'yyyy-mm-dd hhmi':
-                return datetimeObj.y + '-' + datetimeObj.m + '-' + datetimeObj.d + ' ' + datetimeObj.h + datetimeObj.mi;
-            case 'yyyy-mm-dd hhmiss':
-                return datetimeObj.y + '-' + datetimeObj.m + '-' + datetimeObj.d + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
-            case 'yyyy-mm-dd hh:mi':
-                return datetimeObj.y + '-' + datetimeObj.m + '-' + datetimeObj.d + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
-            case 'yyyy-mm-dd hh:mi:ss':
-                return datetimeObj.y + '-' + datetimeObj.m + '-' + datetimeObj.d + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
-            case 'yyyy/mm/dd hh':
-                return datetimeObj.y + '/' + datetimeObj.m + '/' + datetimeObj.d + ' ' + datetimeObj.h;
-            case 'yyyy/mm/dd hhmi':
-                return datetimeObj.y + '/' + datetimeObj.m + '/' + datetimeObj.d + ' ' + datetimeObj.h + datetimeObj.mi;
-            case 'yyyy/mm/dd hhmiss':
-                return datetimeObj.y + '/' + datetimeObj.m + '/' + datetimeObj.d + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
-            case 'yyyy/mm/dd hh:mi':
-                return datetimeObj.y + '/' + datetimeObj.m + '/' + datetimeObj.d + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
-            case 'yyyy/mm/dd hh:mi:ss':
-                return datetimeObj.y + '/' + datetimeObj.m + '/' + datetimeObj.d + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
-            case 'yyyy. mm. dd hh':
-                return datetimeObj.y + '. ' + datetimeObj.m + '. ' + datetimeObj.d + ' ' + datetimeObj.h;
-            case 'yyyy. mm. dd hhmi':
-                return datetimeObj.y + '. ' + datetimeObj.m + '. ' + datetimeObj.d + ' ' + datetimeObj.h + datetimeObj.mi;
-            case 'yyyy. mm. dd hhmiss':
-                return datetimeObj.y + '. ' + datetimeObj.m + '. ' + datetimeObj.d + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
-            case 'yyyy. mm. dd hh:mi':
-                return datetimeObj.y + '. ' + datetimeObj.m + '. ' + datetimeObj.d + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
-            case 'yyyy. mm. dd hh:mi:ss':
-                return datetimeObj.y + '. ' + datetimeObj.m + '. ' + datetimeObj.d + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
-            case 'yyyy mm dd hh':
-                return datetimeObj.y + ' ' + datetimeObj.m + ' ' + datetimeObj.d + ' ' + datetimeObj.h;
-            case 'yyyy mm dd hhmi':
-                return datetimeObj.y + ' ' + datetimeObj.m + ' ' + datetimeObj.d + ' ' + datetimeObj.h + datetimeObj.mi;
-            case 'yyyy mm dd hhmiss':
-                return datetimeObj.y + ' ' + datetimeObj.m + ' ' + datetimeObj.d + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
-            case 'yyyy mm dd hh:mi':
-                return datetimeObj.y + ' ' + datetimeObj.m + ' ' + datetimeObj.d + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
-            case 'yyyy mm dd hh:mi:ss':
-                return datetimeObj.y + ' ' + datetimeObj.m + ' ' + datetimeObj.d + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
+            case 'yyyyMMdd hh':
+                return datetimeObj.y + datetimeObj.M + datetimeObj.d + ' ' + datetimeObj.h;
+            case 'yyyyMMdd hhmm':
+                return datetimeObj.y + datetimeObj.M + datetimeObj.d + ' ' + datetimeObj.h + datetimeObj.m;
+            case 'yyyyMMdd hhmmss':
+                return datetimeObj.y + datetimeObj.M + datetimeObj.d + ' ' + datetimeObj.h + datetimeObj.m + datetimeObj.s;
+            case 'yyyyMMdd hh:mm':
+                return datetimeObj.y + datetimeObj.M + datetimeObj.d + ' ' + datetimeObj.h + ':' + datetimeObj.m;
+            case 'yyyyMMdd hh:mm:ss':
+                return datetimeObj.y + datetimeObj.M + datetimeObj.d + ' ' + datetimeObj.h + ':' + datetimeObj.m + ':' + datetimeObj.s;
+            case 'yyyy-MM-dd hh':
+                return datetimeObj.y + '-' + datetimeObj.M + '-' + datetimeObj.d + ' ' + datetimeObj.h;
+            case 'yyyy-MM-dd hhmm':
+                return datetimeObj.y + '-' + datetimeObj.M + '-' + datetimeObj.d + ' ' + datetimeObj.h + datetimeObj.m;
+            case 'yyyy-MM-dd hhmmss':
+                return datetimeObj.y + '-' + datetimeObj.M + '-' + datetimeObj.d + ' ' + datetimeObj.h + datetimeObj.m + datetimeObj.s;
+            case 'yyyy-MM-dd hh:mm':
+                return datetimeObj.y + '-' + datetimeObj.M + '-' + datetimeObj.d + ' ' + datetimeObj.h + ':' + datetimeObj.m;
+            case 'yyyy-MM-dd hh:mm:ss':
+                return datetimeObj.y + '-' + datetimeObj.M + '-' + datetimeObj.d + ' ' + datetimeObj.h + ':' + datetimeObj.m + ':' + datetimeObj.s;
+            case 'yyyy/MM/dd hh':
+                return datetimeObj.y + '/' + datetimeObj.M + '/' + datetimeObj.d + ' ' + datetimeObj.h;
+            case 'yyyy/MM/dd hhmm':
+                return datetimeObj.y + '/' + datetimeObj.M + '/' + datetimeObj.d + ' ' + datetimeObj.h + datetimeObj.m;
+            case 'yyyy/MM/dd hhmmss':
+                return datetimeObj.y + '/' + datetimeObj.M + '/' + datetimeObj.d + ' ' + datetimeObj.h + datetimeObj.m + datetimeObj.s;
+            case 'yyyy/MM/dd hh:mm':
+                return datetimeObj.y + '/' + datetimeObj.M + '/' + datetimeObj.d + ' ' + datetimeObj.h + ':' + datetimeObj.m;
+            case 'yyyy/MM/dd hh:mm:ss':
+                return datetimeObj.y + '/' + datetimeObj.M + '/' + datetimeObj.d + ' ' + datetimeObj.h + ':' + datetimeObj.m + ':' + datetimeObj.s;
+            case 'yyyy. MM. dd hh':
+                return datetimeObj.y + '. ' + datetimeObj.M + '. ' + datetimeObj.d + ' ' + datetimeObj.h;
+            case 'yyyy. MM. dd hhmm':
+                return datetimeObj.y + '. ' + datetimeObj.M + '. ' + datetimeObj.d + ' ' + datetimeObj.h + datetimeObj.m;
+            case 'yyyy. MM. dd hhmmss':
+                return datetimeObj.y + '. ' + datetimeObj.M + '. ' + datetimeObj.d + ' ' + datetimeObj.h + datetimeObj.m + datetimeObj.s;
+            case 'yyyy. MM. dd hh:mm':
+                return datetimeObj.y + '. ' + datetimeObj.M + '. ' + datetimeObj.d + ' ' + datetimeObj.h + ':' + datetimeObj.m;
+            case 'yyyy. MM. dd hh:mm:ss':
+                return datetimeObj.y + '. ' + datetimeObj.M + '. ' + datetimeObj.d + ' ' + datetimeObj.h + ':' + datetimeObj.m + ':' + datetimeObj.s;
+            case 'yyyy MM dd hh':
+                return datetimeObj.y + ' ' + datetimeObj.M + ' ' + datetimeObj.d + ' ' + datetimeObj.h;
+            case 'yyyy MM dd hhmm':
+                return datetimeObj.y + ' ' + datetimeObj.M + ' ' + datetimeObj.d + ' ' + datetimeObj.h + datetimeObj.m;
+            case 'yyyy MM dd hhmmss':
+                return datetimeObj.y + ' ' + datetimeObj.M + ' ' + datetimeObj.d + ' ' + datetimeObj.h + datetimeObj.m + datetimeObj.s;
+            case 'yyyy MM dd hh:mm':
+                return datetimeObj.y + ' ' + datetimeObj.M + ' ' + datetimeObj.d + ' ' + datetimeObj.h + ':' + datetimeObj.m;
+            case 'yyyy MM dd hh:mm:ss':
+                return datetimeObj.y + ' ' + datetimeObj.M + ' ' + datetimeObj.d + ' ' + datetimeObj.h + ':' + datetimeObj.m + ':' + datetimeObj.s;
 
-            case 'mmyyyy':
-                return datetimeObj.m + datetimeObj.y;
-            case 'mm-yyyy':
-                return datetimeObj.m + '-' + datetimeObj.y;
-            case 'mm/yyyy':
-                return datetimeObj.m + '/' + datetimeObj.y;
-            case 'mm. yyyy':
-                return datetimeObj.m + '/' + datetimeObj.y;
-            case 'mm yyyy':
-                return datetimeObj.m + '/' + datetimeObj.y;
-            case 'mn yyyy':
-                return mn + ' ' + datetimeObj.y;
-            case 'mn, yyyy':
-                return mn + ', ' + datetimeObj.y;
-            case 'mnabb yyyy':
-                return mnabb + ' ' + datetimeObj.y;
-            case 'mnabb, yyyy':
-                return mnabb + ', ' + datetimeObj.y;
+            case 'MMyyyy':
+                return datetimeObj.M + datetimeObj.y;
+            case 'MM-yyyy':
+                return datetimeObj.M + '-' + datetimeObj.y;
+            case 'MM/yyyy':
+                return datetimeObj.M + '/' + datetimeObj.y;
+            case 'MM. yyyy':
+                return datetimeObj.M + '/' + datetimeObj.y;
+            case 'MM yyyy':
+                return datetimeObj.M + '/' + datetimeObj.y;
+            case 'MMMM yyyy':
+                return MMMM + ' ' + datetimeObj.y;
+            case 'MMMM, yyyy':
+                return MMMM + ', ' + datetimeObj.y;
+            case 'MMM yyyy':
+                return MMM + ' ' + datetimeObj.y;
+            case 'MMM, yyyy':
+                return MMM + ', ' + datetimeObj.y;
 
-            case 'mmddyyyy':
-                return datetimeObj.m + datetimeObj.d + datetimeObj.y;
-            case 'mm-dd-yyyy':
-                return datetimeObj.m + '-' + datetimeObj.d + '-' + datetimeObj.y;
-            case 'mm/dd/yyyy':
-                return datetimeObj.m + '/' + datetimeObj.d + '/' + datetimeObj.y;
-            case 'mm. dd. yyyy':
-                return datetimeObj.m + '. ' + datetimeObj.d + '. ' + datetimeObj.y;
-            case 'mn dd yyyy':
-                return mn + ' ' + datetimeObj.d + ' ' + datetimeObj.y;
-            case 'mn dd, yyyy':
-                return mn + ' ' + datetimeObj.d + ', ' + datetimeObj.y;
-            case 'mnabb dd yyyy':
-                return mnabb + ' ' + datetimeObj.d + ' ' + datetimeObj.y;
-            case 'mnabb dd, yyyy':
-                return mnabb + ' ' + datetimeObj.d + ', ' + datetimeObj.y;
-            case 'mn ddth yyyy':
-                return mn + ' ' + datetimeObj.d + 'th ' + datetimeObj.y;
-            case 'mn ddth, yyyy':
-                return mn + ' ' + datetimeObj.d + 'th, ' + datetimeObj.y;
-            case 'mnabb ddth yyyy':
-                return mnabb + ' ' + datetimeObj.d + 'th ' + datetimeObj.y;
-            case 'mnabb ddth, yyyy':
-                return mnabb + ' ' + datetimeObj.d + 'th, ' + datetimeObj.y;
+            case 'MMddyyyy':
+                return datetimeObj.M + datetimeObj.d + datetimeObj.y;
+            case 'MM-dd-yyyy':
+                return datetimeObj.M + '-' + datetimeObj.d + '-' + datetimeObj.y;
+            case 'MM/dd/yyyy':
+                return datetimeObj.M + '/' + datetimeObj.d + '/' + datetimeObj.y;
+            case 'MM. dd. yyyy':
+                return datetimeObj.M + '. ' + datetimeObj.d + '. ' + datetimeObj.y;
+            case 'MMMM dd yyyy':
+                return MMMM + ' ' + datetimeObj.d + ' ' + datetimeObj.y;
+            case 'MMMM dd, yyyy':
+                return MMMM + ' ' + datetimeObj.d + ', ' + datetimeObj.y;
+            case 'MMM dd yyyy':
+                return MMM + ' ' + datetimeObj.d + ' ' + datetimeObj.y;
+            case 'MMM dd, yyyy':
+                return MMM + ' ' + datetimeObj.d + ', ' + datetimeObj.y;
 
-            case 'mmddyyyy hh':
-                return datetimeObj.m + datetimeObj.d + datetimeObj.y + ' ' + datetimeObj.h;
-            case 'mmddyyyy hhmi':
-                return datetimeObj.m + datetimeObj.d + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
-            case 'mmddyyyy hhmiss':
-                return datetimeObj.m + datetimeObj.d + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
-            case 'mmddyyyy hh:mi':
-                return datetimeObj.m + datetimeObj.d + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
-            case 'mmddyyyy hh:mi:ss':
-                return datetimeObj.m + datetimeObj.d + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
-            case 'mm-dd-yyyy hh':
-                return datetimeObj.m + '-' + datetimeObj.d + '-' + datetimeObj.y + ' ' + datetimeObj.h;
-            case 'mm-dd-yyyy hhmi':
-                return datetimeObj.m + '-' + datetimeObj.d + '-' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
-            case 'mm-dd-yyyy hhmiss':
-                return datetimeObj.m + '-' + datetimeObj.d + '-' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
-            case 'mm-dd-yyyy hh:mi':
-                return datetimeObj.m + '-' + datetimeObj.d + '-' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
-            case 'mm-dd-yyyy hh:mi:ss':
-                return datetimeObj.m + '-' + datetimeObj.d + '-' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
-            case 'mm/dd/yyyy hh':
-                return datetimeObj.m + '/' + datetimeObj.d + '/' + datetimeObj.y + ' ' + datetimeObj.h;
-            case 'mm/dd/yyyy hhmi':
-                return datetimeObj.m + '/' + datetimeObj.d + '/' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
-            case 'mm/dd/yyyy hhmiss':
-                return datetimeObj.m + '/' + datetimeObj.d + '/' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
-            case 'mm/dd/yyyy hh:mi':
-                return datetimeObj.m + '/' + datetimeObj.d + '/' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
-            case 'mm/dd/yyyy hh:mi:ss':
-                return datetimeObj.m + '/' + datetimeObj.d + '/' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
-            case 'mm. dd. yyyy hh':
-                return datetimeObj.m + '. ' + datetimeObj.d + '. ' + datetimeObj.y + ' ' + datetimeObj.h;
-            case 'mm. dd. yyyy hhmi':
-                return datetimeObj.m + '. ' + datetimeObj.d + '. ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
-            case 'mm. dd. yyyy hhmiss':
-                return datetimeObj.m + '. ' + datetimeObj.d + '. ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
-            case 'mm. dd. yyyy hh:mi':
-                return datetimeObj.m + '. ' + datetimeObj.d + '. ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
-            case 'mm. dd. yyyy hh:mi:ss':
-                return datetimeObj.m + '. ' + datetimeObj.d + '. ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
-            case 'mn dd yyyy hh':
-                return mn + ' ' + datetimeObj.d + ' ' + datetimeObj.y + ' ' + datetimeObj.h;
-            case 'mn dd yyyy hhmi':
-                return mn + ' ' + datetimeObj.d + ' ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
-            case 'mn dd yyyy hhmiss':
-                return mn + ' ' + datetimeObj.d + ' ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
-            case 'mn dd yyyy hh:mi':
-                return mn + ' ' + datetimeObj.d + ' ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
-            case 'mn dd yyyy hh:mi:ss':
-                return mn + ' ' + datetimeObj.d + ' ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
-            case 'mn dd, yyyy hh':
-                return mn + ' ' + datetimeObj.d + ', ' + datetimeObj.y + ' ' + datetimeObj.h;
-            case 'mn dd, yyyy hhmi':
-                return mn + ' ' + datetimeObj.d + ', ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
-            case 'mn dd, yyyy hhmiss':
-                return mn + ' ' + datetimeObj.d + ', ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
-            case 'mn dd, yyyy hh:mi':
-                return mn + ' ' + datetimeObj.d + ', ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
-            case 'mn dd, yyyy hh:mi:ss':
-                return mn + ' ' + datetimeObj.d + ', ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
-            case 'mnabb dd yyyy hh':
-                return mnabb + ' ' + datetimeObj.d + ' ' + datetimeObj.y + ' ' + datetimeObj.h;
-            case 'mnabb dd yyyy hhmi':
-                return mnabb + ' ' + datetimeObj.d + ' ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
-            case 'mnabb dd yyyy hhmiss':
-                return mnabb + ' ' + datetimeObj.d + ' ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
-            case 'mnabb dd yyyy hh:mi':
-                return mnabb + ' ' + datetimeObj.d + ' ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
-            case 'mnabb dd yyyy hh:mi:ss':
-                return mnabb + ' ' + datetimeObj.d + ' ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
-            case 'mnabb dd, yyyy hh':
-                return mnabb + ' ' + datetimeObj.d + ', ' + datetimeObj.y + ' ' + datetimeObj.h;
-            case 'mnabb dd, yyyy hhmi':
-                return mnabb + ' ' + datetimeObj.d + ', ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
-            case 'mnabb dd, yyyy hhmiss':
-                return mnabb + ' ' + datetimeObj.d + ', ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
-            case 'mnabb dd, yyyy hh:mi':
-                return mnabb + ' ' + datetimeObj.d + ', ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
-            case 'mnabb dd, yyyy hh:mi:ss':
-                return mnabb + ' ' + datetimeObj.d + ', ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
-            case 'mn ddth yyyy hh':
-                return mn + ' ' + datetimeObj.d + 'th ' + datetimeObj.y + ' ' + datetimeObj.h;
-            case 'mn ddth yyyy hhmi':
-                return mn + ' ' + datetimeObj.d + 'th ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
-            case 'mn ddth yyyy hhmiss':
-                return mn + ' ' + datetimeObj.d + 'th ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
-            case 'mn ddth yyyy hh:mi':
-                return mn + ' ' + datetimeObj.d + 'th ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
-            case 'mn ddth yyyy hh:mi:ss':
-                return mn + ' ' + datetimeObj.d + 'th ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
-            case 'mn ddth, yyyy hh':
-                return mn + ' ' + datetimeObj.d + 'th, ' + datetimeObj.y + ' ' + datetimeObj.h;
-            case 'mn ddth, yyyy hhmi':
-                return mn + ' ' + datetimeObj.d + 'th, ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
-            case 'mn ddth, yyyy hhmiss':
-                return mn + ' ' + datetimeObj.d + 'th, ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
-            case 'mn ddth, yyyy hh:mi':
-                return mn + ' ' + datetimeObj.d + 'th, ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
-            case 'mn ddth, yyyy hh:mi:ss':
-                return mn + ' ' + datetimeObj.d + 'th, ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
-            case 'mnabb ddth yyyy hh':
-                return mnabb + ' ' + datetimeObj.d + 'th ' + datetimeObj.y + ' ' + datetimeObj.h;
-            case 'mnabb ddth yyyy hhmi':
-                return mnabb + ' ' + datetimeObj.d + 'th ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
-            case 'mnabb ddth yyyy hhmiss':
-                return mnabb + ' ' + datetimeObj.d + 'th ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
-            case 'mnabb ddth yyyy hh:mi':
-                return mnabb + ' ' + datetimeObj.d + 'th ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
-            case 'mnabb ddth yyyy hh:mi:ss':
-                return mnabb + ' ' + datetimeObj.d + 'th ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
-            case 'mnabb ddth, yyyy hh':
-                return mnabb + ' ' + datetimeObj.d + 'th, ' + datetimeObj.y + ' ' + datetimeObj.h;
-            case 'mnabb ddth, yyyy hhmi':
-                return mnabb + ' ' + datetimeObj.d + 'th, ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
-            case 'mnabb ddth, yyyy hhmiss':
-                return mnabb + ' ' + datetimeObj.d + 'th, ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
-            case 'mnabb ddth, yyyy hh:mi':
-                return mnabb + ' ' + datetimeObj.d + 'th, ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
-            case 'mnabb ddth, yyyy hh:mi:ss':
-                return mnabb + ' ' + datetimeObj.d + 'th, ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
+            case 'MMddyyyy hh':
+                return datetimeObj.M + datetimeObj.d + datetimeObj.y + ' ' + datetimeObj.h;
+            case 'MMddyyyy hhmm':
+                return datetimeObj.M + datetimeObj.d + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.m;
+            case 'MMddyyyy hhmmss':
+                return datetimeObj.M + datetimeObj.d + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.m + datetimeObj.s;
+            case 'MMddyyyy hh:mm':
+                return datetimeObj.M + datetimeObj.d + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.m;
+            case 'MMddyyyy hh:mm:ss':
+                return datetimeObj.M + datetimeObj.d + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.m + ':' + datetimeObj.s;
+            case 'MM-dd-yyyy hh':
+                return datetimeObj.M + '-' + datetimeObj.d + '-' + datetimeObj.y + ' ' + datetimeObj.h;
+            case 'MM-dd-yyyy hhmm':
+                return datetimeObj.M + '-' + datetimeObj.d + '-' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.m;
+            case 'MM-dd-yyyy hhmmss':
+                return datetimeObj.M + '-' + datetimeObj.d + '-' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.m + datetimeObj.s;
+            case 'MM-dd-yyyy hh:mm':
+                return datetimeObj.M + '-' + datetimeObj.d + '-' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.m;
+            case 'MM-dd-yyyy hh:mm:ss':
+                return datetimeObj.M + '-' + datetimeObj.d + '-' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.m + ':' + datetimeObj.s;
+            case 'MM/dd/yyyy hh':
+                return datetimeObj.M + '/' + datetimeObj.d + '/' + datetimeObj.y + ' ' + datetimeObj.h;
+            case 'MM/dd/yyyy hhmm':
+                return datetimeObj.M + '/' + datetimeObj.d + '/' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.m;
+            case 'MM/dd/yyyy hhmmss':
+                return datetimeObj.M + '/' + datetimeObj.d + '/' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.m + datetimeObj.s;
+            case 'MM/dd/yyyy hh:mm':
+                return datetimeObj.M + '/' + datetimeObj.d + '/' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.m;
+            case 'MM/dd/yyyy hh:mm:ss':
+                return datetimeObj.M + '/' + datetimeObj.d + '/' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.m + ':' + datetimeObj.s;
+            case 'MM. dd. yyyy hh':
+                return datetimeObj.M + '. ' + datetimeObj.d + '. ' + datetimeObj.y + ' ' + datetimeObj.h;
+            case 'MM. dd. yyyy hhmm':
+                return datetimeObj.M + '. ' + datetimeObj.d + '. ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.m;
+            case 'MM. dd. yyyy hhmmss':
+                return datetimeObj.M + '. ' + datetimeObj.d + '. ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.m + datetimeObj.s;
+            case 'MM. dd. yyyy hh:mm':
+                return datetimeObj.M + '. ' + datetimeObj.d + '. ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.m;
+            case 'MM. dd. yyyy hh:mm:ss':
+                return datetimeObj.M + '. ' + datetimeObj.d + '. ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.m + ':' + datetimeObj.s;
+            case 'MMMM dd yyyy hh':
+                return MMMM + ' ' + datetimeObj.d + ' ' + datetimeObj.y + ' ' + datetimeObj.h;
+            case 'MMMM dd yyyy hhmm':
+                return MMMM + ' ' + datetimeObj.d + ' ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.m;
+            case 'MMMM dd yyyy hhmmss':
+                return MMMM + ' ' + datetimeObj.d + ' ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.m + datetimeObj.s;
+            case 'MMMM dd yyyy hh:mm':
+                return MMMM + ' ' + datetimeObj.d + ' ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.m;
+            case 'MMMM dd yyyy hh:mm:ss':
+                return MMMM + ' ' + datetimeObj.d + ' ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.m + ':' + datetimeObj.s;
+            case 'MMMM dd, yyyy hh':
+                return MMMM + ' ' + datetimeObj.d + ', ' + datetimeObj.y + ' ' + datetimeObj.h;
+            case 'MMMM dd, yyyy hhmm':
+                return MMMM + ' ' + datetimeObj.d + ', ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.m;
+            case 'MMMM dd, yyyy hhmmss':
+                return MMMM + ' ' + datetimeObj.d + ', ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.m + datetimeObj.s;
+            case 'MMMM dd, yyyy hh:mm':
+                return MMMM + ' ' + datetimeObj.d + ', ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.m;
+            case 'MMMM dd, yyyy hh:mm:ss':
+                return MMMM + ' ' + datetimeObj.d + ', ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.m + ':' + datetimeObj.s;
+            case 'MMM dd yyyy hh':
+                return MMM + ' ' + datetimeObj.d + ' ' + datetimeObj.y + ' ' + datetimeObj.h;
+            case 'MMM dd yyyy hhmm':
+                return MMM + ' ' + datetimeObj.d + ' ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.m;
+            case 'MMM dd yyyy hhmmss':
+                return MMM + ' ' + datetimeObj.d + ' ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.m + datetimeObj.s;
+            case 'MMM dd yyyy hh:mm':
+                return MMM + ' ' + datetimeObj.d + ' ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.m;
+            case 'MMM dd yyyy hh:mm:ss':
+                return MMM + ' ' + datetimeObj.d + ' ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.m + ':' + datetimeObj.s;
+            case 'MMM dd, yyyy hh':
+                return MMM + ' ' + datetimeObj.d + ', ' + datetimeObj.y + ' ' + datetimeObj.h;
+            case 'MMM dd, yyyy hhmm':
+                return MMM + ' ' + datetimeObj.d + ', ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.m;
+            case 'MMM dd, yyyy hhmmss':
+                return MMM + ' ' + datetimeObj.d + ', ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.m + datetimeObj.s;
+            case 'MMM dd, yyyy hh:mm':
+                return MMM + ' ' + datetimeObj.d + ', ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.m;
+            case 'MMM dd, yyyy hh:mm:ss':
+                return MMM + ' ' + datetimeObj.d + ', ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.m + ':' + datetimeObj.s;
 
-            case 'ddmmyyyy':
-                return datetimeObj.d + datetimeObj.m + datetimeObj.y;
-            case 'dd-mm-yyyy':
-                return datetimeObj.d + '-' + datetimeObj.m + '-' + datetimeObj.y;
-            case 'dd/mm/yyyy':
-                return datetimeObj.d + '/' + datetimeObj.m + '/' + datetimeObj.y;
-            case 'dd. mm. yyyy':
-                return datetimeObj.d + '. ' + datetimeObj.m + '. ' + datetimeObj.y;
-            case 'dd mn yyyy':
-                return datetimeObj.d + ' ' + mn + ' ' + datetimeObj.y;
-            case 'dd mnabb yyyy':
-                return datetimeObj.d + ' ' + mnabb + ' ' + datetimeObj.y;
-            case 'ddth mn yyyy':
-                return datetimeObj.d + 'th ' + mn + ' ' + datetimeObj.y;
-            case 'ddth mnabb yyyy':
-                return datetimeObj.d + 'th ' + mnabb + ' ' + datetimeObj.y;
+            case 'ddMMyyyy':
+                return datetimeObj.d + datetimeObj.M + datetimeObj.y;
+            case 'dd-MM-yyyy':
+                return datetimeObj.d + '-' + datetimeObj.M + '-' + datetimeObj.y;
+            case 'dd/MM/yyyy':
+                return datetimeObj.d + '/' + datetimeObj.M + '/' + datetimeObj.y;
+            case 'dd. MM. yyyy':
+                return datetimeObj.d + '. ' + datetimeObj.M + '. ' + datetimeObj.y;
+            case 'dd MMMM yyyy':
+                return datetimeObj.d + ' ' + MMMM + ' ' + datetimeObj.y;
+            case 'dd MMM yyyy':
+                return datetimeObj.d + ' ' + MMM + ' ' + datetimeObj.y;
 
-            case 'ddmmyyyy hh':
-                return datetimeObj.d + datetimeObj.m + datetimeObj.y + ' ' + datetimeObj.h;
-            case 'ddmmyyyy hhmi':
-                return datetimeObj.d + datetimeObj.m + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
-            case 'ddmmyyyy hhmiss':
-                return datetimeObj.d + datetimeObj.m + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
-            case 'ddmmyyyy hh:mi':
-                return datetimeObj.d + datetimeObj.m + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
-            case 'ddmmyyyy hh:mi:ss':
-                return datetimeObj.d + datetimeObj.m + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
-            case 'dd-mm-yyyy hh':
-                return datetimeObj.d + '-' + datetimeObj.m + '-' + datetimeObj.y + ' ' + datetimeObj.h;
-            case 'dd-mm-yyyy hhmi':
-                return datetimeObj.d + '-' + datetimeObj.m + '-' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
-            case 'dd-mm-yyyy hhmiss':
-                return datetimeObj.d + '-' + datetimeObj.m + '-' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
-            case 'dd-mm-yyyy hh:mi':
-                return datetimeObj.d + '-' + datetimeObj.m + '-' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
-            case 'dd-mm-yyyy hh:mi:ss':
-                return datetimeObj.d + '-' + datetimeObj.m + '-' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
-            case 'dd/mm/yyyy hh':
-                return datetimeObj.d + '/' + datetimeObj.m + '/' + datetimeObj.y + ' ' + datetimeObj.h;
-            case 'dd/mm/yyyy hhmi':
-                return datetimeObj.d + '/' + datetimeObj.m + '/' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
-            case 'dd/mm/yyyy hhmiss':
-                return datetimeObj.d + '/' + datetimeObj.m + '/' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
-            case 'dd/mm/yyyy hh:mi':
-                return datetimeObj.d + '/' + datetimeObj.m + '/' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
-            case 'dd/mm/yyyy hh:mi:ss':
-                return datetimeObj.d + '/' + datetimeObj.m + '/' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
-            case 'dd. mm. yyyy hh':
-                return datetimeObj.d + '. ' + datetimeObj.m + '. ' + datetimeObj.y + ' ' + datetimeObj.h;
-            case 'dd. mm. yyyy hhmi':
-                return datetimeObj.d + '. ' + datetimeObj.m + '. ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
-            case 'dd. mm. yyyy hhmiss':
-                return datetimeObj.d + '. ' + datetimeObj.m + '. ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
-            case 'dd. mm. yyyy hh:mi':
-                return datetimeObj.d + '. ' + datetimeObj.m + '. ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
-            case 'dd. mm. yyyy hh:mi:ss':
-                return datetimeObj.d + '. ' + datetimeObj.m + '. ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
-            case 'dd mn yyyy hh':
-                return datetimeObj.d + ' ' + mn + ' ' + datetimeObj.y + ' ' + datetimeObj.h;
-            case 'dd mn yyyy hhmi':
-                return datetimeObj.d + ' ' + mn + ' ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
-            case 'dd mn yyyy hhmiss':
-                return datetimeObj.d + ' ' + mn + ' ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
-            case 'dd mn yyyy hh:mi':
-                return datetimeObj.d + ' ' + mn + ' ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
-            case 'dd mn yyyy hh:mi:ss':
-                return datetimeObj.d + ' ' + mn + ' ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
-            case 'dd mnabb yyyy hh':
-                return datetimeObj.d + ' ' + mnabb + ' ' + datetimeObj.y + ' ' + datetimeObj.h;
-            case 'dd mnabb yyyy hhmi':
-                return datetimeObj.d + ' ' + mnabb + ' ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
-            case 'dd mnabb yyyy hhmiss':
-                return datetimeObj.d + ' ' + mnabb + ' ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
-            case 'dd mnabb yyyy hh:mi':
-                return datetimeObj.d + ' ' + mnabb + ' ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
-            case 'dd mnabb yyyy hh:mi:ss':
-                return datetimeObj.d + ' ' + mnabb + ' ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
-            case 'ddth mn yyyy hh':
-                return datetimeObj.d + 'th ' + mn + ' ' + datetimeObj.y + ' ' + datetimeObj.h;
-            case 'ddth mn yyyy hhmi':
-                return datetimeObj.d + 'th ' + mn + ' ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
-            case 'ddth mn yyyy hhmiss':
-                return datetimeObj.d + 'th ' + mn + ' ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
-            case 'ddth mn yyyy hh:mi':
-                return datetimeObj.d + 'th ' + mn + ' ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
-            case 'ddth mn yyyy hh:mi:ss':
-                return datetimeObj.d + 'th ' + mn + ' ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
-            case 'ddth mnabb yyyy hh':
-                return datetimeObj.d + 'th ' + mnabb + ' ' + datetimeObj.y + ' ' + datetimeObj.h;
-            case 'ddth mnabb yyyy hhmi':
-                return datetimeObj.d + 'th ' + mnabb + ' ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi;
-            case 'ddth mnabb yyyy hhmiss':
-                return datetimeObj.d + 'th ' + mnabb + ' ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.mi + datetimeObj.s;
-            case 'ddth mnabb yyyy hh:mi':
-                return datetimeObj.d + 'th ' + mnabb + ' ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi;
-            case 'ddth mnabb yyyy hh:mi:ss':
-                return datetimeObj.d + 'th ' + mnabb + ' ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.mi + ':' + datetimeObj.s;
+            case 'ddMMyyyy hh':
+                return datetimeObj.d + datetimeObj.M + datetimeObj.y + ' ' + datetimeObj.h;
+            case 'ddMMyyyy hhmm':
+                return datetimeObj.d + datetimeObj.M + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.m;
+            case 'ddMMyyyy hhmmss':
+                return datetimeObj.d + datetimeObj.M + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.m + datetimeObj.s;
+            case 'ddMMyyyy hh:mm':
+                return datetimeObj.d + datetimeObj.M + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.m;
+            case 'ddMMyyyy hh:mm:ss':
+                return datetimeObj.d + datetimeObj.M + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.m + ':' + datetimeObj.s;
+            case 'dd-MM-yyyy hh':
+                return datetimeObj.d + '-' + datetimeObj.M + '-' + datetimeObj.y + ' ' + datetimeObj.h;
+            case 'dd-MM-yyyy hhmm':
+                return datetimeObj.d + '-' + datetimeObj.M + '-' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.m;
+            case 'dd-MM-yyyy hhmmss':
+                return datetimeObj.d + '-' + datetimeObj.M + '-' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.m + datetimeObj.s;
+            case 'dd-MM-yyyy hh:mm':
+                return datetimeObj.d + '-' + datetimeObj.M + '-' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.m;
+            case 'dd-MM-yyyy hh:mm:ss':
+                return datetimeObj.d + '-' + datetimeObj.M + '-' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.m + ':' + datetimeObj.s;
+            case 'dd/MM/yyyy hh':
+                return datetimeObj.d + '/' + datetimeObj.M + '/' + datetimeObj.y + ' ' + datetimeObj.h;
+            case 'dd/MM/yyyy hhmm':
+                return datetimeObj.d + '/' + datetimeObj.M + '/' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.m;
+            case 'dd/MM/yyyy hhmmss':
+                return datetimeObj.d + '/' + datetimeObj.M + '/' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.m + datetimeObj.s;
+            case 'dd/MM/yyyy hh:mm':
+                return datetimeObj.d + '/' + datetimeObj.M + '/' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.m;
+            case 'dd/MM/yyyy hh:mm:ss':
+                return datetimeObj.d + '/' + datetimeObj.M + '/' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.m + ':' + datetimeObj.s;
+            case 'dd. MM. yyyy hh':
+                return datetimeObj.d + '. ' + datetimeObj.M + '. ' + datetimeObj.y + ' ' + datetimeObj.h;
+            case 'dd. MM. yyyy hhmm':
+                return datetimeObj.d + '. ' + datetimeObj.M + '. ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.m;
+            case 'dd. MM. yyyy hhmmss':
+                return datetimeObj.d + '. ' + datetimeObj.M + '. ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.m + datetimeObj.s;
+            case 'dd. MM. yyyy hh:mm':
+                return datetimeObj.d + '. ' + datetimeObj.M + '. ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.m;
+            case 'dd. MM. yyyy hh:mm:ss':
+                return datetimeObj.d + '. ' + datetimeObj.M + '. ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.m + ':' + datetimeObj.s;
+            case 'dd MMMM yyyy hh':
+                return datetimeObj.d + ' ' + MMMM + ' ' + datetimeObj.y + ' ' + datetimeObj.h;
+            case 'dd MMMM yyyy hhmm':
+                return datetimeObj.d + ' ' + MMMM + ' ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.m;
+            case 'dd MMMM yyyy hhmmss':
+                return datetimeObj.d + ' ' + MMMM + ' ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.m + datetimeObj.s;
+            case 'dd MMMM yyyy hh:mm':
+                return datetimeObj.d + ' ' + MMMM + ' ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.m;
+            case 'dd MMMM yyyy hh:mm:ss':
+                return datetimeObj.d + ' ' + MMMM + ' ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.m + ':' + datetimeObj.s;
+            case 'dd MMM yyyy hh':
+                return datetimeObj.d + ' ' + MMM + ' ' + datetimeObj.y + ' ' + datetimeObj.h;
+            case 'dd MMM yyyy hhmm':
+                return datetimeObj.d + ' ' + MMM + ' ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.m;
+            case 'dd MMM yyyy hhmmss':
+                return datetimeObj.d + ' ' + MMM + ' ' + datetimeObj.y + ' ' + datetimeObj.h + datetimeObj.m + datetimeObj.s;
+            case 'dd MMM yyyy hh:mm':
+                return datetimeObj.d + ' ' + MMM + ' ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.m;
+            case 'dd MMM yyyy hh:mm:ss':
+                return datetimeObj.d + ' ' + MMM + ' ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.m + ':' + datetimeObj.s;
 
             default:
                 throw new Error("Invalid format");
@@ -1536,17 +1460,17 @@ var Hison ={};
     };
     /**
      * Formats a given datetime object or datetime string according to a specified format string.
-     * The default format is "mn ddth, yyyy". The function supports a wide range of format specifiers,
+     * The default format is "yyyy-MM-dd". The function supports a wide range of format specifiers,
      * allowing for various representations of the date and time. The method first determines if the input
      * is an object or a string and converts it to a datetime object if necessary.
      * It throws an error for invalid datetime inputs or unsupported format strings.
      * The original object or string does not change.
      *
      * @param {object|string} datetimeObj_or_datetimeStr
-     *  - The datetime object format. Should contain year (y), and optionally month (m), day (d), hours (h), minutes (mi), and seconds (s).
-     *  - Allowed formats for strings of year, month, day are yyyymmdd, yyyy-mm-dd, yyyy/mm/dd, yymmdd. And time are hh:mi:ss, hhmiss.
-     * @param {string} [format='mn ddth, yyyy'] - The format string specifying the desired output format. 
-     *        Supports various combinations of 'yyyy', 'mm', 'dd', 'hh', 'mi', 'ss', along with separators.
+     *  - The datetime object format. Should contain year (y), and optionally month (m), day (d), hours (h), minutes (m), and seconds (s).
+     *  - Allowed formats for strings of year, month, day are yyyyMMdd, yyyy-MM-dd, yyyy/MM/dd. And time are hh:mm:ss, hhmmss.
+     * @param {string} [format='yyyy-MM-dd'] - The format string specifying the desired output format. 
+     *        Supports various combinations of 'yyyy', 'MM', 'dd', 'hh', 'mm', 'ss', along with separators.
      * @returns {string} Returns the formatted date as a string.
      *
      * @throws {Error} Throws an error if required parameters are not entered, if the datetime is invalid, 
@@ -1558,7 +1482,7 @@ var Hison ={};
      *
      * @example
      * // returns '2024-01-15'
-     * Hison.utils.getDateWithFormat({ y: 2024, m: 1, d: 15 }, 'yyyy-mm-dd');
+     * Hison.utils.getDateWithFormat({ y: 2024, m: 1, d: 15 }, 'yyyy-MM-dd');
      *
      * Note: This function is versatile as it can handle both datetime objects and datetime strings. 
      * It is particularly useful for formatting user input or data for display where specific date and time 
@@ -1572,7 +1496,7 @@ var Hison ={};
         if(!_isDate(dateObj)) throw new Error("Please enter a valid date.");
         
         if(!dayType) dayType = Hison.const.dayOfWeekFormat;
-        var date = new Date(dateObj.y, dateObj.m - 1, dateObj.d);
+        var date = new Date(dateObj.y, dateObj.M - 1, dateObj.d);
         var dayOfWeek = date.getDay();
     
         switch (dayType.toLowerCase()) {
@@ -1596,7 +1520,7 @@ var Hison ={};
      *
      * @param {object|string} dateObj
      *  - The date object for which the day of the week is to be determined. Should contain year (y), month (m), and day (d).
-     *  - Allowed formats for strings of year, month, day are yyyymmdd, yyyy-mm-dd, yyyy/mm/dd, yymmdd.
+     *  - Allowed formats for strings of year, month, day are yyyyMMdd, yyyy-MM-dd, yyyy/MM/dd.
      * @param {string} [dayType=''] - The format of the day of the week to return. Options are 'd' for numerical (0-6), 'dy' for 3-letter abbreviation, 'day' for full name, 'kdy' for Korean abbreviation, 'kday' for full Korean name.
      * @returns {string} Returns the day of the week as per the specified format. Returns an empty string if the date is invalid or required parameters are missing.
      *
@@ -1617,7 +1541,7 @@ var Hison ={};
      *
      * @param {object|string} dateObj
      *  - The date object for which the last day of the month is to be determined. Should contain year (y) and month (m).
-     *  - Allowed formats for strings of year, month, day are yyyymmdd, yyyy-mm-dd, yyyy/mm/dd, yymmdd.
+     *  - Allowed formats for strings of year, month, day are yyyyMMdd, yyyy-MM-dd, yyyy/MM/dd.
      * @returns {number|string} Returns the last day of the month as a number. Returns an empty string if the year or month is missing or if the date is invalid.
      *
      * @example
@@ -1648,7 +1572,7 @@ var Hison ={};
         }
         if(!_isDate(dateObj)) throw new Error("Please enter a valid date.");
 
-        var nextMonthFirstDay = new Date(dateObj.y, dateObj.m, 1);
+        var nextMonthFirstDay = new Date(dateObj.y, dateObj.M, 1);
         nextMonthFirstDay.setDate(0);
         return nextMonthFirstDay.getDate();
     };
@@ -1682,51 +1606,51 @@ var Hison ={};
      * The default is the numerical string format without leading zeros. 
      * The function determines the current month based on the system's date settings and formats it as specified.
      *
-     * @param {string} [format=''] - The format in which to return the month. 'mm' for two-digit numerical format, 'mn' for full month name, 'mnabb' for abbreviated month name, and any other value for the default numerical format.
+     * @param {string} [format=''] - The format in which to return the month. 'MM' for two-digit numerical format, 'MMMM' for full month name, 'MMM' for abbreviated month name, and any other value for the default numerical format.
      * @returns {string} Returns the current month as a string in the specified format.
      *
      * @example
      * // returns '01' for January (assuming the current month is January)
-     * Hison.utils.getSysMonth('mm');
+     * Hison.utils.getSysMonth('MM');
      *
      * @example
      * // returns 'January' (assuming the current month is January)
-     * Hison.utils.getSysMonth('mn');
+     * Hison.utils.getSysMonth('MMMM');
      *
      * @example
      * // returns 'Jan' (assuming the current month is January)
-     * Hison.utils.getSysMonth('mnabb');
+     * Hison.utils.getSysMonth('MMM');
      */
     Hison.utils.getSysMonth = function(format) {
         if(!format) format = Hison.const.monthFormat;
         var currentDate = new Date();
         var sysMonth = currentDate.getMonth() + 1;
         switch (format.toLowerCase()) {
-            case 'mm':
+            case 'MM':
                 return sysMonth.toString().padStart(2, '0');
-            case 'mn':
+            case 'MMMM':
                 return _getMonthName(sysMonth);
-            case 'mnabb':
+            case 'MMM':
                 return _getMonthName(sysMonth, false);
             default:
                 return sysMonth.toString();
         }
     };
     /**
-     * Returns the current year and month formatted as specified. The default format is "yyyy-mm" (e.g., "2024-01").
+     * Returns the current year and month formatted as specified. The default format is "yyyy-MM" (e.g., "2024-01").
      * This function utilizes the getDateWithFormat function to format the current year and month according to the specified format.
      *
-     * @param {string} [format='mn, yyyy'] - The format string specifying how the year and month should be returned. 
+     * @param {string} [format='yyyy-mm'] - The format string specifying how the year and month should be returned. 
      *                                       It can be any format supported by the getDateWithFormat function.
      * @returns {string} Returns the current year and month as a string in the specified format.
      *
      * @example
      * // returns 'January, 2024' (assuming the current date is in January 2024)
-     * Hison.utils.getSysYearMonth('mn, yyyy');
+     * Hison.utils.getSysYearMonth('MMMM, yyyy');
      *
      * @example
      * // returns '2024/01' (assuming the current date is in January 2024)
-     * Hison.utils.getSysYearMonth('yyyy/mm');
+     * Hison.utils.getSysYearMonth('yyyy/MM');
      */
     Hison.utils.getSysYearMonth = function(format) {
         if(!format) format = Hison.const.yearMonthFormat;
@@ -1808,11 +1732,11 @@ var Hison ={};
         }
     };
     /**
-     * Returns the current hour and minute in either a 'hhmi' (continuous string) format or the default 'hh:mi' format.
-     * The default format is 'hh:mi', which includes a colon separator between hours and minutes.
+     * Returns the current hour and minute in either a 'hhmm' (continuous string) format or the default 'hh:mm' format.
+     * The default format is 'hh:mm', which includes a colon separator between hours and minutes.
      * The function determines the current time based on the system's time settings.
      *
-     * @param {string} [format=''] - The format in which to return the time. 'hhmi' for continuous string format (e.g., '0512'), any other value for the default 'hh:mi' format (e.g., '05:12').
+     * @param {string} [format=''] - The format in which to return the time. 'hhmm' for continuous string format (e.g., '0512'), any other value for the default 'hh:mm' format (e.g., '05:12').
      * @returns {string} Returns the current hour and minute as a string in the specified format.
      *
      * @example
@@ -1821,13 +1745,13 @@ var Hison ={};
      *
      * @example
      * // returns '0512' (assuming the current time is 5 hours and 12 minutes)
-     * Hison.utils.getSysHourMinute('hhmi');
+     * Hison.utils.getSysHourMinute('hhmm');
      */
     Hison.utils.getSysHourMinute = function(format) {
         if(!format) format = Hison.const.hourMinuteFormat;
         var currentDate = new Date();
         switch (format.toLowerCase()) {
-            case 'hhmi':
+            case 'hhmm':
                 return currentDate.getHours().toString().padStart(2, '0') + "" + currentDate.getMinutes().toString().padStart(2, '0');
             default:
                 return currentDate.getHours().toString().padStart(2, '0') + ":" + currentDate.getMinutes().toString().padStart(2, '0');
@@ -1838,12 +1762,12 @@ var Hison ={};
      * The default format is a string of numerical representation without leading zeros. 
      * The function determines the current minute based on the system's time settings.
      *
-     * @param {string} [format=''] - The format in which to return the minute. 'mi' for two-digit format, any other value for the default format.
+     * @param {string} [format=''] - The format in which to return the minute. 'mm' for two-digit format, any other value for the default format.
      * @returns {string} Returns the current minute as a string in the specified format.
      *
      * @example
      * // returns '05' (assuming the current minute is 5 past the hour)
-     * Hison.utils.getSysMinute('mi');
+     * Hison.utils.getSysMinute('mm');
      *
      * @example
      * // returns '5' (assuming the current minute is 5 past the hour)
@@ -1853,7 +1777,7 @@ var Hison ={};
         if(!format) format = Hison.const.minuteFormat;
         var currentDate = new Date();
         switch (format.toLowerCase()) {
-            case 'mi':
+            case 'mm':
                 return currentDate.getMinutes().toString().padStart(2, '0');
             default:
                 return currentDate.getMinutes().toString();
@@ -1886,11 +1810,11 @@ var Hison ={};
         }
     };
     /**
-     * Returns the current time in either a 'hhmiss' (continuous string) format or the default 'hh:mi:ss' format.
-     * The default format is 'hh:mi:ss', which includes colon separators between hours, minutes, and seconds.
+     * Returns the current time in either a 'hhmmss' (continuous string) format or the default 'hh:mm:ss' format.
+     * The default format is 'hh:mm:ss', which includes colon separators between hours, minutes, and seconds.
      * The function determines the current time based on the system's time settings.
      *
-     * @param {string} [format=''] - The format in which to return the time. 'hhmiss' for continuous string format (e.g., '051230'), any other value for the default 'hh:mi:ss' format (e.g., '05:12:30').
+     * @param {string} [format=''] - The format in which to return the time. 'hhmmss' for continuous string format (e.g., '051230'), any other value for the default 'hh:mm:ss' format (e.g., '05:12:30').
      * @returns {string} Returns the current time as a string in the specified format.
      *
      * @example
@@ -1899,33 +1823,33 @@ var Hison ={};
      *
      * @example
      * // returns '051230' (assuming the current time is 5 hours, 12 minutes, and 30 seconds)
-     * Hison.utils.getSysTime('hhmiss');
+     * Hison.utils.getSysTime('hhmmss');
      */
     Hison.utils.getSysTime = function(format) {
         if(!format) format = Hison.const.timeFormat;
         var currentDate = new Date();
         switch (format.toLowerCase()) {
-            case 'hhmiss':
+            case 'hhmmss':
                 return currentDate.getHours().toString().padStart(2, '0') + currentDate.getMinutes().toString().padStart(2, '0') + currentDate.getSeconds().toString().padStart(2, '0');
             default:
                 return currentDate.getHours().toString().padStart(2, '0') + ":" + currentDate.getMinutes().toString().padStart(2, '0') + ":" + currentDate.getSeconds().toString().padStart(2, '0');
         }
     };
     /**
-     * Returns the current date and time in a specified format. The default format is "yyyy-mm-dd hh:mi:ss" (e.g., "2024-01-22 13:07:34").
+     * Returns the current date and time in a specified format. The default format is "yyyy-MM-dd hh:mm:ss" (e.g., "2024-01-22 13:07:34").
      * This function utilizes the getDateWithFormat function to format the current date and time according to the specified format.
      *
-     * @param {string} [format='yyyy-mm-dd hh:mi:ss'] - The format string specifying how the date and time should be returned. 
+     * @param {string} [format='yyyy-MM-dd hh:mm:ss'] - The format string specifying how the date and time should be returned. 
      *                                                      It can be any format supported by the getDateWithFormat function.
      * @returns {string} Returns the current date and time as a string in the specified format.
      *
      * @example
-     * // returns 'January 15th, 2024 05:12:30' (assuming the current date and time)
-     * Hison.utils.getSysDate('mn ddth, yyyy hh:mi:ss');
+     * // returns 'January 15, 2024 05:12:30' (assuming the current date and time)
+     * Hison.utils.getSysDate('MMMM dd, yyyy hh:mm:ss');
      *
      * @example
      * // returns '2024. 01. 15 05:12' (assuming the current date and time)
-     * Hison.utils.getSysDate('yyyy. mm. dd hh:mi');
+     * Hison.utils.getSysDate('yyyy. MM. dd hh:mm');
      */
     Hison.utils.getSysDate = function(format) {
         if(!format) format = Hison.const.datetimeFormat;
@@ -1936,7 +1860,7 @@ var Hison ={};
                 m:currentDate.getMonth() + 1,
                 d:currentDate.getDate(),
                 h:currentDate.getHours(),
-                mi:currentDate.getMinutes(),
+                m:currentDate.getMinutes(),
                 s:currentDate.getSeconds(),
             }
             , format);

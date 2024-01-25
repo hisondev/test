@@ -1,25 +1,26 @@
 /**
- * The Hison object is a container for configuration values and methods required for using the hisondev solution.
+ * The hison object is a container for configuration values and methods required for using the hisondev solution.
  * It includes the following sub-objects:
  * 
- * - Hison.const: Contains constants required for overall configuration.
- * - Hison.data: Provides functionalities for DataWrapper and DataModel.
- * - Hison.link: Offers features necessary for ApiLink.
- * - Hison.caching: Includes functionalities for the caching module.
- * - Hison.utils: A collection of various common utility methods.
+ * - hison.const: Contains constants required for overall configuration.
+ * - hison.data: Provides functionalities for DataWrapper and DataModel.
+ * - hison.link: Offers features necessary for ApiLink.
+ * - hison.caching: Includes functionalities for the caching module.
+ * - hison.utils: A collection of various common utility methods.
  * 
- * The Hison object is finally defined in the shield.js file through the finalDefineHison() method.
+ * The hison object is finally defined in the shield.js file through the finalDefinehison() method.
  * After its definition, it is frozen and hidden to prevent external access and modification.
  * All utils' methods have no dependency on each other.
+ * When an error occurs, null is usually returned and the cause of the error is displayed on the console. This is to ensure that logic progresses continuously without errors occurring in the client for user UI/UX experience.
  * 
- * @namespace Hison
+ * @namespace hison
  */
-var Hison ={};
+var hison ={};
 (function() {
     /******************************************
      * Data
      ******************************************/
-    Hison.data = {};
+    hison.data = {};
     /**
      * Converts special JavaScript objects into a predefined format before they are inserted into the DataModel.
      * This function allows for custom handling of objects like Date, or other special object types, to ensure
@@ -29,8 +30,8 @@ var Hison ={};
      * @returns {object} Returns the converted object.
      *
      * @example
-     * // When set the Hison.data.convertObject
-     * Hison.data.convertObject = function(object) {
+     * // When set the hison.data.convertObject
+     * hison.data.convertObject = function(object) {
      *     if (object instanceof Date) {
      *          var year = object.getFullYear();
      *          var month = object.getMonth() + 1;
@@ -57,22 +58,22 @@ var Hison ={};
      * 2. After customizing the handling of special objects, ensure to return the object for all other cases.
      *    This ensures that undefined objects are still stored in the DataModel.
      */
-    Hison.data.convertObject = function(object) {
+    hison.data.convertObject = function(object) {
         return object;
     }
 
     /******************************************
      * Link
      ******************************************/
-    Hison.link = {};
-    /** Hison.link.protocol is the protocol value for the URL used to call APIs in apiLink. */
-    Hison.link.protocol = 'http://';
-    /** Hison.link.domain is the domain value for the URL used to call APIs in apiLink. */
-    Hison.link.domain = 'localhost:8081';
-    /** Hison.link.controllerPath is the RequestMapping value for calling APIs in apiLink. */
-    Hison.link.controllerPath = '/hison-api-link';
-    /** Hison.link.timeout is the default value for the timeout after making an API request, measured in milliseconds. */
-    Hison.link.timeout = 10000;
+    hison.link = {};
+    /** hison.link.protocol is the protocol value for the URL used to call APIs in apiLink. */
+    hison.link.protocol = 'http://';
+    /** hison.link.domain is the domain value for the URL used to call APIs in apiLink. */
+    hison.link.domain = 'localhost:8081';
+    /** hison.link.controllerPath is the RequestMapping value for calling APIs in apiLink. */
+    hison.link.controllerPath = '/hison-api-link';
+    /** hison.link.timeout is the default value for the timeout after making an API request, measured in milliseconds. */
+    hison.link.timeout = 10000;
     /**
      * Defines the behavior to be executed before making a GET request in apiLink.
      * This function can be customized to perform actions or checks before the actual GET request is sent.
@@ -86,14 +87,14 @@ var Hison ={};
      * @returns {boolean} Returns true to proceed with the GET request, or false to prevent the request from being sent.
      *
      * @example
-     * Hison.link.beforeGetRequst = function(resourcePath, callbackWorkedFunc, callbackErrorFunc, options) {
+     * hison.link.beforeGetRequst = function(resourcePath, callbackWorkedFunc, callbackErrorFunc, options) {
      *     // Custom logic before sending a GET request
      *     return true; // Proceed with the GET request
      * };
      *
      * @example
      * // Preventing a GET request
-     * Hison.link.beforeGetRequst = function(resourcePath, callbackWorkedFunc, callbackErrorFunc, options) {
+     * hison.link.beforeGetRequst = function(resourcePath, callbackWorkedFunc, callbackErrorFunc, options) {
      *     // Custom logic to determine whether to proceed
      *     return false; // Prevent the GET request
      * };
@@ -101,7 +102,7 @@ var Hison ={};
      * Note: This function is useful for implementing pre-request validations, logging, or any setup required before 
      * making a GET request. The function's return value controls whether the GET request should be executed.
      */
-    Hison.link.beforeGetRequst = function(resourcePath, callbackWorkedFunc, callbackErrorFunc, options) {
+    hison.link.beforeGetRequst = function(resourcePath, callbackWorkedFunc, callbackErrorFunc, options) {
         return true;
     };
     /**
@@ -117,14 +118,14 @@ var Hison ={};
      * @returns {boolean} Returns true to proceed with the POST request, or false to prevent the request from being sent.
      *
      * @example
-     * Hison.link.beforePostRequst = function(requestDw, callbackWorkedFunc, callbackErrorFunc, options) {
+     * hison.link.beforePostRequst = function(requestDw, callbackWorkedFunc, callbackErrorFunc, options) {
      *     // Custom logic before sending a POST request
      *     return true; // Proceed with the POST request
      * };
      *
      * @example
      * // Preventing a POST request
-     * Hison.link.beforePostRequst = function(requestDw, callbackWorkedFunc, callbackErrorFunc, options) {
+     * hison.link.beforePostRequst = function(requestDw, callbackWorkedFunc, callbackErrorFunc, options) {
      *     // Custom logic to determine whether to proceed
      *     return false; // Prevent the POST request
      * };
@@ -133,7 +134,7 @@ var Hison ={};
      * before it is sent in the POST request. It offers a way to programmatically control whether or not a POST request
      * should be initiated based on custom conditions or criteria.
      */
-    Hison.link.beforePostRequst = function(requestDw, callbackWorkedFunc, callbackErrorFunc, options) {
+    hison.link.beforePostRequst = function(requestDw, callbackWorkedFunc, callbackErrorFunc, options) {
         return true;
     };
     /**
@@ -149,14 +150,14 @@ var Hison ={};
      * @returns {boolean} Returns true to proceed with the PUT request, or false to prevent the request from being sent.
      *
      * @example
-     * Hison.link.beforePutRequst = function(requestDw, callbackWorkedFunc, callbackErrorFunc, options) {
+     * hison.link.beforePutRequst = function(requestDw, callbackWorkedFunc, callbackErrorFunc, options) {
      *     // Custom logic before sending a PUT request
      *     return true; // Proceed with the PUT request
      * };
      *
      * @example
      * // Preventing a PUT request
-     * Hison.link.beforePutRequst = function(requestDw, callbackWorkedFunc, callbackErrorFunc, options) {
+     * hison.link.beforePutRequst = function(requestDw, callbackWorkedFunc, callbackErrorFunc, options) {
      *     // Custom logic to determine whether to proceed
      *     return false; // Prevent the PUT request
      * };
@@ -165,7 +166,7 @@ var Hison ={};
      * before it is sent in the PUT request. It offers a way to programmatically control whether or not a PUT request
      * should be initiated based on custom conditions or criteria.
      */
-    Hison.link.beforePutRequst = function(requestDw, callbackWorkedFunc, callbackErrorFunc, options) {
+    hison.link.beforePutRequst = function(requestDw, callbackWorkedFunc, callbackErrorFunc, options) {
         return true;
     };
     /**
@@ -181,14 +182,14 @@ var Hison ={};
      * @returns {boolean} Returns true to proceed with the PATCH request, or false to prevent the request from being sent.
      *
      * @example
-     * Hison.link.beforePatchRequst = function(requestDw, callbackWorkedFunc, callbackErrorFunc, options) {
+     * hison.link.beforePatchRequst = function(requestDw, callbackWorkedFunc, callbackErrorFunc, options) {
      *     // Custom logic before sending a PATCH request
      *     return true; // Proceed with the PATCH request
      * };
      *
      * @example
      * // Preventing a PATCH request
-     * Hison.link.beforePatchRequst = function(requestDw, callbackWorkedFunc, callbackErrorFunc, options) {
+     * hison.link.beforePatchRequst = function(requestDw, callbackWorkedFunc, callbackErrorFunc, options) {
      *     // Custom logic to determine whether to proceed
      *     return false; // Prevent the PATCH request
      * };
@@ -197,7 +198,7 @@ var Hison ={};
      * before it is sent in the PATCH request. It offers a way to programmatically control whether or not a PATCH request
      * should be initiated based on custom conditions or criteria.
      */
-    Hison.link.beforePatchRequst = function(requestDw, callbackWorkedFunc, callbackErrorFunc, options) {
+    hison.link.beforePatchRequst = function(requestDw, callbackWorkedFunc, callbackErrorFunc, options) {
         return true;
     };
     /**
@@ -213,14 +214,14 @@ var Hison ={};
      * @returns {boolean} Returns true to proceed with the DELETE request, or false to prevent the request from being sent.
      *
      * @example
-     * Hison.link.beforeDeleteRequst = function(requestDw, callbackWorkedFunc, callbackErrorFunc, options) {
+     * hison.link.beforeDeleteRequst = function(requestDw, callbackWorkedFunc, callbackErrorFunc, options) {
      *     // Custom logic before sending a DELETE request
      *     return true; // Proceed with the DELETE request
      * };
      *
      * @example
      * // Preventing a DELETE request
-     * Hison.link.beforeDeleteRequst = function(requestDw, callbackWorkedFunc, callbackErrorFunc, options) {
+     * hison.link.beforeDeleteRequst = function(requestDw, callbackWorkedFunc, callbackErrorFunc, options) {
      *     // Custom logic to determine whether to proceed
      *     return false; // Prevent the DELETE request
      * };
@@ -229,7 +230,7 @@ var Hison ={};
      * before it is sent in the DELETE request. It offers a way to programmatically control whether or not a DELETE request
      * should be initiated based on custom conditions or criteria.
      */
-    Hison.link.beforeDeleteRequst = function(requestDw, callbackWorkedFunc, callbackErrorFunc, options) {
+    hison.link.beforeDeleteRequst = function(requestDw, callbackWorkedFunc, callbackErrorFunc, options) {
         return true;
     };
     /**
@@ -243,14 +244,14 @@ var Hison ={};
      * @returns {boolean} Returns true to proceed with executing the user-defined success callback method, or false to prevent it from running.
      *
      * @example
-     * Hison.link.beforeCallbackWorked = function(result, response) {
+     * hison.link.beforeCallbackWorked = function(result, response) {
      *     // Custom logic before executing the success callback
      *     return true; // Proceed with the success callback
      * };
      *
      * @example
      * // Preventing the success callback from executing
-     * Hison.link.beforeCallbackWorked = function(result, response) {
+     * hison.link.beforeCallbackWorked = function(result, response) {
      *     // Custom logic to determine whether to proceed
      *     return false; // Prevent the success callback
      * };
@@ -259,7 +260,7 @@ var Hison ={};
      * API response but before the user-defined success callback. It offers a way to programmatically control whether or not the success
      * callback should be initiated based on the response content or other custom conditions.
      */
-    Hison.link.beforeCallbackWorked = function(result, response) {
+    hison.link.beforeCallbackWorked = function(result, response) {
         return true;
     };
     /**
@@ -272,14 +273,14 @@ var Hison ={};
      * @returns {boolean} Returns true to proceed with executing the user-defined error callback method, or false to prevent it from running.
      *
      * @example
-     * Hison.link.beforeCallbackError = function(error) {
+     * hison.link.beforeCallbackError = function(error) {
      *     // Custom logic before executing the error callback
      *     return true; // Proceed with the error callback
      * };
      *
      * @example
      * // Preventing the error callback from executing
-     * Hison.link.beforeCallbackError = function(error) {
+     * hison.link.beforeCallbackError = function(error) {
      *     // Custom logic to determine whether to proceed
      *     return false; // Prevent the error callback
      * };
@@ -288,60 +289,60 @@ var Hison ={};
      * API response but before the user-defined error callback. It offers a way to programmatically control whether or not the error
      * callback should be initiated based on the error information or other custom conditions.
      */
-    Hison.link.beforeCallbackError = function(error) {
+    hison.link.beforeCallbackError = function(error) {
         return true;
     };
 
     /******************************************
      * Caching
      ******************************************/
-    Hison.caching = {};
+    hison.caching = {};
     /** The protocol to be used for WebSocket request URLs in caching. */
-    Hison.caching.protocol = 'ws://';
+    hison.caching.protocol = 'ws://';
     /** Endpoint for WebSocket request URL used in caching. */
-    Hison.caching.wsEndPoint = '/hison-caching-websocket-endpoint';
+    hison.caching.wsEndPoint = '/hison-caching-websocket-endpoint';
     /** Number of times to perform caching. */
-    Hison.caching.limit = 10;
+    hison.caching.limit = 10;
 
     /******************************************
      * Utils
      ******************************************/
-    Hison.const = {};
-    Hison.utils = {};
+    hison.const = {};
+    hison.utils = {};
 
-    /** Default format for date. refer to Hison.utils.getDateWithFormat */
-    Hison.const.dateFormat = 'yyyy-MM-dd';
+    /** Default format for date. refer to hison.utils.getDateWithFormat */
+    hison.const.dateFormat = 'yyyy-MM-dd';
     /** Default format for time. (hhmmss or hh:mm:ss). */
-    Hison.const.timeFormat = 'hh:mm:ss';
-    /** Default format for date and time. refer to Hison.utils.getDateWithFormat */
-    Hison.const.datetimeFormat = 'yyyy-MM-dd hh:mm:ss';
+    hison.const.timeFormat = 'hh:mm:ss';
+    /** Default format for date and time. refer to hison.utils.getDateWithFormat */
+    hison.const.datetimeFormat = 'yyyy-MM-dd hh:mm:ss';
     /** Default format for year. (yyyy or yy) */
-    Hison.const.yearFormat = 'yyyy';
+    hison.const.yearFormat = 'yyyy';
     /** Default format for month. (MM or m) */
-    Hison.const.monthFormat = 'M';
+    hison.const.monthFormat = 'M';
     /** Default format for monthName. (MMMM or MMM) */
-    Hison.const.monthNameFormat = 'MMMM';
-    /** Default format for year and month. refer to Hison.utils.getDateWithFormat */
-    Hison.const.yearMonthFormat = 'yyyy-MM';
+    hison.const.monthNameFormat = 'MMMM';
+    /** Default format for year and month. refer to hison.utils.getDateWithFormat */
+    hison.const.yearMonthFormat = 'yyyy-MM';
     /** Default format for day. (dd or d) */
-    Hison.const.dayFormat = 'd';
+    hison.const.dayFormat = 'd';
     /** Default format for dayOfWeek. (d, dy, day, kdy, kday) */
-    Hison.const.dayOfWeekFormat = 'd';
+    hison.const.dayOfWeekFormat = 'd';
     /** Default format for hour. (hh or h) */
-    Hison.const.hourFormat = 'h';
+    hison.const.hourFormat = 'h';
     /** Default format for hour and minute. (hhmm or hh:mm) */
-    Hison.const.hourMinuteFormat = 'hh:mm';
+    hison.const.hourMinuteFormat = 'hh:mm';
     /** Default format for minute. (mm or m) */
-    Hison.const.minuteFormat = 'm';
+    hison.const.minuteFormat = 'm';
     /** Default format for second. (ss or s) */
-    Hison.const.secondFormat = 's';
-    /** Default format for number. refer to Hison.utils.getNumberFormat */
-    Hison.const.numberFormat = '#,##0.##'
+    hison.const.secondFormat = 's';
+    /** Default format for number. refer to hison.utils.getNumberFormat */
+    hison.const.numberFormat = '#,##0.##'
 
     /** Constants used for checking byte size of characters. */
-    Hison.const.LESSOREQ_0X7FF_BYTE = 2;    //charCode <= 0x7FF
-    Hison.const.LESSOREQ_0XFFFF_BYTE = 3;   //charCode <= 0xFFFF
-    Hison.const.GREATER_0XFFFF_BYTE = 4;    //charCode > 0xFFFF
+    hison.const.LESSOREQ_0X7FF_BYTE = 2;    //charCode <= 0x7FF
+    hison.const.LESSOREQ_0XFFFF_BYTE = 3;   //charCode <= 0xFFFF
+    hison.const.GREATER_0XFFFF_BYTE = 4;    //charCode > 0xFFFF
 
     /******************************************
      * Utils for Boolean
@@ -356,13 +357,13 @@ var Hison ={};
      *
      * @example
      * // returns true
-     * Hison.utils.isAlpha("HelloWorld");
+     * hison.utils.isAlpha("HelloWorld");
      *
      * @example
      * // returns false
-     * Hison.utils.isAlpha("Hello World! 123");
+     * hison.utils.isAlpha("Hello World! 123");
      */
-    Hison.utils.isAlpha = function(str) {
+    hison.utils.isAlpha = function(str) {
         return /^[A-Za-z]+$/.test(str);
     };
     /**
@@ -375,13 +376,13 @@ var Hison ={};
      *
      * @example
      * // returns true
-     * Hison.utils.isAlphaNumber("HelloWorld123");
+     * hison.utils.isAlphaNumber("HelloWorld123");
      *
      * @example
      * // returns false
-     * Hison.utils.isAlphaNumber("Hello World! 123");
+     * hison.utils.isAlphaNumber("Hello World! 123");
      */
-    Hison.utils.isAlphaNumber = function(str) {
+    hison.utils.isAlphaNumber = function(str) {
         return /^[A-Za-z0-9]+$/.test(str);
     };
     /**
@@ -394,13 +395,13 @@ var Hison ={};
      *
      * @example
      * // returns true
-     * Hison.utils.isNumber("1234567890");
+     * hison.utils.isNumber("1234567890");
      *
      * @example
      * // returns false
-     * Hison.utils.isNumber("123ABC");
+     * hison.utils.isNumber("123ABC");
      */
-    Hison.utils.isNumber = function(str) {
+    hison.utils.isNumber = function(str) {
         return /^[0-9]+$/.test(str);
     };
     /**
@@ -414,13 +415,13 @@ var Hison ={};
      *
      * @example
      * // returns true
-     * Hison.utils.isNumberSymbols("1234!@#$");
+     * hison.utils.isNumberSymbols("1234!@#$");
      *
      * @example
      * // returns false
-     * Hison.utils.isNumberSymbols("1234ABC");
+     * hison.utils.isNumberSymbols("1234ABC");
      */
-    Hison.utils.isNumberSymbols = function(str) {
+    hison.utils.isNumberSymbols = function(str) {
         return /^[0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]+$/.test(str);
     };
     /**
@@ -433,13 +434,13 @@ var Hison ={};
      *
      * @example
      * // returns true
-     * Hison.utils.isIncludeSymbols("Hello@World");
+     * hison.utils.isIncludeSymbols("Hello@World");
      *
      * @example
      * // returns false
-     * Hison.utils.isIncludeSymbols("HelloWorld");
+     * hison.utils.isIncludeSymbols("HelloWorld");
      */
-    Hison.utils.isIncludeSymbols = function(str) {
+    hison.utils.isIncludeSymbols = function(str) {
         return /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/.test(str);
     };
     /**
@@ -452,17 +453,17 @@ var Hison ={};
      *
      * @example
      * // returns true
-     * Hison.utils.isLowerAlpha("helloworld");
+     * hison.utils.isLowerAlpha("helloworld");
      *
      * @example
      * // returns false
-     * Hison.utils.isLowerAlpha("HelloWorld");
+     * hison.utils.isLowerAlpha("HelloWorld");
      * 
      * @example
      * // returns false
-     * Hison.utils.isLowerAlpha("hello123");
+     * hison.utils.isLowerAlpha("hello123");
      */
-    Hison.utils.isLowerAlpha = function(str) {
+    hison.utils.isLowerAlpha = function(str) {
         return /^[a-z]+$/.test(str);
     };
     /**
@@ -475,17 +476,17 @@ var Hison ={};
      *
      * @example
      * // returns true
-     * Hison.utils.isLowerAlphaNumber("hello123");
+     * hison.utils.isLowerAlphaNumber("hello123");
      *
      * @example
      * // returns false
-     * Hison.utils.isLowerAlphaNumber("HelloWorld123");
+     * hison.utils.isLowerAlphaNumber("HelloWorld123");
      * 
      * @example
      * // returns false
-     * Hison.utils.isLowerAlphaNumber("hello@world");
+     * hison.utils.isLowerAlphaNumber("hello@world");
      */
-    Hison.utils.isLowerAlphaAndNumber = function(str) {
+    hison.utils.isLowerAlphaAndNumber = function(str) {
         return /^[a-z0-9]+$/.test(str);
     };
     /**
@@ -498,17 +499,17 @@ var Hison ={};
      *
      * @example
      * // returns true
-     * Hison.utils.isUpperAlpha("HELLOWORLD");
+     * hison.utils.isUpperAlpha("HELLOWORLD");
      *
      * @example
      * // returns false
-     * Hison.utils.isUpperAlpha("HelloWorld");
+     * hison.utils.isUpperAlpha("HelloWorld");
      * 
      * @example
      * // returns false
-     * Hison.utils.isUpperAlpha("HELLO123");
+     * hison.utils.isUpperAlpha("HELLO123");
      */
-    Hison.utils.isUpperAlpha = function(str) {
+    hison.utils.isUpperAlpha = function(str) {
         return /^[A-Z]+$/.test(str);
     };
     /**
@@ -521,17 +522,17 @@ var Hison ={};
      *
      * @example
      * // returns true
-     * Hison.utils.isUpperAlphaAndNumber("HELLO123");
+     * hison.utils.isUpperAlphaAndNumber("HELLO123");
      *
      * @example
      * // returns false
-     * Hison.utils.isUpperAlphaNumber("HelloWorld123");
+     * hison.utils.isUpperAlphaNumber("HelloWorld123");
      * 
      * @example
      * // returns false
-     * Hison.utils.isUpperAlphaNumber("HELLO@123");
+     * hison.utils.isUpperAlphaNumber("HELLO@123");
      */
-    Hison.utils.isUpperAlphaNumber = function(str) {
+    hison.utils.isUpperAlphaNumber = function(str) {
         return /^[A-Z0-9]+$/.test(str);
     };
     
@@ -548,17 +549,17 @@ var Hison ={};
      *
      * @example
      * // returns true
-     * Hison.utils.isNumeric(123);
+     * hison.utils.isNumeric(123);
      * 
      * @example
      * // returns true
-     * Hison.utils.isNumeric(-123.456);
+     * hison.utils.isNumeric(-123.456);
      * 
      * @example
      * // returns false
-     * Hison.utils.isNumeric(Infinity);
+     * hison.utils.isNumeric(Infinity);
      */
-    Hison.utils.isNumeric = function(num) {
+    hison.utils.isNumeric = function(num) {
         return _isNumeric(num);
     };
     var _isInteger = function(num) {
@@ -568,7 +569,7 @@ var Hison ={};
     };
     /**
      * Checks if the given parameter is an integer.
-     * This method first uses `Hison.utils.isNumeric` to check if the input is a valid number.
+     * This method first uses `hison.utils.isNumeric` to check if the input is a valid number.
      * If it is a valid number, it then uses `Number.isInteger` to check if the number is an integer.
      *
      * @param {number} num - The value to be tested.
@@ -576,18 +577,18 @@ var Hison ={};
      *
      * @example
      * // returns true
-     * Hison.utils.isInteger(123);
+     * hison.utils.isInteger(123);
      *
      * @example
      * // returns false
-     * Hison.utils.isInteger(123.456);
+     * hison.utils.isInteger(123.456);
      */
-    Hison.utils.isInteger = function(num) {
+    hison.utils.isInteger = function(num) {
         return _isInteger(num);
     };
     /**
      * Checks if the given parameter is a positive integer.
-     * This method first uses `Hison.utils.isNumeric` to check if the input is a valid number.
+     * This method first uses `hison.utils.isNumeric` to check if the input is a valid number.
      * If it is a valid number, it then uses `Number.isInteger` to check if the number is an integer,
      * and additionally checks if the number is greater than 0 to determine if it's positive.
      *
@@ -596,24 +597,24 @@ var Hison ={};
      *
      * @example
      * // returns true
-     * Hison.utils.isPositiveInteger(123);
+     * hison.utils.isPositiveInteger(123);
      *
      * @example
      * // returns false
-     * Hison.utils.isPositiveInteger(-123);
+     * hison.utils.isPositiveInteger(-123);
      *
      * @example
      * // returns false
-     * Hison.utils.isPositiveInteger(0);
+     * hison.utils.isPositiveInteger(0);
      */
-    Hison.utils.isPositiveInteger = function(num) {
+    hison.utils.isPositiveInteger = function(num) {
         if(!_isNumeric(num)) return false;
         num = Number(num);
         return Number.isInteger(num) && num > 0;
     };
     /**
      * Checks if the given parameter is a negative integer.
-     * This method first uses `Hison.utils.isNumeric` to check if the input is a valid number.
+     * This method first uses `hison.utils.isNumeric` to check if the input is a valid number.
      * If it is a valid number, it then uses `Number.isInteger` to check if the number is an integer,
      * and additionally checks if the number is less than 0 to determine if it's negative.
      *
@@ -622,13 +623,13 @@ var Hison ={};
      *
      * @example
      * // returns true
-     * Hison.utils.isNegativeInteger(-123);
+     * hison.utils.isNegativeInteger(-123);
      *
      * @example
      * // returns false
-     * Hison.utils.isNegativeInteger(123);
+     * hison.utils.isNegativeInteger(123);
      */
-    Hison.utils.isNegativeInteger = function(num) {
+    hison.utils.isNegativeInteger = function(num) {
         if (!_isNumeric(num)) return false;
         num = Number(num);
         return Number.isInteger(num) && num < 0;
@@ -642,12 +643,12 @@ var Hison ={};
      * @returns {boolean} Returns true if the value is an array; otherwise, false.
      * @example
      * // returns true
-     * Hison.utils.isArray([1, 2, 3]);
+     * hison.utils.isArray([1, 2, 3]);
      * @example
      * // returns false
-     * Hison.utils.isArray({ a: 1, b: 2 });
+     * hison.utils.isArray({ a: 1, b: 2 });
      */
-    Hison.utils.isArray = function(arr) {
+    hison.utils.isArray = function(arr) {
         return Array.isArray(arr) && arr.constructor === Array;
     };
     var _isObject = function(obj) {
@@ -663,17 +664,17 @@ var Hison ={};
      *
      * @example
      * // returns true
-     * Hison.utils.isObject({ a: 1, b: 2 });
+     * hison.utils.isObject({ a: 1, b: 2 });
      *
      * @example
      * // returns false
-     * Hison.utils.isObject([1, 2, 3]);
+     * hison.utils.isObject([1, 2, 3]);
      *
      * @example
      * // returns false
-     * Hison.utils.isObject(new Date());
+     * hison.utils.isObject(new Date());
      */
-    Hison.utils.isObject = function(obj) {
+    hison.utils.isObject = function(obj) {
         return _isObject(obj);
     };
     
@@ -802,24 +803,24 @@ var Hison ={};
      * 
      * @example
      * // returns true for a valid date
-     * Hison.utils.isDate({y: 2000, m: 2, d: 29});
+     * hison.utils.isDate({y: 2000, m: 2, d: 29});
      * 
      * @example
      * // returns false for an invalid date
-     * Hison.utils.isDate({y: 2001, m: 2, d: 29});
+     * hison.utils.isDate({y: 2001, m: 2, d: 29});
      *
      * @example
      * // returns true for a valid date string
-     * Hison.utils.isDate("2000-02-29");
+     * hison.utils.isDate("2000-02-29");
      *
      * @example
      * // returns false for an invalid date string
-     * Hison.utils.isDate("2001-02-29");
+     * hison.utils.isDate("2001-02-29");
      *
      * Note: This function is versatile as it can handle both date objects and date strings. It is particularly useful 
      * for validating user input in forms or data processing where date validity is crucial.
      */
-    Hison.utils.isDate = function(dateObj_or_dateStr) {
+    hison.utils.isDate = function(dateObj_or_dateStr) {
         return _isDate(dateObj_or_dateStr);
     };
     /**
@@ -836,27 +837,27 @@ var Hison ={};
      *
      * @example
      * // returns true for a valid time object
-     * Hison.utils.isTime({ h: 12, m: 30, s: 45 });
+     * hison.utils.isTime({ h: 12, m: 30, s: 45 });
      *
      * @example
      * // returns true for a valid time string
-     * Hison.utils.isTime("12:30:45");
+     * hison.utils.isTime("12:30:45");
      *
      * @example
      * // returns false for an invalid time
-     * Hison.utils.isTime({ h: 24, m: 00, s: 00 });
+     * hison.utils.isTime({ h: 24, m: 00, s: 00 });
      *
      * Note: This function is versatile as it can handle both time objects and time strings. It is particularly useful 
      * for validating user input in forms or data processing where time validity is crucial.
      */
-    Hison.utils.isTime = function(timeObj_or_timeStr) {
+    hison.utils.isTime = function(timeObj_or_timeStr) {
         return _isTime(timeObj_or_timeStr);
     };
     /**
      * Validates whether a given datetime object or datetime string represents a valid date and time.
      * The method first determines if the input is an object or a string and converts it to a datetime object if necessary.
-     * It then uses `Hison.utils.isDate` to validate the date part (year, month, day)
-     * and `Hison.utils.isTime` to validate the time part (hour, minute, second) of the datetime object.
+     * It then uses `hison.utils.isDate` to validate the date part (year, month, day)
+     * and `hison.utils.isTime` to validate the time part (hour, minute, second) of the datetime object.
      *
      * @param {object|string} datetimeObj_or_datetimeStr
      *  - The datetime object or string to be tested. The datetime object should have properties 'y' for year, 'M' for month, 'd' for day, 'h' for hour, 'm' for minute, and 's' for second.
@@ -865,20 +866,20 @@ var Hison ={};
      *
      * @example
      * // returns true for a valid datetime object
-     * Hison.utils.isDatetime({ y: 2020, m: 12, d: 25, h: 10, m: 30, s: 45 });
+     * hison.utils.isDatetime({ y: 2020, m: 12, d: 25, h: 10, m: 30, s: 45 });
      *
      * @example
      * // returns true for a valid datetime string
-     * Hison.utils.isDatetime("2020-12-25 10:30:45");
+     * hison.utils.isDatetime("2020-12-25 10:30:45");
      *
      * @example
      * // returns false for an invalid datetime
-     * Hison.utils.isDatetime({ y: 2020, m: 13, d: 25, h: 10, m: 30, s: 45 });
+     * hison.utils.isDatetime({ y: 2020, m: 13, d: 25, h: 10, m: 30, s: 45 });
      *
      * Note: This function is versatile as it can handle both datetime objects and datetime strings. It is particularly useful 
      * for validating user input in forms or data processing where both date and time validity are crucial.
      */
-    Hison.utils.isDatetime = function(datetimeObj_or_datetimeStr) {
+    hison.utils.isDatetime = function(datetimeObj_or_datetimeStr) {
         var datetimeObj = _isObject(datetimeObj_or_datetimeStr) ? datetimeObj_or_datetimeStr : _getDatetimeObject(datetimeObj_or_datetimeStr);
         if(!_isDate(datetimeObj)) return false;
         if(!_isTime(datetimeObj)) return false;
@@ -896,13 +897,13 @@ var Hison ={};
      *
      * @example
      * // returns true
-     * Hison.utils.isEmail("example@test.com");
+     * hison.utils.isEmail("example@test.com");
      *
      * @example
      * // returns false
-     * Hison.utils.isEmail("example@.com");
+     * hison.utils.isEmail("example@.com");
      */
-    Hison.utils.isEmail = function(emailStr) {
+    hison.utils.isEmail = function(emailStr) {
         var emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z0-9-]{2,}$/;
         return emailPattern.test(emailStr);
     };
@@ -918,17 +919,17 @@ var Hison ={};
      *
      * @example
      * // returns true
-     * Hison.utils.isURL("https://www.example.com");
+     * hison.utils.isURL("https://www.example.com");
      *
      * @example
      * // returns true
-     * Hison.utils.isURL("ftp://example.com/path/file.txt");
+     * hison.utils.isURL("ftp://example.com/path/file.txt");
      *
      * @example
      * // returns false
-     * Hison.utils.isURL("www.example.com");
+     * hison.utils.isURL("www.example.com");
      */
-    Hison.utils.isURL = function(urlStr) {
+    hison.utils.isURL = function(urlStr) {
         var urlPattern = /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/i;
         return urlPattern.test(urlStr);
     };
@@ -947,13 +948,13 @@ var Hison ={};
      *
      * @example
      * // returns true
-     * Hison.utils.isValidMask("Abc-123", "Aaa-999");
+     * hison.utils.isValidMask("Abc-123", "Aaa-999");
      *
      * @example
      * // returns false
-     * Hison.utils.isValidMask("abc-123", "Aaa-999");
+     * hison.utils.isValidMask("abc-123", "Aaa-999");
      */
-    Hison.utils.isValidMask = function(str, maskStr) {
+    hison.utils.isValidMask = function(str, maskStr) {
         if (str.length !== maskStr.length) {
             return false;
         }
@@ -988,6 +989,8 @@ var Hison ={};
      * If no type is specified, days are added by default. The function throws errors for invalid input or date format.
      * It adjusts the given date accordingly and returns a new date object in a structured format.
      * The original object does not change.
+     * 
+     * Handled in hison.utils.errorHandler. returns null. If required parameters are not entered, if addValue is not an integer, or if the input date is invalid.
      *
      * @param {object|string} datetimeObj_or_datetimeStr
      *  - The date object to which time will be added. Should contain year (y), and optionally month (m), day (d), hours (h), minutes (m), and seconds (s).
@@ -996,25 +999,23 @@ var Hison ={};
      * @param {string} [addType='d'] - The type of value to add ('y' for years, 'M' for months, 'd' for days, 'h' for hours, 'm' for minutes, 's' for seconds). Default is days ('d').
      * @returns {object} Returns a new date object with the added time.
      *
-     * @throws {Error} Throws an error if required parameters are not entered, if addValue is not an integer, or if the input date is invalid.
-     *
      * @example
      * // returns a date object with 5 days added
-     * Hison.utils.addDate({ y: 2024, M: 1, d: 15 }, 5);
+     * hison.utils.addDate({ y: 2024, M: 1, d: 15 }, 5);
      *
      * @example
      * // returns a date object with 3 months added
-     * Hison.utils.addDate({ y: 2024, M: 1, d: 15 }, 3, 'M');
+     * hison.utils.addDate({ y: 2024, M: 1, d: 15 }, 3, 'M');
      */
-    Hison.utils.addDate = function(datetimeObj_or_datetimeStr, addValue, addType, format) {
+    hison.utils.addDate = function(datetimeObj_or_datetimeStr, addValue, addType, format) {
         var datetimeObj = _isObject(datetimeObj_or_datetimeStr) ? _deepCopy(datetimeObj_or_datetimeStr) : _getDatetimeObject(datetimeObj_or_datetimeStr);
 
         if (!datetimeObj.y || (addValue !== 0 && !addValue)) {
-            throw new Error("Please enter a valid date.");
+            return hison.utils.errorHandler("ER0001", "Please enter a valid date.");
         }
         if(!addType) addType ="";
     
-        if(!_isInteger(addValue)) throw new Error("addValue must be an integer");
+        if(!_isInteger(addValue)) return hison.utils.errorHandler("ER0002", "addValue must be an integer");;
     
         datetimeObj.M = datetimeObj.M === null || datetimeObj.M === undefined ? 1 : datetimeObj.M;
         datetimeObj.d = datetimeObj.d === null || datetimeObj.d === undefined ? 1 : datetimeObj.d;
@@ -1022,39 +1023,39 @@ var Hison ={};
         datetimeObj.m = datetimeObj.m === null || datetimeObj.m === undefined ? 0 : datetimeObj.m;
         datetimeObj.s = datetimeObj.s === null || datetimeObj.s === undefined ? 0 : datetimeObj.s;
 
-        if(!_isDate(datetimeObj)) throw new Error("Please input a valid date.");
-        if(!_isTime(datetimeObj)) throw new Error("Please input a valid date.");
+        if(!_isDate(datetimeObj)) return hison.utils.errorHandler("ER0003", "Please input a valid date.");
+        if(!_isTime(datetimeObj)) return hison.utils.errorHandler("ER0004", "Please input a valid date.");
     
         var d = new Date(datetimeObj.y, datetimeObj.M - 1, datetimeObj.d, datetimeObj.h, datetimeObj.m, datetimeObj.s);
     
-        switch (addType.toLowerCase()) {
+        switch (addType) {
             case 'y':
                 d.setFullYear(d.getFullYear() + addValue);
-                format = Hison.const.dateFormat;
+                format = hison.const.dateFormat;
                 break;
             case 'M':
                 d.setMonth(d.getMonth() + addValue);
-                format = Hison.const.dateFormat;
+                format = hison.const.dateFormat;
                 break;
             case 'd':
                 d.setDate(d.getDate() + addValue);
-                format = Hison.const.dateFormat;
+                format = hison.const.dateFormat;
                 break;
             case 'h':
                 d.setHours(d.getHours() + addValue);
-                format = Hison.const.datetimeFormat;
+                format = hison.const.datetimeFormat;
                 break;
             case 'm':
                 d.setMinutes(d.getMinutes() + addValue);
-                format = Hison.const.datetimeFormat;
+                format = hison.const.datetimeFormat;
                 break;
             case 's':
                 d.setSeconds(d.getSeconds() + addValue);
-                format = Hison.const.datetimeFormat;
+                format = hison.const.datetimeFormat;
                 break;
             default:
                 d.setDate(d.getDate() + addValue);
-                format = Hison.const.dateFormat;
+                format = hison.const.dateFormat;
         }
 
         var rtnObj = {
@@ -1071,7 +1072,9 @@ var Hison ={};
     /**
      * Calculates the difference between two date objects. The difference can be measured in years, months, days, hours, minutes, or seconds.
      * The default measurement is in days if no type is specified. This function throws errors for invalid input or date format.
-     * It uses Hison.utils.isDate and Hison.utils.isTime to validate the input dates.
+     * It uses hison.utils.isDate and hison.utils.isTime to validate the input dates.
+     * 
+     * Handled in hison.utils.errorHandler. returns null. If required parameters are not entered, or if the input dates are invalid.
      *
      * @param {object|string} datetimeObj_or_datetimeStr1
      *  - The first date object for comparison. Should contain year (y), and optionally month (m), day (d), hours (h), minutes (m), and seconds (s).
@@ -1081,23 +1084,21 @@ var Hison ={};
      *  - Allowed formats for strings of year, month, day are yyyyMMdd, yyyy-MM-dd, yyyy/MM/dd. And time are hh:mm:ss, hhmmss.
      * @param {string} [diffType='d'] - The type of difference to calculate ('y' for years, 'M' for months, 'd' for days, 'h' for hours, 'm' for minutes, 's' for seconds). Default is days ('d').
      * @returns {number} Returns the difference between the two dates in the specified unit.
-     *
-     * @throws {Error} Throws an error if required parameters are not entered, or if the input dates are invalid.
-     *
+     * 
      * @example
      * // returns the number of days between two dates
-     * Hison.utils.getDateDiff({ y: 2024, m: 1, d: 15 }, { y: 2024, m: 1, d: 20 });
+     * hison.utils.getDateDiff({ y: 2024, m: 1, d: 15 }, { y: 2024, m: 1, d: 20 });
      *
      * @example
      * // returns the number of months between two dates
-     * Hison.utils.getDateDiff({ y: 2023, m: 1, d: 1 }, { y: 2024, m: 1, d: 1 }, 'M');
+     * hison.utils.getDateDiff({ y: 2023, m: 1, d: 1 }, { y: 2024, m: 1, d: 1 }, 'M');
      */
-    Hison.utils.getDateDiff = function(datetimeObj_or_datetimeStr1, datetimeObj_or_datetimeStr2, diffType) {
+    hison.utils.getDateDiff = function(datetimeObj_or_datetimeStr1, datetimeObj_or_datetimeStr2, diffType) {
         var datetimeObj1 = _isObject(datetimeObj_or_datetimeStr1) ? _deepCopy(datetimeObj_or_datetimeStr1) : _getDatetimeObject(datetimeObj_or_datetimeStr1);
         var datetimeObj2 = _isObject(datetimeObj_or_datetimeStr2) ? _deepCopy(datetimeObj_or_datetimeStr2) : _getDatetimeObject(datetimeObj_or_datetimeStr2);
         
         if (!datetimeObj1.y || !datetimeObj2.y) {
-            throw new Error("Please enter a valid date.");
+            return hison.utils.errorHandler("ER0005", "Please enter a valid date.");
         }
         if(!diffType) diffType = "";
     
@@ -1107,15 +1108,15 @@ var Hison ={};
         datetimeObj1.m = datetimeObj1.m || 0; datetimeObj2.m = datetimeObj2.m || 0;
         datetimeObj1.s = datetimeObj1.s || 0; datetimeObj2.s = datetimeObj2.s || 0;
 
-        if(!_isDate(datetimeObj1)) throw new Error("Please input a valid date.");
-        if(!_isTime(datetimeObj1)) throw new Error("Please input a valid date.");
-        if(!_isDate(datetimeObj2)) throw new Error("Please input a valid date.");
-        if(!_isTime(datetimeObj2)) throw new Error("Please input a valid date.");
+        if(!_isDate(datetimeObj1)) return hison.utils.errorHandler("ER0006", "Please enter a valid date.");
+        if(!_isTime(datetimeObj1)) return hison.utils.errorHandler("ER0007", "Please enter a valid date.");
+        if(!_isDate(datetimeObj2)) return hison.utils.errorHandler("ER0008", "Please enter a valid date.");
+        if(!_isTime(datetimeObj2)) return hison.utils.errorHandler("ER0009", "Please enter a valid date.");
     
         var d1 = new Date(datetimeObj1.y, datetimeObj1.M - 1, datetimeObj1.d, datetimeObj1.h, datetimeObj1.m, datetimeObj1.s);
         var d2 = new Date(datetimeObj2.y, datetimeObj2.M - 1, datetimeObj2.d, datetimeObj2.h, datetimeObj2.m, datetimeObj2.s);
     
-        switch (diffType.toLowerCase()) {
+        switch (diffType) {
             case 'y':
                 return d2.getFullYear() - d1.getFullYear();
             case 'M':
@@ -1142,7 +1143,7 @@ var Hison ={};
         var monthsShortName = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
         if (month < 1 || month > 12) {
-            throw new Error("Month must be between 1 and 12");
+            return hison.utils.errorHandler("ER0010", "Month must be between 1 and 12", "");
         }
 
         return isFullName ? monthsFullName[month - 1] : monthsShortName[month - 1];
@@ -1150,29 +1151,28 @@ var Hison ={};
     /**
      * Retrieves the English name of a month given its numerical value. The function can return either the full name
      * of the month or its abbreviated form. By default, it returns the full name unless specified otherwise.
+     * Handled in hison.utils.errorHandler. returns "". If the month value is not between 1 and 12.
      *
      * @param {number} month - The numerical value of the month (1 for January, 2 for February, etc.).
      * @param {boolean} [isFullName=true] - A boolean flag to indicate whether to return the full name (true) or the abbreviated name (false) of the month.
      * @returns {string} Returns the English name of the specified month.
-     *
-     * @throws {Error} Throws an error if the month value is not between 1 and 12.
-     *
+     * 
      * @example
      * // returns 'March'
-     * Hison.utils.getMonthName(3);
+     * hison.utils.getMonthName(3);
      *
      * @example
      * // returns 'Nov'
-     * Hison.utils.getMonthName(11, false);
+     * hison.utils.getMonthName(11, false);
      */
-    Hison.utils.getMonthName = function(month, isFullName) {
+    hison.utils.getMonthName = function(month, isFullName) {
         return _getMonthName(month, isFullName);
     };
     var _getDateWithFormat = function(datetimeObj_or_datetimeStr, format) {
         var datetimeObj = _isObject(datetimeObj_or_datetimeStr) ? _deepCopy(datetimeObj_or_datetimeStr) : _getDatetimeObject(datetimeObj_or_datetimeStr);
 
-        if(!datetimeObj.y) throw new Error("Please enter a valid date.");
-        if(!format) format = Hison.const.dateFormat;
+        if(!datetimeObj.y) return hison.utils.errorHandler("ER0011", "Please enter a valid date.", "")
+        if(!format) format = hison.const.dateFormat;
 
         datetimeObj.M = (datetimeObj.M || 1).toString().padStart(2, '0');
         datetimeObj.d = (datetimeObj.d || 1).toString().padStart(2, '0');
@@ -1180,13 +1180,13 @@ var Hison ={};
         datetimeObj.m = (datetimeObj.m || 0).toString().padStart(2, '0');
         datetimeObj.s = (datetimeObj.s || 0).toString().padStart(2, '0');
 
-        if(!_isDate(datetimeObj)) throw new Error("Please input a valid date.");
-        if(!_isTime(datetimeObj)) throw new Error("Please input a valid date.");
+        if(!_isDate(datetimeObj)) return hison.utils.errorHandler("ER0012", "Please input a valid date.", "");
+        if(!_isTime(datetimeObj)) return hison.utils.errorHandler("ER0013", "Please input a valid date.", "");
 
         var MMMM = _getMonthName(datetimeObj.M);
         var MMM = _getMonthName(datetimeObj.M, false);
     
-        switch (format.toLowerCase()) {
+        switch (format) {
             case 'yyyy':
                 return datetimeObj.y;
                 
@@ -1455,7 +1455,7 @@ var Hison ={};
                 return datetimeObj.d + ' ' + MMM + ' ' + datetimeObj.y + ' ' + datetimeObj.h + ':' + datetimeObj.m + ':' + datetimeObj.s;
 
             default:
-                throw new Error("Invalid format");
+                return hison.utils.errorHandler("ER0014", "Invalid format", "");
         }
     };
     /**
@@ -1465,6 +1465,8 @@ var Hison ={};
      * is an object or a string and converts it to a datetime object if necessary.
      * It throws an error for invalid datetime inputs or unsupported format strings.
      * The original object or string does not change.
+     * 
+     * Handled in hison.utils.errorHandler. returns "". If required parameters are not entered, if the datetime is invalid, or if the format string is unsupported.
      *
      * @param {object|string} datetimeObj_or_datetimeStr
      *  - The datetime object format. Should contain year (y), and optionally month (m), day (d), hours (h), minutes (m), and seconds (s).
@@ -1473,29 +1475,26 @@ var Hison ={};
      *        Supports various combinations of 'yyyy', 'MM', 'dd', 'hh', 'mm', 'ss', along with separators.
      * @returns {string} Returns the formatted date as a string.
      *
-     * @throws {Error} Throws an error if required parameters are not entered, if the datetime is invalid, 
-     *         or if the format string is unsupported.
-     *
      * @example
      * // returns 'January 15th, 2024'
-     * Hison.utils.getDateWithFormat({ y: 2024, m: 1, d: 15 });
+     * hison.utils.getDateWithFormat({ y: 2024, m: 1, d: 15 });
      *
      * @example
      * // returns '2024-01-15'
-     * Hison.utils.getDateWithFormat({ y: 2024, m: 1, d: 15 }, 'yyyy-MM-dd');
+     * hison.utils.getDateWithFormat({ y: 2024, m: 1, d: 15 }, 'yyyy-MM-dd');
      *
      * Note: This function is versatile as it can handle both datetime objects and datetime strings. 
      * It is particularly useful for formatting user input or data for display where specific date and time 
      * formats are required.
      */
-     Hison.utils.getDateWithFormat = function(datetimeObj_or_datetimeStr, format) {
+     hison.utils.getDateWithFormat = function(datetimeObj_or_datetimeStr, format) {
         return _getDateWithFormat(datetimeObj_or_datetimeStr, format);
     };
     var _getDayOfWeek = function(dateObj_or_dateStr, dayType) {
         var dateObj = _isObject(dateObj_or_dateStr) ? dateObj_or_dateStr : _getDateObject(dateObj_or_dateStr);
-        if(!_isDate(dateObj)) throw new Error("Please enter a valid date.");
+        if(!_isDate(dateObj)) return hison.utils.errorHandler("ER0015", "Please enter a valid date.", "");
         
-        if(!dayType) dayType = Hison.const.dayOfWeekFormat;
+        if(!dayType) dayType = hison.const.dayOfWeekFormat;
         var date = new Date(dateObj.y, dateObj.M - 1, dateObj.d);
         var dayOfWeek = date.getDay();
     
@@ -1526,18 +1525,20 @@ var Hison ={};
      *
      * @example
      * // returns '1' (Monday)
-     * Hison.utils.getDayOfWeek({ y: 2024, m: 1, d: 1 }, 'd');
+     * hison.utils.getDayOfWeek({ y: 2024, m: 1, d: 1 }, 'd');
      *
      * @example
      * // returns 'MONDAY'
-     * Hison.utils.getDayOfWeek({ y: 2024, m: 1, d: 1 }, 'day');
+     * hison.utils.getDayOfWeek({ y: 2024, m: 1, d: 1 }, 'day');
      */
-    Hison.utils.getDayOfWeek = function(dateObj_or_dateStr, dayType) {
+    hison.utils.getDayOfWeek = function(dateObj_or_dateStr, dayType) {
         return _getDayOfWeek(dateObj_or_dateStr, dayType);
     };
     /**
      * Returns the last day of the month for a given year and month. The function calculates the number of days in the specified month,
      * accounting for leap years as applicable. It returns an empty string for invalid input or missing parameters.
+     * 
+     * Handled in hison.utils.errorHandler. returns null. If enter a valid date.
      *
      * @param {object|string} dateObj
      *  - The date object for which the last day of the month is to be determined. Should contain year (y) and month (m).
@@ -1546,13 +1547,13 @@ var Hison ={};
      *
      * @example
      * // returns 31 (Last day of January 2024)
-     * Hison.utils.getLastDay({ y: 2024, m: 1 });
+     * hison.utils.getLastDay({ y: 2024, m: 1 });
      *
      * @example
      * // returns 29 (Last day of February 2024, a leap year)
-     * Hison.utils.getLastDay({ y: 2024, m: 2 });
+     * hison.utils.getLastDay({ y: 2024, m: 2 });
      */
-    Hison.utils.getLastDay = function(dateObj_or_dateStr) {
+    hison.utils.getLastDay = function(dateObj_or_dateStr) {
         var dateObj;
         if(_isObject(dateObj_or_dateStr)) {
             dateObj = _deepCopy(dateObj_or_dateStr);
@@ -1570,7 +1571,7 @@ var Hison ={};
             }
             dateObj = _getDateObject(dateObj_or_dateStr);
         }
-        if(!_isDate(dateObj)) throw new Error("Please enter a valid date.");
+        if(!_isDate(dateObj)) return hison.utils.errorHandler("ER0016", "Please enter a valid date.");
 
         var nextMonthFirstDay = new Date(dateObj.y, dateObj.M, 1);
         nextMonthFirstDay.setDate(0);
@@ -1585,14 +1586,14 @@ var Hison ={};
      *
      * @example
      * // returns '2024' (assuming the current year is 2024)
-     * Hison.utils.getSysYear();
+     * hison.utils.getSysYear();
      *
      * @example
      * // returns '24' (assuming the current year is 2024)
-     * Hison.utils.getSysYear('yy');
+     * hison.utils.getSysYear('yy');
      */
-    Hison.utils.getSysYear = function(format) {
-        if(!format) format = Hison.const.yearFormat;
+    hison.utils.getSysYear = function(format) {
+        if(!format) format = hison.const.yearFormat;
         var currentDate = new Date();
         switch (format.toLowerCase()) {
             case 'yy':
@@ -1611,26 +1612,26 @@ var Hison ={};
      *
      * @example
      * // returns '01' for January (assuming the current month is January)
-     * Hison.utils.getSysMonth('MM');
+     * hison.utils.getSysMonth('MM');
      *
      * @example
      * // returns 'January' (assuming the current month is January)
-     * Hison.utils.getSysMonth('MMMM');
+     * hison.utils.getSysMonth('MMMM');
      *
      * @example
      * // returns 'Jan' (assuming the current month is January)
-     * Hison.utils.getSysMonth('MMM');
+     * hison.utils.getSysMonth('MMM');
      */
-    Hison.utils.getSysMonth = function(format) {
-        if(!format) format = Hison.const.monthFormat;
+    hison.utils.getSysMonth = function(format) {
+        if(!format) format = hison.const.monthFormat;
         var currentDate = new Date();
         var sysMonth = currentDate.getMonth() + 1;
         switch (format.toLowerCase()) {
-            case 'MM':
+            case 'mm':
                 return sysMonth.toString().padStart(2, '0');
-            case 'MMMM':
+            case 'mmmm':
                 return _getMonthName(sysMonth);
-            case 'MMM':
+            case 'mmm':
                 return _getMonthName(sysMonth, false);
             default:
                 return sysMonth.toString();
@@ -1646,14 +1647,14 @@ var Hison ={};
      *
      * @example
      * // returns 'January, 2024' (assuming the current date is in January 2024)
-     * Hison.utils.getSysYearMonth('MMMM, yyyy');
+     * hison.utils.getSysYearMonth('MMMM, yyyy');
      *
      * @example
      * // returns '2024/01' (assuming the current date is in January 2024)
-     * Hison.utils.getSysYearMonth('yyyy/MM');
+     * hison.utils.getSysYearMonth('yyyy/MM');
      */
-    Hison.utils.getSysYearMonth = function(format) {
-        if(!format) format = Hison.const.yearMonthFormat;
+    hison.utils.getSysYearMonth = function(format) {
+        if(!format) format = hison.const.yearMonthFormat;
         var currentDate = new Date();
         return _getDateWithFormat({y:currentDate.getFullYear(),m:currentDate.getMonth() + 1}, format)
     };
@@ -1667,14 +1668,14 @@ var Hison ={};
      *
      * @example
      * // returns '05' (assuming the current day of the month is 5)
-     * Hison.utils.getSysDay('dd');
+     * hison.utils.getSysDay('dd');
      *
      * @example
      * // returns '5' (assuming the current day of the month is 5)
-     * Hison.utils.getSysDay();
+     * hison.utils.getSysDay();
      */
-    Hison.utils.getSysDay = function(format) {
-        if(!format) format = Hison.const.dayFormat;
+    hison.utils.getSysDay = function(format) {
+        if(!format) format = hison.const.dayFormat;
         var currentDate = new Date();
         switch (format.toLowerCase()) {
             case 'dd':
@@ -1694,14 +1695,14 @@ var Hison ={};
      *
      * @example
      * // returns '1' (assuming the current day of the week is Monday)
-     * Hison.utils.getSysDayOfWeek();
+     * hison.utils.getSysDayOfWeek();
      *
      * @example
      * // returns 'MONDAY' (assuming the current day of the week is Monday)
-     * Hison.utils.getSysDayOfWeek('day');
+     * hison.utils.getSysDayOfWeek('day');
      */
-    Hison.utils.getSysDayOfWeek = function(dayType) {
-        if(!dayType) dayType = Hison.const.dayOfWeekFormat;
+    hison.utils.getSysDayOfWeek = function(dayType) {
+        if(!dayType) dayType = hison.const.dayOfWeekFormat;
         var currentDate = new Date();
         return _getDayOfWeek({y:currentDate.getFullYear(),m:currentDate.getMonth() + 1,d:currentDate.getDate()}, dayType);
     };
@@ -1715,14 +1716,14 @@ var Hison ={};
      *
      * @example
      * // returns '05' (assuming the current hour is 5 AM)
-     * Hison.utils.getSysHour('hh');
+     * hison.utils.getSysHour('hh');
      *
      * @example
      * // returns '5' (assuming the current hour is 5 AM)
-     * Hison.utils.getSysHour();
+     * hison.utils.getSysHour();
      */
-    Hison.utils.getSysHour = function(format) {
-        if(!format) format = Hison.const.hourFormat;
+    hison.utils.getSysHour = function(format) {
+        if(!format) format = hison.const.hourFormat;
         var currentDate = new Date();
         switch (format.toLowerCase()) {
             case 'hh':
@@ -1741,14 +1742,14 @@ var Hison ={};
      *
      * @example
      * // returns '05:12' (assuming the current time is 5 hours and 12 minutes)
-     * Hison.utils.getSysHourMinute();
+     * hison.utils.getSysHourMinute();
      *
      * @example
      * // returns '0512' (assuming the current time is 5 hours and 12 minutes)
-     * Hison.utils.getSysHourMinute('hhmm');
+     * hison.utils.getSysHourMinute('hhmm');
      */
-    Hison.utils.getSysHourMinute = function(format) {
-        if(!format) format = Hison.const.hourMinuteFormat;
+    hison.utils.getSysHourMinute = function(format) {
+        if(!format) format = hison.const.hourMinuteFormat;
         var currentDate = new Date();
         switch (format.toLowerCase()) {
             case 'hhmm':
@@ -1767,14 +1768,14 @@ var Hison ={};
      *
      * @example
      * // returns '05' (assuming the current minute is 5 past the hour)
-     * Hison.utils.getSysMinute('mm');
+     * hison.utils.getSysMinute('mm');
      *
      * @example
      * // returns '5' (assuming the current minute is 5 past the hour)
-     * Hison.utils.getSysMinute();
+     * hison.utils.getSysMinute();
      */
-    Hison.utils.getSysMinute = function(format) {
-        if(!format) format = Hison.const.minuteFormat;
+    hison.utils.getSysMinute = function(format) {
+        if(!format) format = hison.const.minuteFormat;
         var currentDate = new Date();
         switch (format.toLowerCase()) {
             case 'mm':
@@ -1793,14 +1794,14 @@ var Hison ={};
      *
      * @example
      * // returns '05' (assuming the current second is 5 past the minute)
-     * Hison.utils.getSysSecond('ss');
+     * hison.utils.getSysSecond('ss');
      *
      * @example
      * // returns '5' (assuming the current second is 5 past the minute)
-     * Hison.utils.getSysSecond();
+     * hison.utils.getSysSecond();
      */
-    Hison.utils.getSysSecond = function(format) {
-        if(!format) format = Hison.const.secondFormat;
+    hison.utils.getSysSecond = function(format) {
+        if(!format) format = hison.const.secondFormat;
         var currentDate = new Date();
         switch (format.toLowerCase()) {
             case 'ss':
@@ -1819,14 +1820,14 @@ var Hison ={};
      *
      * @example
      * // returns '05:12:30' (assuming the current time is 5 hours, 12 minutes, and 30 seconds)
-     * Hison.utils.getSysTime();
+     * hison.utils.getSysTime();
      *
      * @example
      * // returns '051230' (assuming the current time is 5 hours, 12 minutes, and 30 seconds)
-     * Hison.utils.getSysTime('hhmmss');
+     * hison.utils.getSysTime('hhmmss');
      */
-    Hison.utils.getSysTime = function(format) {
-        if(!format) format = Hison.const.timeFormat;
+    hison.utils.getSysTime = function(format) {
+        if(!format) format = hison.const.timeFormat;
         var currentDate = new Date();
         switch (format.toLowerCase()) {
             case 'hhmmss':
@@ -1845,14 +1846,14 @@ var Hison ={};
      *
      * @example
      * // returns 'January 15, 2024 05:12:30' (assuming the current date and time)
-     * Hison.utils.getSysDate('MMMM dd, yyyy hh:mm:ss');
+     * hison.utils.getSysDate('MMMM dd, yyyy hh:mm:ss');
      *
      * @example
      * // returns '2024. 01. 15 05:12' (assuming the current date and time)
-     * Hison.utils.getSysDate('yyyy. MM. dd hh:mm');
+     * hison.utils.getSysDate('yyyy. MM. dd hh:mm');
      */
-    Hison.utils.getSysDate = function(format) {
-        if(!format) format = Hison.const.datetimeFormat;
+    hison.utils.getSysDate = function(format) {
+        if(!format) format = hison.const.datetimeFormat;
         var currentDate = new Date();
         return _getDateWithFormat(
             {
@@ -1873,23 +1874,23 @@ var Hison ={};
      * Rounds up a given number to a specified precision. The precision determines the number of decimal places to round up to.
      * If the precision is not an integer, it defaults to 0 (rounding up to the nearest whole number).
      * The function throws an error if the provided number is not numeric.
+     * 
+     * Handled in hison.utils.errorHandler. returns null. If 'num' is not numeric or if 'precision' is not an integer.
      *
      * @param {number} num - The number to be rounded up.
      * @param {number} [precision=0] - The number of decimal places to round up to. Must be an integer.
      * @returns {number} Returns the rounded up value of the provided number at the specified precision.
-     *
-     * @throws {Error} Throws an error if 'num' is not numeric or if 'precision' is not an integer.
-     *
+     * 
      * @example
      * // returns 2.35 rounded up to the nearest tenth (2.4)
-     * Hison.utils.getCeil(2.35, 1);
+     * hison.utils.getCeil(2.35, 1);
      *
      * @example
      * // returns 3 rounded up to the nearest whole number (3)
-     * Hison.utils.getCeil(2.35);
+     * hison.utils.getCeil(2.35);
      */
-    Hison.utils.getCeil = function(num, precision) {
-        if(!_isNumeric(num)) throw new Error("Please input only number.");
+    hison.utils.getCeil = function(num, precision) {
+        if(!_isNumeric(num)) return hison.utils.errorHandler("ER0017", "Please input only number.");
         if(!_isInteger(precision)) precision = 0;
         var factor = Math.pow(10, precision);
         return Math.ceil(num * factor) / factor;
@@ -1898,23 +1899,23 @@ var Hison ={};
      * Rounds down a given number to a specified precision. The precision determines the number of decimal places to round down to.
      * If the precision is not an integer, it defaults to 0 (rounding down to the nearest whole number).
      * The function throws an error if the provided number is not numeric.
+     * 
+     * Handled in hison.utils.errorHandler. returns null. If 'num' is not numeric or if 'precision' is not an integer.
      *
      * @param {number} num - The number to be rounded down.
      * @param {number} [precision=0] - The number of decimal places to round down to. Must be an integer.
      * @returns {number} Returns the rounded down value of the provided number at the specified precision.
      *
-     * @throws {Error} Throws an error if 'num' is not numeric or if 'precision' is not an integer.
-     *
      * @example
      * // returns 2.35 rounded down to the nearest tenth (2.3)
-     * Hison.utils.getFloor(2.35, 1);
+     * hison.utils.getFloor(2.35, 1);
      *
      * @example
      * // returns 2 rounded down to the nearest whole number (2)
-     * Hison.utils.getFloor(2.35);
+     * hison.utils.getFloor(2.35);
      */
-    Hison.utils.getFloor = function(num, precision) {
-        if(!_isNumeric(num)) throw new Error("Please input only number.");
+    hison.utils.getFloor = function(num, precision) {
+        if(!_isNumeric(num)) return hison.utils.errorHandler("ER0018", "Please input only number.");
         if(!_isInteger(precision)) precision = 0;
         var factor = Math.pow(10, precision);
         return Math.floor(num * factor) / factor;
@@ -1923,23 +1924,23 @@ var Hison ={};
      * Rounds a given number to a specified precision. The precision determines the number of decimal places to round to.
      * If the precision is not an integer, it defaults to 0 (rounding to the nearest whole number).
      * The function throws an error if the provided number is not numeric.
+     * 
+     * Handled in hison.utils.errorHandler. returns null. If 'num' is not numeric or if 'precision' is not an integer.
      *
      * @param {number} num - The number to be rounded.
      * @param {number} [precision=0] - The number of decimal places to round to. Must be an integer.
      * @returns {number} Returns the rounded value of the provided number at the specified precision.
      *
-     * @throws {Error} Throws an error if 'num' is not numeric or if 'precision' is not an integer.
-     *
      * @example
      * // returns 2.35 rounded to the nearest tenth (2.4)
-     * Hison.utils.getRound(2.35, 1);
+     * hison.utils.getRound(2.35, 1);
      *
      * @example
      * // returns 2 rounded to the nearest whole number (2)
-     * Hison.utils.getRound(2.35);
+     * hison.utils.getRound(2.35);
      */
-    Hison.utils.getRound = function(num, precision) {
-        if(!_isNumeric(num)) throw new Error("Please input only number.");
+    hison.utils.getRound = function(num, precision) {
+        if(!_isNumeric(num)) return hison.utils.errorHandler("ER0019", "Please input only number.");
         if(!_isInteger(precision)) precision = 0;
         var factor = Math.pow(10, precision);
         return Math.round(num * factor) / factor;
@@ -1948,23 +1949,23 @@ var Hison ={};
      * Truncates a given number to a specified precision. The precision determines the number of decimal places to truncate to.
      * If the precision is not an integer, it defaults to 0 (truncating to the nearest whole number).
      * The function throws an error if the provided number is not numeric.
+     * 
+     * Handled in hison.utils.errorHandler. returns null. If 'num' is not numeric or if 'precision' is not an integer.
      *
      * @param {number} num - The number to be truncated.
      * @param {number} [precision=0] - The number of decimal places to truncate to. Must be an integer.
      * @returns {number} Returns the truncated value of the provided number at the specified precision.
      *
-     * @throws {Error} Throws an error if 'num' is not numeric or if 'precision' is not an integer.
-     *
      * @example
      * // returns 2.3, truncating 2.35 to the nearest tenth
-     * Hison.utils.getTrunc(2.35, 1);
+     * hison.utils.getTrunc(2.35, 1);
      *
      * @example
      * // returns 2, truncating 2.35 to the nearest whole number
-     * Hison.utils.getTrunc(2.35);
+     * hison.utils.getTrunc(2.35);
      */
-    Hison.utils.getTrunc = function(num, precision) {
-        if(!_isNumeric(num)) throw new Error("Please input only number.");
+    hison.utils.getTrunc = function(num, precision) {
+        if(!_isNumeric(num)) return hison.utils.errorHandler("ER0020", "Please input only number.");
         if(!_isInteger(precision)) precision = 0;
         var factor = Math.pow(10, precision);
         return Math.trunc(num * factor) / factor;
@@ -1984,16 +1985,16 @@ var Hison ={};
      *
      * @example
      * // assuming ASCII characters, returns 5 for 'Hello'
-     * Hison.utils.getByteLength('Hello');
+     * hison.utils.getByteLength('Hello');
      *
      * @example
      * // returns 16 for a string with 3-byte each '안녕하세요' and 1-byte '.' characters
-     * Hison.utils.getByteLength('안녕하세요.');
+     * hison.utils.getByteLength('안녕하세요.');
      *
      * Note: For users utilizing different encodings like EUC-KR, the byte values for character ranges can be modified
-     * in the Hison.const fields: LESSOREQ_0X7FF_BYTE, LESSOREQ_0XFFFF_BYTE, GREATER_0XFFFF_BYTE.
+     * in the hison.const fields: LESSOREQ_0X7FF_BYTE, LESSOREQ_0XFFFF_BYTE, GREATER_0XFFFF_BYTE.
      */
-    Hison.utils.getByteLength = function(str) {
+    hison.utils.getByteLength = function(str) {
         str = _getToString(str);
         var byteLength = 0;
         for (var i = 0; i < str.length; i++) {
@@ -2001,11 +2002,11 @@ var Hison ={};
             if (charCode <= 0x7F) {
                 byteLength += 1;
             } else if (charCode <= 0x7FF) {
-                byteLength += Hison.const.LESSOREQ_0X7FF_BYTE;
+                byteLength += hison.const.LESSOREQ_0X7FF_BYTE;
             } else if (charCode <= 0xFFFF) {
-                byteLength += Hison.const.LESSOREQ_0XFFFF_BYTE;
+                byteLength += hison.const.LESSOREQ_0XFFFF_BYTE;
             } else {
-                byteLength += Hison.const.GREATER_0XFFFF_BYTE;
+                byteLength += hison.const.GREATER_0XFFFF_BYTE;
             }
         }
         return byteLength;
@@ -2021,16 +2022,16 @@ var Hison ={};
      *
      * @example
      * // returns a substring of 'Hello'. Because truncated to 5 bytes.
-     * Hison.utils.getCutByteLength('Hello, World!', 5);
+     * hison.utils.getCutByteLength('Hello, World!', 5);
      *
      * @example
      * // returns a substring of '안녕'. Becuase truncated to 6 bytes.
-     * Hison.utils.getCutByteLength('안녕하세요', 6);
+     * hison.utils.getCutByteLength('안녕하세요', 6);
      *
      * Note: The function calculates byte length considering character encodings. 
      * For characters that take more than one byte, the function ensures not to cut the string in the middle of a character.
      */
-    Hison.utils.getCutByteLength = function(str, cutByte) {
+    hison.utils.getCutByteLength = function(str, cutByte) {
         str = _getToString(str);
         var byteLength = 0;
         var cutIndex = str.length;
@@ -2040,11 +2041,11 @@ var Hison ={};
             if (charCode <= 0x7F) {
                 byteLength += 1;
             } else if (charCode <= 0x7FF) {
-                byteLength += Hison.const.LESSOREQ_0X7FF_BYTE;
+                byteLength += hison.const.LESSOREQ_0X7FF_BYTE;
             } else if (charCode <= 0xFFFF) {
-                byteLength += Hison.const.LESSOREQ_0XFFFF_BYTE;
+                byteLength += hison.const.LESSOREQ_0XFFFF_BYTE;
             } else {
-                byteLength += Hison.const.GREATER_0XFFFF_BYTE;
+                byteLength += hison.const.GREATER_0XFFFF_BYTE;
             }
             if (byteLength > cutByte) {
                 cutIndex = i;
@@ -2064,17 +2065,17 @@ var Hison ={};
      *
      * @example
      * // returns a string 'H e l l o' with spaces to make its length 9
-     * Hison.utils.getStringLenForm('Hello', 9);
+     * hison.utils.getStringLenForm('Hello', 9);
      *
      * @example
      * // returns 'Hello World' as is since its length is already 11
-     * Hison.utils.getStringLenForm('Hello World', 11);
+     * hison.utils.getStringLenForm('Hello World', 11);
      *
      * Note: The function adds spaces between characters. If the string's length is less than the specified length, 
      * spaces are distributed as evenly as possible. In cases where spaces can't be perfectly even, 
      * the extra spaces are distributed from the beginning.
      */
-    Hison.utils.getStringLenForm = function(str, length) {
+    hison.utils.getStringLenForm = function(str, length) {
         str = _getToString(str);
         var strLength = str.length;
         if (strLength >= length) {
@@ -2104,16 +2105,16 @@ var Hison ={};
      *
      * @example
      * // returns '000Hello' with '0' padding to make its length 7
-     * Hison.utils.getLpad('Hello', '0', 7);
+     * hison.utils.getLpad('Hello', '0', 7);
      *
      * @example
      * // returns 'xxHello' with 'x' padding to make its length 7
-     * Hison.utils.getLpad('Hello', 'x', 7);
+     * hison.utils.getLpad('Hello', 'x', 7);
      *
      * Note: If the length of the original string is longer than the specified length, 
      * the function returns the original string without any padding.
      */
-    Hison.utils.getLpad = function(str, padStr, length) {
+    hison.utils.getLpad = function(str, padStr, length) {
         str = _getToString(str);
         padStr = _getToString(padStr);
 
@@ -2132,16 +2133,16 @@ var Hison ={};
      *
      * @example
      * // returns 'Hello000' with '0' padding to make its length 7
-     * Hison.utils.getRpad('Hello', '0', 7);
+     * hison.utils.getRpad('Hello', '0', 7);
      *
      * @example
      * // returns 'Helloxx' with 'x' padding to make its length 7
-     * Hison.utils.getRpad('Hello', 'x', 7);
+     * hison.utils.getRpad('Hello', 'x', 7);
      *
      * Note: If the length of the original string is longer than the specified length, 
      * the function returns the original string without any padding.
      */
-    Hison.utils.getRpad = function(str, padStr, length) {
+    hison.utils.getRpad = function(str, padStr, length) {
         str = _getToString(str);
         padStr = _getToString(padStr);
 
@@ -2158,16 +2159,16 @@ var Hison ={};
      *
      * @example
      * // returns 'Hello World' with surrounding whitespace removed
-     * Hison.utils.getTrim('  Hello World  ');
+     * hison.utils.getTrim('  Hello World  ');
      *
      * @example
      * // returns an empty string for null
-     * Hison.utils.getTrim(null);
+     * hison.utils.getTrim(null);
      *
      * Note: This function is useful for sanitizing inputs where leading and trailing whitespace is not desired,
      * and it ensures that even non-string values can be safely trimmed.
      */
-    Hison.utils.getTrim = function(str) {
+    hison.utils.getTrim = function(str) {
         str = _getToString(str);
         return str.trim();
     };
@@ -2183,16 +2184,16 @@ var Hison ={};
      *
      * @example
      * // returns 'Hello World' with 'l' replaced by 'x'
-     * Hison.utils.getReplaceAll('Hello World', 'l', 'x');
+     * hison.utils.getReplaceAll('Hello World', 'l', 'x');
      *
      * @example
      * // returns 'Hello World' with 'World' replaced by 'Universe'
-     * Hison.utils.getReplaceAll('Hello World', 'World', 'Universe');
+     * hison.utils.getReplaceAll('Hello World', 'World', 'Universe');
      *
      * Note: This function is useful for making multiple replacements in a string in one go. It ensures that non-string values
      * are converted to strings before the replacement operation, thus preventing errors related to non-string operations.
      */
-    Hison.utils.getReplaceAll = function(str, targetStr, replaceStr) {
+    hison.utils.getReplaceAll = function(str, targetStr, replaceStr) {
         str = _getToString(str);
         targetStr = _getToString(targetStr);
         replaceStr = _getToString(replaceStr);
@@ -2208,20 +2209,20 @@ var Hison ={};
      *
      * @example
      * // returns 'default' when val is undefined
-     * Hison.utils.nvl(undefined, 'default');
+     * hison.utils.nvl(undefined, 'default');
      *
      * @example
      * // returns 'default' when val is null
-     * Hison.utils.nvl(null, 'default');
+     * hison.utils.nvl(null, 'default');
      *
      * @example
      * // returns 'Hello' when val is 'Hello'
-     * Hison.utils.nvl('Hello', 'default');
+     * hison.utils.nvl('Hello', 'default');
      *
      * Note: This function is particularly useful for handling optional parameters in functions or for setting default values 
      * for variables that may not be present in certain contexts.
      */
-    Hison.utils.nvl = function(val, defaultValue) {
+    hison.utils.nvl = function(val, defaultValue) {
         return (val === null || val === undefined) ? defaultValue : val;
     };
     /**
@@ -2229,35 +2230,36 @@ var Hison ={};
      * The format string can include a prefix, a numeric pattern, and a suffix. The numeric pattern dictates how the number
      * should be formatted, including the placement of commas and decimals. The function supports different patterns for integer
      * and decimal parts and can also handle percentage formatting.
+     * 
+     * Handled in hison.utils.errorHandler. returns origin parameter vlaue. If the input value is not numeric or if the format string is invalid.
      *
      * @param {*} value - The numeric value to be formatted.
      * @param {string} format - The format string defining how the number should be formatted.
      * @returns {string} Returns the formatted number as a string.
-     * 
-     * @throws {Error} Throws an error if the input value is not numeric or if the format string is invalid.
      *
      * @example
      * // returns '$1,234.5'
-     * Hison.utils.getNumberFormat(1234.54, '$#,###.#');
+     * hison.utils.getNumberFormat(1234.54, '$#,###.#');
      *
      * @example
      * // returns '1234%'
-     * Hison.utils.getNumberFormat(12.34, '#,##0%');
+     * hison.utils.getNumberFormat(12.34, '#,##0%');
      *
      * Note: The function is designed to handle various formatting requirements, such as different grouping styles,
      * decimal places, and inclusion of currency symbols or percentage signs. It's particularly useful for presenting
      * numbers in a user-friendly format in UIs or reports.
      */
-    Hison.utils.getNumberFormat = function(value, format) {
+    hison.utils.getNumberFormat = function(value, format) {
+        var oriValue = value;
         if (!_isNumeric(value)) {
-            throw new Error("Invalid number");
+            return hison.utils.errorHandler("ER0021", "Invalid number", oriValue);
         }
-        format = format ? format : Hison.const.numberFormat;
+        format = format ? format : hison.const.numberFormat;
         var regex = /^(.*?)([#0,.]+)(.*?)$/;
         var matches = format.match(regex);
 
         if (!matches) {
-            throw new Error("Invalid format");
+            return hison.utils.errorHandler("ER0022", "Invalid format", oriValue);
         }
 
         var prefix = matches[1];
@@ -2310,7 +2312,7 @@ var Hison ={};
                 result = interger + decimal;
                 break;
             default:
-                throw new Error("Invalid format");
+                return hison.utils.errorHandler("ER0023", "Invalid format", oriValue);
         }
     
         return prefix + result + suffix;
@@ -2324,16 +2326,16 @@ var Hison ={};
      *
      * @example
      * // returns '12345' from a string mixed with letters and numbers
-     * Hison.utils.getRemoveExceptNumbers('abc12345xyz');
+     * hison.utils.getRemoveExceptNumbers('abc12345xyz');
      *
      * @example
      * // returns '2023' from a string with various characters
-     * Hison.utils.getRemoveExceptNumbers('Year: 2023!');
+     * hison.utils.getRemoveExceptNumbers('Year: 2023!');
      *
      * Note: This function is particularly useful in situations where you need to extract or isolate the numerical part of a string,
      * such as processing text input fields that should contain only numbers.
      */
-    Hison.utils.getRemoveExceptNumbers = function(str) {
+    hison.utils.getRemoveExceptNumbers = function(str) {
         str = _getToString(str);
         return str.replace(/[^0-9]/g, '');
     };
@@ -2346,16 +2348,16 @@ var Hison ={};
      *
      * @example
      * // returns 'abcxyz' from a string mixed with letters and numbers
-     * Hison.utils.getRemoveNumbers('abc12345xyz');
+     * hison.utils.getRemoveNumbers('abc12345xyz');
      *
      * @example
      * // returns 'Year: !' from a string with various characters
-     * Hison.utils.getRemoveNumbers('Year: 2023!');
+     * hison.utils.getRemoveNumbers('Year: 2023!');
      *
      * Note: This function is particularly useful in situations where you need to remove or filter out numeric characters from a string,
      * such as processing text input fields that should not contain numbers.
      */
-    Hison.utils.getRemoveNumbers = function(str) {
+    hison.utils.getRemoveNumbers = function(str) {
         str = _getToString(str);
         return str.replace(/[0-9]/g, '');
     };
@@ -2369,16 +2371,16 @@ var Hison ={};
      *
      * @example
      * // returns 'olleH' for 'Hello'
-     * Hison.utils.getReverse('Hello');
+     * hison.utils.getReverse('Hello');
      *
      * @example
      * // returns '321' for '123'
-     * Hison.utils.getReverse('123');
+     * hison.utils.getReverse('123');
      *
      * Note: This function can be used in scenarios such as palindrome checking, text effects, or other situations 
      * where the reverse order of characters in a string is needed.
      */
-    Hison.utils.getReverse = function(str) {
+    hison.utils.getReverse = function(str) {
         str = _getToString(str);
         return str.split('').reverse().join('');
     };
@@ -2399,25 +2401,25 @@ var Hison ={};
      *
      * @example
      * // returns true
-     * Hison.utils.getToBoolean('yes');
+     * hison.utils.getToBoolean('yes');
      *
      * @example
      * // returns false
-     * Hison.utils.getToBoolean(0);
+     * hison.utils.getToBoolean(0);
      *
      * @example
      * // returns true
-     * Hison.utils.getToBoolean('TRUE');
+     * hison.utils.getToBoolean('TRUE');
      *
      * @example
      * // returns false
-     * Hison.utils.getToBoolean('false');
+     * hison.utils.getToBoolean('false');
      *
      * Note: This function is designed to handle various inputs that can be interpreted as boolean true,
      * while treating everything else as false. This is especially useful in contexts where user input
      * or data representation might vary but needs to be interpreted in a boolean context.
      */
-    Hison.utils.getToBoolean = function(val) {
+    hison.utils.getToBoolean = function(val) {
         if(_isNumeric(val)) {
             return Number(val) != 0;
         }
@@ -2449,16 +2451,16 @@ var Hison ={};
      *
      * @example
      * // returns 123 for a numeric string
-     * Hison.utils.getToNumber('123');
+     * hison.utils.getToNumber('123');
      *
      * @example
      * // returns -1 for a non-numeric string when -1 is specified as the impossible value
-     * Hison.utils.getToNumber('Hello', -1);
+     * hison.utils.getToNumber('Hello', -1);
      *
      * Note: This function allows for flexibility in handling non-numeric values, 
      * providing the option to specify an alternative return value when conversion is not possible.
      */
-    Hison.utils.getToNumber = function(val, impossibleValue) {
+    hison.utils.getToNumber = function(val, impossibleValue) {
         return _getToNumber(val, impossibleValue);
     };
     var _getToFloat = function(val, impossibleValue) {
@@ -2479,16 +2481,16 @@ var Hison ={};
      *
      * @example
      * // returns 123.45 for a numeric string
-     * Hison.utils.getToFloat('123.45');
+     * hison.utils.getToFloat('123.45');
      *
      * @example
      * // returns -1.0 for a non-numeric string when -1.0 is specified as the impossible value
-     * Hison.utils.getToFloat('Hello', -1.0);
+     * hison.utils.getToFloat('Hello', -1.0);
      *
      * Note: This function allows for flexibility in handling non-numeric values, 
      * providing the option to specify an alternative return value when conversion is not possible.
      */
-    Hison.utils.getToFloat = function(val, impossibleValue) {
+    hison.utils.getToFloat = function(val, impossibleValue) {
         return _getToFloat(val, impossibleValue);
     };
     /**
@@ -2502,16 +2504,16 @@ var Hison ={};
      *
      * @example
      * // returns 123 for a numeric string
-     * Hison.utils.getToInteger('123.45');
+     * hison.utils.getToInteger('123.45');
      *
      * @example
      * // returns -1 for a non-numeric string when -1 is specified as the impossible value
-     * Hison.utils.getToInteger('Hello', -1);
+     * hison.utils.getToInteger('Hello', -1);
      *
      * Note: This function converts values to integers, truncating any fractional parts. 
      * It provides flexibility in handling non-numeric values by allowing the specification of an alternative return value when conversion is not possible.
      */
-    Hison.utils.getToInteger = function(val, impossibleValue) {
+    hison.utils.getToInteger = function(val, impossibleValue) {
         impossibleValue = impossibleValue === undefined ? 0 : impossibleValue;
         if (!_isNumeric(val)) {
             return impossibleValue;
@@ -2542,28 +2544,28 @@ var Hison ={};
      *
      * @example
      * // returns 'Hello'
-     * Hison.utils.getToString('Hello');
+     * hison.utils.getToString('Hello');
      *
      * @example
      * // returns '123' for a number
-     * Hison.utils.getToString(123);
+     * hison.utils.getToString(123);
      *
      * @example
      * // returns 'true' for a boolean
-     * Hison.utils.getToString(true);
+     * hison.utils.getToString(true);
      *
      * @example
      * // returns the description of the symbol
-     * Hison.utils.getToString(Symbol('mySymbol'));
+     * hison.utils.getToString(Symbol('mySymbol'));
      *
      * @example
      * // returns 'default' for an object when 'default' is specified as the impossible value
-     * Hison.utils.getToString({}, 'default');
+     * hison.utils.getToString({}, 'default');
      *
      * Note: This function allows for flexibility in handling values that may not be directly convertible to strings,
      * providing the option to specify an alternative return value when conversion is not possible.
      */
-    Hison.utils.getToString = function(val, impossibleValue) {
+    hison.utils.getToString = function(val, impossibleValue) {
         return _getToString(val, impossibleValue);
     };
     
@@ -2580,20 +2582,20 @@ var Hison ={};
      *
      * @example
      * // returns 'jpg' for a filename
-     * Hison.utils.getFileExtension('image.jpg');
+     * hison.utils.getFileExtension('image.jpg');
      *
      * @example
      * // returns 'html' for a URL
-     * Hison.utils.getFileExtension('https://example.com/page.html');
+     * hison.utils.getFileExtension('https://example.com/page.html');
      *
      * @example
      * // returns an empty string for a string without a file extension
-     * Hison.utils.getFileExtension('filename');
+     * hison.utils.getFileExtension('filename');
      *
      * Note: This function assumes that the file extension (if present) is the part of the string following the last '.' character.
      * It is useful in contexts where file types need to be determined based on file names or URLs.
      */
-    Hison.utils.getFileExtension = function(str) {
+    hison.utils.getFileExtension = function(str) {
         str = _getToString(str);
     
         var extension = str.split('.').pop();
@@ -2613,20 +2615,20 @@ var Hison ={};
      *
      * @example
      * // returns 'image' for a filename
-     * Hison.utils.getFileName('image.jpg');
+     * hison.utils.getFileName('image.jpg');
      *
      * @example
      * // returns 'page' for a URL
-     * Hison.utils.getFileName('https://example.com/page.html');
+     * hison.utils.getFileName('https://example.com/page.html');
      *
      * @example
      * // returns 'filename' for a string without an extension
-     * Hison.utils.getFileName('filename');
+     * hison.utils.getFileName('filename');
      *
      * Note: This function focuses on extracting the file name before the last period, assuming that what follows the last period
      * is the file extension. It is useful when the file extension is not needed or should be processed separately.
      */
-    Hison.utils.getFileName = function(str) {
+    hison.utils.getFileName = function(str) {
         str = _getToString(str);
     
         var fileName = str.split('/').pop();
@@ -2647,13 +2649,13 @@ var Hison ={};
      * @example
      * // Assume 'encoded' is a Base64 encoded string of 'Hello World!'
      * var encoded = 'SGVsbG8gV29ybGQh';
-     * var decoded = Hison.utils.getDecodeBase64(encoded);
+     * var decoded = hison.utils.getDecodeBase64(encoded);
      * console.log(decoded); // Outputs: 'Hello World!'
      *
      * Note: This function handles the conversion of Base64 encoded strings to their original string format. 
      * It's particularly useful when dealing with data that has been Base64 encoded for transmission or storage and needs to be decoded.
      */
-    Hison.utils.getDecodeBase64 = function(str) {
+    hison.utils.getDecodeBase64 = function(str) {
         str = _getToString(str);
         return decodeURIComponent(Array.prototype.map.call(atob(str), function(c) {
             return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
@@ -2669,14 +2671,14 @@ var Hison ={};
      *
      * @example
      * // Encode 'Hello World!' to Base64
-     * var encoded = Hison.utils.getEncodeBase64("Hello World!");
+     * var encoded = hison.utils.getEncodeBase64("Hello World!");
      * console.log(encoded); // Outputs: 'SGVsbG8gV29ybGQh'
      *
      * Note: This function is useful for encoding strings into Base64, a common requirement when handling data that needs to be
      * transmitted over mediums that do not support all character sets or when storing data in a format that is compact and safe from
      * alteration during transmission.
      */
-    Hison.utils.getEncodeBase64 = function(str) {
+    hison.utils.getEncodeBase64 = function(str) {
         str = _getToString(str);
         return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(_, p1) {
             return String.fromCharCode('0x' + p1);
@@ -2731,20 +2733,36 @@ var Hison ={};
      * @example
      * // Deep copy an object
      * var original = { a: 1, b: { c: 2 } };
-     * var copy = Hison.utils.deepCopy(original);
+     * var copy = hison.utils.deepCopy(original);
      * console.log(copy); // { a: 1, b: { c: 2 } }
      *
      * @example
      * // Deep copy an array
      * var original = [1, [2, 3]];
-     * var copy = Hison.utils.deepCopy(original);
+     * var copy = hison.utils.deepCopy(original);
      * console.log(copy); // [1, [2, 3]]
      *
      * Note: This function is useful for creating a true copy of an object or array, including all nested elements,
      * without sharing references with the original structure. This is essential in many programming scenarios
      * where modifications to a copied object should not affect the original object.
      */
-    Hison.utils.deepCopy = function(object, visited) {
+    hison.utils.deepCopy = function(object, visited) {
         return _deepCopy(object, visited);
     };
+
+    /**
+     * The logic code and message used when handling errors within utils are displayed in the console log and the value is returned.
+     * If there is no value, null is returned.
+     */
+    var _errorHandler = function(code, message, returnValue) {
+        if(!code) code = "ER0000"
+        if(!message) message = "Error occurred";
+        console.log(code, message);
+        if(returnValue === undefined) returnValue = null;
+        return returnValue;
+    }
+
+    hison.utils.errorHandler = function(code, message, returnValue) {
+        _errorHandler(code, message, returnValue);
+    }
 })();

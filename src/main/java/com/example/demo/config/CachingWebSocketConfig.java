@@ -7,5 +7,4 @@ import com.example.demo.common.api.caching.WebSocketConfig;
 
 @Configuration
 @EnableWebSocket
-public class CachingWebSocketConfig extends WebSocketConfig{
-}
+public class CachingWebSocketConfig extends WebSocketConfig{}

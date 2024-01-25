@@ -6,10 +6,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
-import com.example.demo.common.api.caching.CachingHandler;
+import com.example.demo.common.api.caching.CachingHandlerDefault;
 import com.example.demo.common.api.caching.CachingHandlerFactory;
 
-public class CustomCachingHandler implements CachingHandler{
+public class CustomCachingHandler extends CachingHandlerDefault{
     public static void register() {
         CachingHandlerFactory.setCustomHandler(new CustomCachingHandler());
     }
@@ -33,6 +33,7 @@ public class CustomCachingHandler implements CachingHandler{
             try {
                 if (session.isOpen()) {
                     System.out.println("######## message : " + message);
+                    if(message == null) message = "";
                     session.sendMessage(new TextMessage(message));
                 }
             } catch (IOException e) {

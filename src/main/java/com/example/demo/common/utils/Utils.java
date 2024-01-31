@@ -1,5 +1,7 @@
 package com.example.demo.common.utils;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -10,10 +12,16 @@ import java.time.LocalTime;
 import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
 import java.time.format.TextStyle;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,7 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 
 public final class Utils {
     private Utils() {
-        throw new UtilsException("No Utils instances for you!");
+        throw new UtilException("No Utils instances for you!");
     }
 
     /**********************************************************************
@@ -33,7 +41,7 @@ public final class Utils {
             return false;
         }
         for (char c : s.toCharArray()) {
-            if (!Character.isLetter(c)) {
+            if (!((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'))) {
                 return false;
             }
         }
@@ -46,7 +54,7 @@ public final class Utils {
             return false;
         }
         for (char c : s.toCharArray()) {
-            if (!Character.isLetter(c) && !Character.isDigit(c)) {
+            if (!(Character.isDigit(c) || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'))) {
                 return false;
             }
         }
@@ -200,14 +208,14 @@ public final class Utils {
     }
 
     private static LocalDate getDate(String date) {
-        date = date.split(" ")[0];
+        date = date.split(" ")[0].trim();
         if (date == null || date.isEmpty()) {
             return null;
         }
         DateTimeFormatter[] formatters = new DateTimeFormatter[]{
-            DateTimeFormatter.ofPattern("yyyyMMdd"),
-            DateTimeFormatter.ofPattern("yyyy-MM-dd"),
-            DateTimeFormatter.ofPattern("yyyy/MM/dd")
+            DateTimeFormatter.ofPattern("uuuuMMdd").withResolverStyle(ResolverStyle.STRICT),
+            DateTimeFormatter.ofPattern("uuuu-MM-dd").withResolverStyle(ResolverStyle.STRICT),
+            DateTimeFormatter.ofPattern("uuuu/MM/dd").withResolverStyle(ResolverStyle.STRICT)
         };
         for (DateTimeFormatter formatter : formatters) {
             try {
@@ -228,8 +236,8 @@ public final class Utils {
             return null;
         }
         DateTimeFormatter[] formatters = new DateTimeFormatter[]{
-            DateTimeFormatter.ofPattern("HH:mm:ss"),
-            DateTimeFormatter.ofPattern("HHmmss")
+            DateTimeFormatter.ofPattern("HH:mm:ss").withResolverStyle(ResolverStyle.STRICT),
+            DateTimeFormatter.ofPattern("HHmmss").withResolverStyle(ResolverStyle.STRICT)
         };
         for (DateTimeFormatter formatter : formatters) {
             try {
@@ -247,20 +255,17 @@ public final class Utils {
 
     // 파라메터 값이 날짜 시간 형식이면 true를 반환한다.
     public static boolean isDatetime(String datetime) {
-        boolean result = false;
         if (datetime == null || datetime.isEmpty()) {
-            return result;
+            return false;
         }
 
         // 공백을 기준으로 문자열을 나눈다.
         String[] parts = datetime.split(" ");
-        result = isDate(parts[0]);
+        if(!isDate(parts[0])) return false;
         if (parts.length == 2) {
-            result = isTime(parts[1]);
+            return isTime(parts[1]);
         }
-
-        // 첫 번째 부분을 날짜 형식으로, 두 번째 부분을 시간 형식으로 검사한다.
-        return result;
+        return true;
     }
 
     // 파라메터 값이 파라메터 Mask형식이면 true를 반환한다.
@@ -322,7 +327,7 @@ public final class Utils {
     }
     public static String addDate(String datetime, String addValue, String addType, String format) {
         if(!isInteger(addValue)) {
-            throw new UtilsException("Please enter a valid addValue(Integer).");
+            throw new UtilException("Please enter a valid addValue(Integer).");
         }
         int add = Integer.parseInt(addValue);
         return addDate(datetime, add, addType, format);
@@ -336,7 +341,7 @@ public final class Utils {
     public static String addDate(String datetime, int addValue, String addType, String format) {
         LocalDateTime dt = getDatetime(datetime);
         if(dt == null) {
-            throw new UtilsException("Please enter a valid date.");
+            throw new UtilException("Please enter a valid date.");
         }
         long add = addValue;
 
@@ -360,9 +365,12 @@ public final class Utils {
                 dt = dt.plusSeconds(add);
                 break;
             default:
-                throw new UtilsException("Please enter a valid addType.(y, M, d, h, m, s)");
+                throw new UtilException("Please enter a valid addType.(y, M, d, h, m, s)");
         }
 
+        if ("".equals(format) && datetime.split(" ").length > 1) {
+            format = "yyyy-MM-dd HH:mm:ss";
+        }
         return getDateWithFormat(dt, format);
     }
 
@@ -373,7 +381,7 @@ public final class Utils {
         LocalDateTime dt1 = getDatetime(datetime1);
         LocalDateTime dt2 = getDatetime(datetime2);
         if(dt1 == null || dt2 == null) {
-            throw new UtilsException("Please enter a valid date.");
+            throw new UtilException("Please enter a valid date.");
         }
         if("".equals(diffType)) diffType = "d";
         long result;
@@ -409,7 +417,7 @@ public final class Utils {
     }
     public static String getMonthName(String month, boolean isFullName) {
         if(!isInteger(month)) {
-            throw new UtilsException("Please enter a valid addValue(Integer).");
+            throw new UtilException("Please enter a valid addValue(Integer).");
         }
         int mon = Integer.parseInt(month);
 
@@ -440,13 +448,13 @@ public final class Utils {
         return getDateWithFormat(datetime, "");
     }
     public static String getDateWithFormat(LocalDateTime datetime, String format) {
-        if(datetime == null) throw new UtilsException("Please enter a valid date.");
+        if(datetime == null) throw new UtilException("Please enter a valid date.");
         if("".equals(format)) format = "yyyy-MM-dd";
         try {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
             return datetime.format(formatter);
         } catch (DateTimeParseException e) {
-            throw new UtilsException("Invalid format.");
+            throw new UtilException("Invalid format.");
         }
     }
 
@@ -462,7 +470,7 @@ public final class Utils {
     }
     public static String getDayOfWeek(LocalDate date, String dayType) {
         if (date == null) {
-            throw new UtilsException("Please enter a valid date.");
+            throw new UtilException("Please enter a valid date.");
         }
         if("".equals(dayType)) dayType = "d";
         DayOfWeek dayOfWeek = date.getDayOfWeek();
@@ -479,14 +487,14 @@ public final class Utils {
             case "kday":
                 return dayOfWeek.getDisplayName(TextStyle.FULL, Locale.KOREAN);
             default:
-            throw new UtilsException("Please enter a valid dayType.(d, dy, day, kdy, kday)");
+            throw new UtilException("Please enter a valid dayType.(d, dy, day, kdy, kday)");
         }
     }
 
     // 해당 연월의 마지막 일자를 반환한다.
     public static int getLastDay(LocalDate date) {
         if (date == null) {
-            throw new UtilsException("Please enter a valid date.");
+            throw new UtilException("Please enter a valid date.");
         }
         return date.with(TemporalAdjusters.lastDayOfMonth()).getDayOfMonth();
     }
@@ -883,5 +891,87 @@ public final class Utils {
 
         // 헤더에서 유효한 IP 주소를 찾지 못한 경우, getRemoteAddr 사용
         return request.getRemoteAddr();
+    }
+
+    // URL 또는 파일명에서 확장자를 추출한다.
+    public static String getFileExtension(String path) {
+        int lastIndex = path.lastIndexOf(".");
+        
+        // 점이 없거나 마지막에 위치하는 경우, 확장자가 없음
+        if (lastIndex == -1 || lastIndex == path.length() - 1) {
+            return "";
+        }
+        
+        // 마지막 점 이후의 문자열을 반환 (확장자)
+        return path.substring(lastIndex + 1);
+    }
+
+    //URL 또는 파일명에서 확장자를 제외한 파일명을 추출한다.
+    public static String getFileName(String path) {
+        // 마지막 슬래시('/') 이후의 문자열 추출
+        int lastSlashIndex = path.lastIndexOf("/");
+        String fileName = (lastSlashIndex == -1) ? path : path.substring(lastSlashIndex + 1);
+
+        // 파일명에서 확장자 제거
+        int lastDotIndex = fileName.lastIndexOf(".");
+        if (lastDotIndex == -1) return fileName; // 확장자가 없는 경우
+
+        return fileName.substring(0, lastDotIndex);
+    }
+
+    private static Properties loadProperties(String propertyFileName) throws UtilException {
+        Properties prop = new Properties();
+        String pfn = UtilHandler.getPropertieFilePath() + propertyFileName + ".properties";
+
+        try (InputStream input = Utils.class.getClassLoader().getResourceAsStream(pfn)) {
+            if (input == null) {
+                throw new UtilException("Unable to find " + pfn);
+            }
+            prop.load(input);
+        } catch (IOException ex) {
+            throw new UtilException(ex.getCause());
+        }
+
+        return prop;
+    }
+    // 프로퍼티 값 가져오기
+    public static String getPropertyValue(String propertyFileName, String key) {
+        Properties prop = loadProperties(propertyFileName);
+        return prop.getProperty(key);
+    }
+    // 특정 키에 해당하는 값을 Map으로 반환
+    public static Map<String, String> getProperty(String propertyFileName, String key) {
+        Properties prop = loadProperties(propertyFileName);
+        Map<String, String> resultMap = new HashMap<>();
+        String value = prop.getProperty(key);
+        if (value != null) {
+            resultMap.put(key, value);
+        }
+        return resultMap;
+    }
+    // 'key%' 조건에 해당하는 프로퍼티들을 Map으로 반환
+    public static Map<String, String> getProperties(String propertyFileName, String keyPrefix) {
+        Properties prop = loadProperties(propertyFileName);
+        Map<String, String> resultMap = new HashMap<>();
+        for (String key : prop.stringPropertyNames()) {
+            if (key.startsWith(keyPrefix)) {
+                resultMap.put(key, prop.getProperty(key));
+            }
+        }
+        return resultMap;
+    }
+    // 모든 키를 Set으로 반환
+    public static Set<String> getPropertyKeys(String propertyFileName) {
+        Properties prop = loadProperties(propertyFileName);
+        return new HashSet<>(prop.stringPropertyNames());
+    }
+    // 모든 키와 값을 Map으로 반환
+    public static Map<String, String> getProperties(String propertyFileName) {
+        Properties prop = loadProperties(propertyFileName);
+        Map<String, String> map = new HashMap<>();
+        for (String key : prop.stringPropertyNames()) {
+            map.put(key, prop.getProperty(key));
+        }
+        return map;
     }
 }

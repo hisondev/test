@@ -92,6 +92,9 @@ public class CachingHandlerDefault implements CachingHandler{
         for (WebSocketSession session : sessions) {
             try {
                 if (session.isOpen()) {
+                    if(message == null) {
+                        message = "";
+                    }
                     session.sendMessage(new TextMessage(message));
                 }
             } catch (IOException e) {

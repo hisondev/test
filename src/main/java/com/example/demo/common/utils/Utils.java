@@ -3,6 +3,7 @@ package com.example.demo.common.utils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.time.DayOfWeek;
@@ -29,7 +30,39 @@ import javax.servlet.http.HttpServletRequest;
 
 public final class Utils {
     private Utils() {
-        throw new UtilException("No Utils instances for you!");
+        throw new UtilsException("No Utils instances for you!");
+    }
+    private static String DATE_FORMATTER = "yyyy-MM-dd";
+    private static String DATETIME_FORMATTER = "yyyy-MM-dd HH:mm:ss";
+    private static String ADD_TYPE = "d";
+    private static String DIFF_TYPE = "d";
+    private static String DAY_OF_WEEK_TYPE = "d";
+    private static int LESSOREQ_0X7FF_BYTE = 2;
+    private static int LESSOREQ_0XFFFF_BYTE = 3;
+    private static int GREATER_0XFFFF_BYTE = 4;
+    private static String NUMBER_FORMATTER = "#,##0.#####";
+    private static String PROPERTIE_FILE_PATH = "";
+
+    static {
+        Properties prop = new Properties();
+        try (InputStream input = Utils.class.getClassLoader().getResourceAsStream("hison-utils-config.properties")) {
+            if (input != null) {
+                prop.load(input);
+            }
+        } catch (IOException ex) {
+        }
+        if(!prop.isEmpty()){
+            DATE_FORMATTER = prop.getProperty("date.formatter") != null ? prop.getProperty("date.formatter") : DATE_FORMATTER;
+            DATETIME_FORMATTER = prop.getProperty("datetime.formatter") != null ? prop.getProperty("datetime.formatter") : DATETIME_FORMATTER;
+            ADD_TYPE = prop.getProperty("add.type") != null ? prop.getProperty("add.type") : ADD_TYPE;
+            DIFF_TYPE = prop.getProperty("diff.type") != null ? prop.getProperty("diff.type") : DIFF_TYPE;
+            DAY_OF_WEEK_TYPE = prop.getProperty("dayofweek.type") != null ? prop.getProperty("dayofweek.type") : DAY_OF_WEEK_TYPE;
+            LESSOREQ_0X7FF_BYTE = prop.getProperty("lessoreq.0x7ff.byte") != null && prop.getProperty("lessoreq.0x7ff.byte").matches("\\d+") ? Integer.parseInt(prop.getProperty("lessoreq.0x7ff.byte")) : LESSOREQ_0X7FF_BYTE;
+            LESSOREQ_0XFFFF_BYTE = prop.getProperty("lessoreq.0xffff.byte") != null && prop.getProperty("lessoreq.0xffff.byte").matches("\\d+") ? Integer.parseInt(prop.getProperty("lessoreq.0xffff.byte")) : LESSOREQ_0XFFFF_BYTE;
+            GREATER_0XFFFF_BYTE = prop.getProperty("greater.0xffff.byte") != null && prop.getProperty("greater.0xffff.byte").matches("\\d+") ? Integer.parseInt(prop.getProperty("greater.0xffff.byte")) : GREATER_0XFFFF_BYTE;
+            PROPERTIE_FILE_PATH = prop.getProperty("propertie.file.path") != null ? prop.getProperty("propertie.file.path") : PROPERTIE_FILE_PATH;
+            NUMBER_FORMATTER = prop.getProperty("number.formatter") != null ? prop.getProperty("number.formatter") : NUMBER_FORMATTER;
+        }
     }
 
     /**********************************************************************
@@ -320,20 +353,20 @@ public final class Utils {
     }
     // 날짜에 시간을 추가하고 문자열 형태로 반환한다.
     public static String addDate(String datetime, String addValue) {
-        return addDate(datetime, addValue, "d");
+        return addDate(datetime, addValue, "");
     }
     public static String addDate(String datetime, String addValue, String addType) {
         return addDate(datetime, addValue, addType, "");
     }
     public static String addDate(String datetime, String addValue, String addType, String format) {
         if(!isInteger(addValue)) {
-            throw new UtilException("Please enter a valid addValue(Integer).");
+            throw new UtilsException("Please enter a valid addValue(Integer).");
         }
         int add = Integer.parseInt(addValue);
         return addDate(datetime, add, addType, format);
     }
     public static String addDate(String datetime, int addValue) {
-        return addDate(datetime, addValue, "d");
+        return addDate(datetime, addValue, "");
     }
     public static String addDate(String datetime, int addValue, String addType) {
         return addDate(datetime, addValue, addType, "");
@@ -341,9 +374,10 @@ public final class Utils {
     public static String addDate(String datetime, int addValue, String addType, String format) {
         LocalDateTime dt = getDatetime(datetime);
         if(dt == null) {
-            throw new UtilException("Please enter a valid date.");
+            throw new UtilsException("Please enter a valid date.");
         }
         long add = addValue;
+        if(addType == null || "".equals(addType)) addType = ADD_TYPE;
 
         switch (addType) {
             case "y":
@@ -365,11 +399,11 @@ public final class Utils {
                 dt = dt.plusSeconds(add);
                 break;
             default:
-                throw new UtilException("Please enter a valid addType.(y, M, d, h, m, s)");
+                throw new UtilsException("Please enter a valid addType.(y, M, d, h, m, s)");
         }
 
         if ("".equals(format) && datetime.split(" ").length > 1) {
-            format = "yyyy-MM-dd HH:mm:ss";
+            format = DATETIME_FORMATTER;
         }
         return getDateWithFormat(dt, format);
     }
@@ -381,9 +415,9 @@ public final class Utils {
         LocalDateTime dt1 = getDatetime(datetime1);
         LocalDateTime dt2 = getDatetime(datetime2);
         if(dt1 == null || dt2 == null) {
-            throw new UtilException("Please enter a valid date.");
+            throw new UtilsException("Please enter a valid date.");
         }
-        if("".equals(diffType)) diffType = "d";
+        if(diffType == null || "".equals(diffType)) diffType = DIFF_TYPE;
         long result;
 
         switch (diffType) {
@@ -417,7 +451,7 @@ public final class Utils {
     }
     public static String getMonthName(String month, boolean isFullName) {
         if(!isInteger(month)) {
-            throw new UtilException("Please enter a valid month.");
+            throw new UtilsException("Please enter a valid month.");
         }
         int mon = Integer.parseInt(month);
 
@@ -429,7 +463,7 @@ public final class Utils {
     }
     public static String getMonthName(int month, boolean isFullName) {
         if (month < 1 || month > 12) {
-            throw new UtilException("Please enter a valid month.");
+            throw new UtilsException("Please enter a valid month.");
         }
 
         Month m = Month.of(month);
@@ -448,13 +482,13 @@ public final class Utils {
         return getDateWithFormat(datetime, "");
     }
     public static String getDateWithFormat(LocalDateTime datetime, String format) {
-        if(datetime == null) throw new UtilException("Please enter a valid date.");
-        if("".equals(format)) format = "yyyy-MM-dd";
+        if(datetime == null) throw new UtilsException("Please enter a valid date.");
+        if("".equals(format)) format = DATE_FORMATTER;
         try {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
             return datetime.format(formatter);
         } catch (DateTimeParseException e) {
-            throw new UtilException("Invalid format.");
+            throw new UtilsException("Invalid format.");
         }
     }
 
@@ -462,20 +496,20 @@ public final class Utils {
     public static String getDayOfWeek(String date) {
         return getDayOfWeek(date, "");
     }
-    public static String getDayOfWeek(String date, String dayType) {
-        return getDayOfWeek(getDate(date), dayType);
+    public static String getDayOfWeek(String date, String dayOfWeekType) {
+        return getDayOfWeek(getDate(date), dayOfWeekType);
     }
     public static String getDayOfWeek(LocalDate date) {
         return getDayOfWeek(date, "");
     }
-    public static String getDayOfWeek(LocalDate date, String dayType) {
+    public static String getDayOfWeek(LocalDate date, String dayOfWeekType) {
         if (date == null) {
-            throw new UtilException("Please enter a valid date.");
+            throw new UtilsException("Please enter a valid date.");
         }
-        if("".equals(dayType)) dayType = "d";
+        if(dayOfWeekType == null || "".equals(dayOfWeekType)) dayOfWeekType = DAY_OF_WEEK_TYPE;
         DayOfWeek dayOfWeek = date.getDayOfWeek();
         
-        switch (dayType.toLowerCase()) {
+        switch (dayOfWeekType.toLowerCase()) {
             case "d":
                 return "" + dayOfWeek.getValue();
             case "dy":
@@ -487,14 +521,14 @@ public final class Utils {
             case "kday":
                 return dayOfWeek.getDisplayName(TextStyle.FULL, Locale.KOREAN);
             default:
-            throw new UtilException("Please enter a valid dayType.(d, dy, day, kdy, kday)");
+            throw new UtilsException("Please enter a valid dayType.(d, dy, day, kdy, kday)");
         }
     }
 
     // 해당 연월의 마지막 일자를 반환한다.
     public static int getLastDay(LocalDate date) {
         if (date == null) {
-            throw new UtilException("Please enter a valid date.");
+            throw new UtilsException("Please enter a valid date.");
         }
         return date.with(TemporalAdjusters.lastDayOfMonth()).getDayOfMonth();
     }
@@ -523,7 +557,7 @@ public final class Utils {
         return getSysDatetime("");
     }
     public static String getSysDatetime(String format) {
-        if("".equals(format)) format = "yyyy-MM-dd HH:mm:ss";
+        if("".equals(format)) format = DATETIME_FORMATTER;
         return getDateWithFormat(LocalDateTime.now(), format);
     }
 
@@ -541,13 +575,13 @@ public final class Utils {
     // 파라메터 값을 파라메터 지정한 위치로 올림한 값을 반환한다.
     public static double getCeil(String num) {
         if(num == null || !isNumeric(num)) {
-            throw new UtilException("Please enter a valid number.");
+            throw new UtilsException("Please enter a valid number.");
         }
         return getCeil(Double.parseDouble(num), 0);
     }
     public static double getCeil(String num, int precision) {
         if(num == null || !isNumeric(num)) {
-            throw new UtilException("Please enter a valid number.");
+            throw new UtilsException("Please enter a valid number.");
         }
         return getCeil(Double.parseDouble(num), precision);
     }
@@ -580,13 +614,13 @@ public final class Utils {
     // 파라메터 값을 파라메터 지정한 위치로 내림한 값을 반환한다.
     public static double getFloor(String num) {
         if(num == null || !isNumeric(num)) {
-            throw new UtilException("Please enter a valid number.");
+            throw new UtilsException("Please enter a valid number.");
         }
         return getFloor(Double.parseDouble(num), 0);
     }
     public static double getFloor(String num, int precision) {
         if(num == null || !isNumeric(num)) {
-            throw new UtilException("Please enter a valid number.");
+            throw new UtilsException("Please enter a valid number.");
         }
         return getFloor(Double.parseDouble(num), precision);
     }
@@ -619,13 +653,13 @@ public final class Utils {
     // 파라메터 값을 파라메터 지정한 위치로 반올림한 값을 반환한다.
     public static double getRound(String num) {
         if(num == null || !isNumeric(num)) {
-            throw new UtilException("Please enter a valid number.");
+            throw new UtilsException("Please enter a valid number.");
         }
         return getRound(Double.parseDouble(num), 0);
     }
     public static double getRound(String num, int precision) {
         if(num == null || !isNumeric(num)) {
-            throw new UtilException("Please enter a valid number.");
+            throw new UtilsException("Please enter a valid number.");
         }
         return getRound(Double.parseDouble(num), precision);
     }
@@ -658,13 +692,13 @@ public final class Utils {
     // 파라메터 값을 파라메터 지정한 위치로 버림한 값을 반환한다.
     public static double getTrunc(String num) {
         if(num == null || !isNumeric(num)) {
-            throw new UtilException("Please enter a valid number.");
+            throw new UtilsException("Please enter a valid number.");
         }
         return getTrunc(Double.parseDouble(num), 0);
     }
     public static double getTrunc(String num, int precision) {
         if(num == null || !isNumeric(num)) {
-            throw new UtilException("Please enter a valid number.");
+            throw new UtilsException("Please enter a valid number.");
         }
         return getTrunc(Double.parseDouble(num), precision);
     }
@@ -708,11 +742,11 @@ public final class Utils {
             if (charCode <= 0x7F) {
                 byteLength += 1;
             } else if (charCode <= 0x7FF) {
-                byteLength += 2; // LESSOREQ_0X7FF_BYTE
+                byteLength += LESSOREQ_0X7FF_BYTE;
             } else if (charCode <= 0xFFFF) {
-                byteLength += 3; // LESSOREQ_0XFFFF_BYTE
+                byteLength += LESSOREQ_0XFFFF_BYTE;
             } else {
-                byteLength += 4; // GREATER_0XFFFF_BYTE
+                byteLength += GREATER_0XFFFF_BYTE;
             }
         }
         return byteLength;
@@ -730,11 +764,11 @@ public final class Utils {
             if (charCode <= 0x7F) {
                 byteLength += 1;
             } else if (charCode <= 0x7FF) {
-                byteLength += 2;
+                byteLength += LESSOREQ_0X7FF_BYTE;
             } else if (charCode <= 0xFFFF) {
-                byteLength += 3;
+                byteLength += LESSOREQ_0XFFFF_BYTE;
             } else {
-                byteLength += 4;
+                byteLength += GREATER_0XFFFF_BYTE;
             }
 
             if (byteLength > cutByte) {
@@ -811,30 +845,56 @@ public final class Utils {
         return value == null ? defaultValue : value;
     }
 
+    public static String getNumberFormat(int value) {
+        return getNumberFormat(String.valueOf(value), "");
+    }
+    public static String getNumberFormat(int value, String format) {
+        return getNumberFormat(String.valueOf(value), format);
+    }
+    public static String getNumberFormat(long value) {
+        return getNumberFormat(String.valueOf(value), "");
+    }
+    public static String getNumberFormat(long value, String format) {
+        return getNumberFormat(String.valueOf(value), format);
+    }
+    public static String getNumberFormat(float value) {
+        return getNumberFormat(String.valueOf(value), "");
+    }
+    public static String getNumberFormat(float value, String format) {
+        return getNumberFormat(String.valueOf(value), format);
+    }
+    public static String getNumberFormat(double value) {
+        return getNumberFormat(String.valueOf(value), "");
+    }
+    public static String getNumberFormat(double value, String format) {
+        return getNumberFormat(String.valueOf(value), format);
+    }
+    public static String getNumberFormat(String value) {
+        return getNumberFormat(value, "");
+    }
     //파라메터 값을 파라메터 숫자 형식으로 변환한 값을 반환한다.
     public static String getNumberFormat(String value, String format) {
         Pattern pattern = Pattern.compile("^(.*?)([#0,.]+)(.*?)$");
+        if(format == null || "".equals(format)) format = NUMBER_FORMATTER;
         Matcher matcher = pattern.matcher(format);
-
+    
         if (!matcher.find()) {
             throw new IllegalArgumentException("Invalid format");
         }
-
+    
         String result = "";
         String prefix = matcher.group(1);
         String numberFormat = matcher.group(2);
         String suffix = matcher.group(3);
-
+    
         String[] parts = numberFormat.split("\\.");
         String integerPartFormat = parts[0];
         String decimalPartFormat = parts.length > 1 ? parts[1] : "";
-
-        // 소수 부분 포맷이 #과 0이 섞인 경우 검증
+    
         if (decimalPartFormat.contains("#") && decimalPartFormat.contains("0")) {
             throw new IllegalArgumentException("Invalid format: Mixed '#' and '0' in decimal format");
         }
-
-        // 숫자 변환
+    
         boolean isNull = false;
         boolean doZeroByNull = "0".equals(integerPartFormat.substring(integerPartFormat.length() - 1));
         if("".equals(value) || value == null) {
@@ -845,20 +905,19 @@ public final class Utils {
         if (suffix.trim().equals("%")) {
             number = number.multiply(BigDecimal.valueOf(100));
         }
-
-        // 정수 부분 포맷팅
+    
         DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.ENGLISH);
         String formattedInteger = formatIntegerPart(number, integerPartFormat, symbols);
-
-        // 소수 부분 포맷팅
-        String formattedDecimal = formatDecimalPart(number, decimalPartFormat);
-
+    
+        // 소수 부분 포맷팅 로직을 수정합니다.
+        String formattedDecimal = formatDecimalPart(number, decimalPartFormat, decimalPartFormat.length());
+    
         if(isNull && !doZeroByNull) {
             result = prefix + "" + (formattedDecimal.isEmpty() ? "" : "." + formattedDecimal) + suffix;
         } else {
             result = prefix + formattedInteger + (formattedDecimal.isEmpty() ? "" : "." + formattedDecimal) + suffix;
         }
-
+    
         return result;
     }
 
@@ -870,30 +929,26 @@ public final class Utils {
         return decimalFormat.format(number);
     }
 
-    private static String formatDecimalPart(BigDecimal number, String format) {
+    private static String formatDecimalPart(BigDecimal number, String format, int scale) {
         if (format.isEmpty()) return "";
 
-        int dotIndex = number.toPlainString().indexOf('.');
-        String decimalPart = dotIndex != -1 ? number.toPlainString().substring(dotIndex + 1) : "";
+        number = number.setScale(scale, RoundingMode.HALF_UP); // 소수점 아래 반올림
+        String numberAsString = number.toPlainString();
+
+        int dotIndex = numberAsString.indexOf('.');
+        String decimalPart = dotIndex != -1 ? numberAsString.substring(dotIndex + 1) : "";
 
         if (format.contains("#")) {
+            // 불필요한 0 제거
+            while (decimalPart.endsWith("0")) {
+                decimalPart = decimalPart.substring(0, decimalPart.length() - 1);
+            }
             return decimalPart;
         } else if (format.contains("0")) {
-            return String.format("%-" + format.length() + "s", decimalPart).replace(' ', '0');
+            // 필요한 경우 0으로 채움
+            return String.format("%-" + scale + "s", decimalPart).replace(' ', '0');
         }
-        return "";
-    }
-    public static String getNumberFormat(int value, String format) {
-        return getNumberFormat(String.valueOf(value), format);
-    }
-    public static String getNumberFormat(long value, String format) {
-        return getNumberFormat(String.valueOf(value), format);
-    }
-    public static String getNumberFormat(float value, String format) {
-        return getNumberFormat(String.valueOf(value), format);
-    }
-    public static String getNumberFormat(double value, String format) {
-        return getNumberFormat(String.valueOf(value), format);
+        return decimalPart;
     }
 
     //파라메터 문자열의 숫자를 제외한 모든 문자를 제거한 값을 반환한다.
@@ -973,17 +1028,17 @@ public final class Utils {
         return fileName.substring(0, lastDotIndex);
     }
 
-    private static Properties loadProperties(String propertyFileName) throws UtilException {
+    private static Properties loadProperties(String propertyFileName) throws UtilsException {
         Properties prop = new Properties();
-        String pfn = UtilHandler.getPropertieFilePath() + propertyFileName + ".properties";
+        String pfn = PROPERTIE_FILE_PATH + propertyFileName + ".properties";
 
         try (InputStream input = Utils.class.getClassLoader().getResourceAsStream(pfn)) {
             if (input == null) {
-                throw new UtilException("Unable to find " + pfn);
+                throw new UtilsException("Unable to find " + pfn);
             }
             prop.load(input);
         } catch (IOException ex) {
-            throw new UtilException(ex.getCause());
+            throw new UtilsException(ex.getCause());
         }
 
         return prop;

@@ -417,7 +417,7 @@ public final class Utils {
     }
     public static String getMonthName(String month, boolean isFullName) {
         if(!isInteger(month)) {
-            throw new UtilException("Please enter a valid addValue(Integer).");
+            throw new UtilException("Please enter a valid month.");
         }
         int mon = Integer.parseInt(month);
 
@@ -429,7 +429,7 @@ public final class Utils {
     }
     public static String getMonthName(int month, boolean isFullName) {
         if (month < 1 || month > 12) {
-            return null; // 유효하지 않은 월의 값 처리
+            throw new UtilException("Please enter a valid month.");
         }
 
         Month m = Month.of(month);
@@ -499,15 +499,21 @@ public final class Utils {
         return date.with(TemporalAdjusters.lastDayOfMonth()).getDayOfMonth();
     }
     public static int getLastDay(String yearMonth) {
+        LocalDate localDate = getDate(yearMonth);
+        if(localDate != null) {
+            return getLastDay(localDate);
+        }
+
         String date = yearMonth;
-        if(yearMonth.length() < 6) {
+        if(yearMonth.length() > 6) {
             if(yearMonth.contains("/")) {
                 date += "/01";
             } else if(yearMonth.contains("-")) {
                 date += "-01";
-            } else {
-                date += "01";
             }
+        }
+        else {
+            date += "01";
         }
         return getLastDay(getDate(date));
     }
@@ -533,6 +539,18 @@ public final class Utils {
      * for Number
      **********************************************************************/
     // 파라메터 값을 파라메터 지정한 위치로 올림한 값을 반환한다.
+    public static double getCeil(String num) {
+        if(num == null || !isNumeric(num)) {
+            throw new UtilException("Please enter a valid number.");
+        }
+        return getCeil(Double.parseDouble(num), 0);
+    }
+    public static double getCeil(String num, int precision) {
+        if(num == null || !isNumeric(num)) {
+            throw new UtilException("Please enter a valid number.");
+        }
+        return getCeil(Double.parseDouble(num), precision);
+    }
     public static double getCeil(int num) {
         return getCeil((double) num, 0);
     }
@@ -560,6 +578,18 @@ public final class Utils {
     }
 
     // 파라메터 값을 파라메터 지정한 위치로 내림한 값을 반환한다.
+    public static double getFloor(String num) {
+        if(num == null || !isNumeric(num)) {
+            throw new UtilException("Please enter a valid number.");
+        }
+        return getFloor(Double.parseDouble(num), 0);
+    }
+    public static double getFloor(String num, int precision) {
+        if(num == null || !isNumeric(num)) {
+            throw new UtilException("Please enter a valid number.");
+        }
+        return getFloor(Double.parseDouble(num), precision);
+    }
     public static double getFloor(int num) {
         return getFloor((double) num, 0);
     }
@@ -587,6 +617,18 @@ public final class Utils {
     }
 
     // 파라메터 값을 파라메터 지정한 위치로 반올림한 값을 반환한다.
+    public static double getRound(String num) {
+        if(num == null || !isNumeric(num)) {
+            throw new UtilException("Please enter a valid number.");
+        }
+        return getRound(Double.parseDouble(num), 0);
+    }
+    public static double getRound(String num, int precision) {
+        if(num == null || !isNumeric(num)) {
+            throw new UtilException("Please enter a valid number.");
+        }
+        return getRound(Double.parseDouble(num), precision);
+    }
     public static double getRound(int num) {
         return getRound((double) num, 0);
     }
@@ -614,6 +656,18 @@ public final class Utils {
     }
 
     // 파라메터 값을 파라메터 지정한 위치로 버림한 값을 반환한다.
+    public static double getTrunc(String num) {
+        if(num == null || !isNumeric(num)) {
+            throw new UtilException("Please enter a valid number.");
+        }
+        return getTrunc(Double.parseDouble(num), 0);
+    }
+    public static double getTrunc(String num, int precision) {
+        if(num == null || !isNumeric(num)) {
+            throw new UtilException("Please enter a valid number.");
+        }
+        return getTrunc(Double.parseDouble(num), precision);
+    }
     public static double getTrunc(int num) {
         return getTrunc((double) num, 0);
     }
@@ -949,17 +1003,6 @@ public final class Utils {
         }
         return resultMap;
     }
-    // 'key%' 조건에 해당하는 프로퍼티들을 Map으로 반환
-    public static Map<String, String> getProperties(String propertyFileName, String keyPrefix) {
-        Properties prop = loadProperties(propertyFileName);
-        Map<String, String> resultMap = new HashMap<>();
-        for (String key : prop.stringPropertyNames()) {
-            if (key.startsWith(keyPrefix)) {
-                resultMap.put(key, prop.getProperty(key));
-            }
-        }
-        return resultMap;
-    }
     // 모든 키를 Set으로 반환
     public static Set<String> getPropertyKeys(String propertyFileName) {
         Properties prop = loadProperties(propertyFileName);
@@ -973,5 +1016,16 @@ public final class Utils {
             map.put(key, prop.getProperty(key));
         }
         return map;
+    }
+    // 'key%' 조건에 해당하는 프로퍼티들을 Map으로 반환
+    public static Map<String, String> getProperties(String propertyFileName, String keyPrefix) {
+        Properties prop = loadProperties(propertyFileName);
+        Map<String, String> resultMap = new HashMap<>();
+        for (String key : prop.stringPropertyNames()) {
+            if (key.startsWith(keyPrefix)) {
+                resultMap.put(key, prop.getProperty(key));
+            }
+        }
+        return resultMap;
     }
 }

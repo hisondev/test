@@ -11,13 +11,13 @@ package com.example.demo.common.utils;
  * @author Hani son
  * @version 1.0.0
  */
-public class UtilException extends RuntimeException {
+public class UtilsException extends RuntimeException {
     /**
      * Constructs a new {@code DataException} with the specified detail message.
      * 
      * @param message the detail message
      */
-    public UtilException(String message) {
+    public UtilsException(String message) {
         this(message, null);
     }
 
@@ -27,7 +27,7 @@ public class UtilException extends RuntimeException {
      * @param message the detail message
      * @param cause the cause of the exception (a {@code null} value is permitted, and indicates that the cause is nonexistent or unknown)
      */
-    public UtilException(String message, Throwable cause) {
+    public UtilsException(String message, Throwable cause) {
         super(message, cause);
     }
 
@@ -36,7 +36,7 @@ public class UtilException extends RuntimeException {
      * 
      * @param cause the cause of the exception (a {@code null} value is permitted, and indicates that the cause is nonexistent or unknown)
      */
-    public UtilException(Throwable cause) {
+    public UtilsException(Throwable cause) {
         super(cause.toString(), cause);
     }
 
@@ -45,7 +45,7 @@ public class UtilException extends RuntimeException {
      * 
      * @param cause the cause of the exception
      */
-    public UtilException(UtilException cause) {
+    public UtilsException(UtilsException cause) {
         super(cause.toString(), cause);
     }
 }

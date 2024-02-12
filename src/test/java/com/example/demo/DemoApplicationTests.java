@@ -21,10 +21,7 @@ class DemoApplicationTests {
 	void contextLoads() {
 		startTest();
 
-		System.out.println("addDate : " + Utils.addDate("20240131",16));
-		System.out.println("addDate : " + Utils.addDate("20240131 160024","16"));
-		System.out.println("addDate : " + Utils.addDate("2024-01-31 16:48:31",16, "h"));
-		System.out.println("addDate : " + Utils.addDate("202401",2));
+		System.out.println("dayOfWeekType : " + Utils.getDayOfWeek("20240205"));
 		
 		endTest();
 	}

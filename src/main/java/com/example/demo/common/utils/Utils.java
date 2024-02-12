@@ -402,10 +402,15 @@ public final class Utils {
                 throw new UtilsException("Please enter a valid addType.(y, M, d, h, m, s)");
         }
 
-        if ("".equals(format) && datetime.split(" ").length > 1) {
-            format = DATETIME_FORMATTER;
+        if((format == null || "".equals(format))) {
+            if (datetime.split(" ").length > 1) {
+                format = DATETIME_FORMATTER;
+            }
+            else {
+                format = DATE_FORMATTER;
+            }
         }
-        return getDateWithFormat(dt, format);
+        return getDatetimeWithFormat(dt, format);
     }
 
     public static int getDateDiff(String datetime1, String datetime2) {
@@ -472,18 +477,39 @@ public final class Utils {
     }
 
     // 파라메터의 날짜 문자열을 파라메터 포맷의 형식으로 가져온다.
-    public static String getDateWithFormat(String datetime) {
-        return getDateWithFormat(datetime, "");
+    public static String getDateWithFormat(String date) {
+        return getDateWithFormat(date, "");
     }
-    public static String getDateWithFormat(String datetime, String format) {
-        return getDateWithFormat(getDatetime(datetime), format);
+    public static String getDateWithFormat(String date, String format) {
+        return getDateWithFormat(getDate(date), format);
     }
-    public static String getDateWithFormat(LocalDateTime datetime) {
-        return getDateWithFormat(datetime, "");
+    public static String getDateWithFormat(LocalDate date) {
+        return getDateWithFormat(date, "");
     }
-    public static String getDateWithFormat(LocalDateTime datetime, String format) {
+    public static String getDateWithFormat(LocalDate date, String format) {
+        if(date == null) throw new UtilsException("Please enter a valid date.");
+        if("".equals(format) || format == null) format = DATE_FORMATTER;
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
+            return date.format(formatter);
+        } catch (DateTimeParseException e) {
+            throw new UtilsException("Invalid format.");
+        }
+    }
+
+    // 파라메터의 날짜시간 문자열을 파라메터 포맷의 형식으로 가져온다.
+    public static String getDatetimeWithFormat(String datetime) {
+        return getDatetimeWithFormat(datetime, "");
+    }
+    public static String getDatetimeWithFormat(String datetime, String format) {
+        return getDatetimeWithFormat(getDatetime(datetime), format);
+    }
+    public static String getDatetimeWithFormat(LocalDateTime datetime) {
+        return getDatetimeWithFormat(datetime, "");
+    }
+    public static String getDatetimeWithFormat(LocalDateTime datetime, String format) {
         if(datetime == null) throw new UtilsException("Please enter a valid date.");
-        if("".equals(format)) format = DATE_FORMATTER;
+        if("".equals(format) || format == null) format = DATETIME_FORMATTER;
         try {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
             return datetime.format(formatter);
@@ -557,8 +583,8 @@ public final class Utils {
         return getSysDatetime("");
     }
     public static String getSysDatetime(String format) {
-        if("".equals(format)) format = DATETIME_FORMATTER;
-        return getDateWithFormat(LocalDateTime.now(), format);
+        if("".equals(format) || format == null) format = DATETIME_FORMATTER;
+        return getDatetimeWithFormat(LocalDateTime.now(), format);
     }
 
     // 현재 시스템의 날짜에 해당하는 요일을 반환한다.

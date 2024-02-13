@@ -6,6 +6,7 @@
  * - hison.data: Provides functionalities for DataWrapper and DataModel.
  * - hison.link: Offers features necessary for ApiLink.
  * - hison.caching: Includes functionalities for the caching module.
+ * - hison.shield: Set up client security. hison Object freezes, prevents going back, prevents opening developer tools.
  * - hison.utils: A collection of various common utility methods.
  * 
  * The hison object is finally defined in the shield.js file through the finalDefinehison() method.
@@ -69,7 +70,7 @@ var hison ={};
     /** hison.link.protocol is the protocol value for the URL used to call APIs in apiLink. */
     hison.link.protocol = 'http://';
     /** hison.link.domain is the domain value for the URL used to call APIs in apiLink. */
-    hison.link.domain = 'localhost:8081';
+    hison.link.domain = 'localhost:8080';
     /** hison.link.controllerPath is the RequestMapping value for calling APIs in apiLink. */
     hison.link.controllerPath = '/hison-api-link';
     /** hison.link.timeout is the default value for the timeout after making an API request, measured in milliseconds. */
@@ -303,6 +304,23 @@ var hison ={};
     hison.caching.wsEndPoint = '/hison-caching-websocket-endpoint';
     /** Number of times to perform caching. */
     hison.caching.limit = 10;
+
+    /******************************************
+     * shield
+     ******************************************/
+    hison.shield = {};
+    /** URL to apply shield (prevent go back, developer mode) */
+    hison.shield.shieldURL = "";
+    /** List of IPs to allow without shielding (prevent go back, developer mode) */
+    hison.shield.exposeIpList = ["0:0:0:0:0:0:0:1"];
+    /** Whether to freeze object hison */
+    hison.shield.isFreeze = true;
+    /** Whether to apply a shield */
+    hison.shield.isSheld = true;
+    /** Whether of possible to go back */
+    hison.shield.isPossibleGoBack = false;
+    /** Whether of possible to open develop tool */
+    hison.shield.isPossibleOpenDevTool = false;
 
     /******************************************
      * Utils

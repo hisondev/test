@@ -7,8 +7,15 @@
     <script src="hison.js"></script>
     <script src="dataModel.js"></script>
     <script src="apiLink.js"></script>
+    <script src="shield.js"></script>
     <script>
-        Hison.data.convertObject = function(object) {
+        console.log('1', hison.data.convertObject);
+        console.log('1', hison.link.domain);
+    </script>
+    <script>
+        hisonShield();
+        
+        hison.data.convertObject = function(object) {
             if (object instanceof Date) {
                 var year = object.getFullYear();
                 var month = object.getMonth() + 1;
@@ -25,7 +32,10 @@
             }
             return object;
         }
-        Hison.link.beforeCallbackWorked = function(result, response, callbackWorkedFunction) {
+        hison.link.domain = 'localhost:8081';
+        console.log('2', hison.data.convertObject);
+        console.log('2', hison.link.domain);
+        hison.link.beforeCallbackWorked = function(result, response, callbackWorkedFunction) {
             if(result && result.isDataWrapper) {
                 if(result.containsKey("status") && result.getString("status") === "error") {
                     alert(result.getString("message"));
@@ -33,7 +43,6 @@
                 }
             }
         };
-        Hison.link.domain = 'localhost:8081';
         var cachingModule = newCachingModule();
 
         // JavaScript fetch API

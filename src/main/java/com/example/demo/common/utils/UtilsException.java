@@ -1,19 +1,33 @@
 package com.example.demo.common.utils;
 
 /**
- * The {@code UtilsException} class represents exceptions specific to data processing
- * within the application. It is a custom exception that extends {@link RuntimeException} 
- * from Spring framework to provide context about data-related failures.
- * 
- * <p>This exception can be used to wrap other exceptions, providing a higher-level explanation
- * of what went wrong during data operations.</p>
+ * Represents a custom exception type for errors encountered in the {@code Utils} class.
+ * <p>
+ * {@code UtilsException} extends {@code RuntimeException}, making it an unchecked exception that
+ * can be thrown during the operation of methods in the {@code Utils} class to indicate issues that
+ * cannot be recovered from and should be handled at a higher level of the application. This exception
+ * is designed to encapsulate errors related to utility operations, providing more context and detail
+ * about the nature of the error.
+ * </p>
+ * <p>
+ * It supports various constructors to allow for flexibility in specifying the error message and cause,
+ * facilitating better error diagnostics and enabling calling code to understand and potentially react
+ * to specific issues.
+ * </p>
  *
- * @author Hani son
- * @version 1.0.0
+ * Constructors:
+ * <ul>
+ * <li>{@code UtilsException(String message)}: Initializes a new instance of {@code UtilsException} with a detailed message.</li>
+ * <li>{@code UtilsException(String message, Throwable cause)}: Initializes a new instance of {@code UtilsException} with a detailed message and a cause.</li>
+ * <li>{@code UtilsException(Throwable cause)}: Initializes a new instance of {@code UtilsException} with a cause, using the cause's message as its detail message.</li>
+ * <li>{@code UtilsException(UtilsException cause)}: Initializes a new instance of {@code UtilsException} using another {@code UtilsException} as its cause, which can be useful for exception chaining.</li>
+ * </ul>
+ *
+ * <p>By providing detailed context about the errors encountered within utility methods, {@code UtilsException} aids in debugging and maintaining the application.</p>
  */
 public class UtilsException extends RuntimeException {
     /**
-     * Constructs a new {@code DataException} with the specified detail message.
+     * Constructs a new {@code UtilsException} with the specified detail message.
      * 
      * @param message the detail message
      */
@@ -22,7 +36,7 @@ public class UtilsException extends RuntimeException {
     }
 
     /**
-     * Constructs a new {@code DataException} with the specified detail message and cause.
+     * Constructs a new {@code UtilsException} with the specified detail message and cause.
      * 
      * @param message the detail message
      * @param cause the cause of the exception (a {@code null} value is permitted, and indicates that the cause is nonexistent or unknown)
@@ -32,7 +46,7 @@ public class UtilsException extends RuntimeException {
     }
 
     /**
-     * Constructs a new {@code DataException} with the specified cause and a detail message of {@code (cause==null ? null : cause.toString())}.
+     * Constructs a new {@code UtilsException} with the specified cause and a detail message of {@code (cause==null ? null : cause.toString())}.
      * 
      * @param cause the cause of the exception (a {@code null} value is permitted, and indicates that the cause is nonexistent or unknown)
      */
@@ -41,7 +55,7 @@ public class UtilsException extends RuntimeException {
     }
 
     /**
-     * Constructs a new {@code DataException} using another {@code DataException} as its cause.
+     * Constructs a new {@code UtilsException} using another {@code UtilsException} as its cause.
      * 
      * @param cause the cause of the exception
      */

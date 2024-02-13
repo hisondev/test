@@ -2,7 +2,7 @@
  * The hison object is a container for configuration values and methods required for using the hisondev solution.
  * It includes the following sub-objects:
  * 
- * - hison.const: Contains constants required for overall configuration.
+ * - hison.utils.defaults: Contains constants required for overall configuration.
  * - hison.data: Provides functionalities for DataWrapper and DataModel.
  * - hison.link: Offers features necessary for ApiLink.
  * - hison.caching: Includes functionalities for the caching module.
@@ -307,42 +307,40 @@ var hison ={};
     /******************************************
      * Utils
      ******************************************/
-    hison.const = {};
     hison.utils = {};
+    hison.utils.defaults = {};
 
     /** Default format for date. refer to hison.utils.getDateWithFormat */
-    hison.const.dateFormat = 'yyyy-MM-dd';
+    hison.utils.defaults.dateFormat = "yyyy-MM-dd";
     /** Default format for time. (hhmmss or hh:mm:ss). */
-    hison.const.timeFormat = 'hh:mm:ss';
+    hison.utils.defaults.timeFormat = "hh:mm:ss";
     /** Default format for date and time. refer to hison.utils.getDateWithFormat */
-    hison.const.datetimeFormat = 'yyyy-MM-dd hh:mm:ss';
+    hison.utils.defaults.datetimeFormat = "yyyy-MM-dd hh:mm:ss";
     /** Default format for year. (yyyy or yy) */
-    hison.const.yearFormat = 'yyyy';
-    /** Default format for month. (MM or m) */
-    hison.const.monthFormat = 'M';
-    /** Default format for monthName. (MMMM or MMM) */
-    hison.const.monthNameFormat = 'MMMM';
+    hison.utils.defaults.yearFormat = "yyyy";
+    /** Default format for month. (M, MM, MMM, MMMM) */
+    hison.utils.defaults.monthFormat = "M";
     /** Default format for year and month. refer to hison.utils.getDateWithFormat */
-    hison.const.yearMonthFormat = 'yyyy-MM';
+    hison.utils.defaults.yearMonthFormat = "yyyy-MM";
     /** Default format for day. (dd or d) */
-    hison.const.dayFormat = 'd';
+    hison.utils.defaults.dayFormat = "d";
     /** Default format for dayOfWeek. (d, dy, day, kdy, kday) */
-    hison.const.dayOfWeekFormat = 'd';
+    hison.utils.defaults.dayOfWeekFormat = "d";
     /** Default format for hour. (hh or h) */
-    hison.const.hourFormat = 'h';
+    hison.utils.defaults.hourFormat = "h";
     /** Default format for hour and minute. (hhmm or hh:mm) */
-    hison.const.hourMinuteFormat = 'hh:mm';
+    hison.utils.defaults.hourMinuteFormat = "hh:mm";
     /** Default format for minute. (mm or m) */
-    hison.const.minuteFormat = 'm';
+    hison.utils.defaults.minuteFormat = "m";
     /** Default format for second. (ss or s) */
-    hison.const.secondFormat = 's';
+    hison.utils.defaults.secondFormat = "s";
     /** Default format for number. refer to hison.utils.getNumberFormat */
-    hison.const.numberFormat = '#,##0.##'
+    hison.utils.defaults.numberFormat = "#,##0.#####"
 
     /** Constants used for checking byte size of characters. */
-    hison.const.LESSOREQ_0X7FF_BYTE = 2;    //charCode <= 0x7FF
-    hison.const.LESSOREQ_0XFFFF_BYTE = 3;   //charCode <= 0xFFFF
-    hison.const.GREATER_0XFFFF_BYTE = 4;    //charCode > 0xFFFF
+    hison.utils.defaults.lessoreq0x7ffByte = 2;    //charCode <= 0x7FF
+    hison.utils.defaults.lessoreq0xffffByte = 3;   //charCode <= 0xFFFF
+    hison.utils.defaults.greater0xffffByte = 4;    //charCode > 0xFFFF
 
     /******************************************
      * Utils for Boolean
@@ -649,10 +647,10 @@ var hison ={};
      * hison.utils.isArray({ a: 1, b: 2 });
      */
     hison.utils.isArray = function(arr) {
-        return Array.isArray(arr) && arr.constructor === Array;
+        return Array.isArray(arr) && arr.utils.defaultsructor === Array;
     };
     var _isObject = function(obj) {
-        return obj !== null && typeof obj === 'object' && !Array.isArray(obj) && obj.constructor === Object;
+        return obj !== null && typeof obj === 'object' && !Array.isArray(obj) && obj.utils.defaultsructor === Object;
     };
     /**
      * Checks if the given parameter is an object consisting of key-value pairs.
@@ -1031,31 +1029,31 @@ var hison ={};
         switch (addType) {
             case 'y':
                 d.setFullYear(d.getFullYear() + addValue);
-                format = hison.const.dateFormat;
+                format = hison.utils.defaults.dateFormat;
                 break;
             case 'M':
                 d.setMonth(d.getMonth() + addValue);
-                format = hison.const.dateFormat;
+                format = hison.utils.defaults.dateFormat;
                 break;
             case 'd':
                 d.setDate(d.getDate() + addValue);
-                format = hison.const.dateFormat;
+                format = hison.utils.defaults.dateFormat;
                 break;
             case 'h':
                 d.setHours(d.getHours() + addValue);
-                format = hison.const.datetimeFormat;
+                format = hison.utils.defaults.datetimeFormat;
                 break;
             case 'm':
                 d.setMinutes(d.getMinutes() + addValue);
-                format = hison.const.datetimeFormat;
+                format = hison.utils.defaults.datetimeFormat;
                 break;
             case 's':
                 d.setSeconds(d.getSeconds() + addValue);
-                format = hison.const.datetimeFormat;
+                format = hison.utils.defaults.datetimeFormat;
                 break;
             default:
                 d.setDate(d.getDate() + addValue);
-                format = hison.const.dateFormat;
+                format = hison.utils.defaults.dateFormat;
         }
 
         var rtnObj = {
@@ -1172,7 +1170,7 @@ var hison ={};
         var datetimeObj = _isObject(datetimeObj_or_datetimeStr) ? _deepCopy(datetimeObj_or_datetimeStr) : _getDatetimeObject(datetimeObj_or_datetimeStr);
 
         if(!datetimeObj.y) return hison.utils.errorHandler("ER0011", "Please enter a valid date.", "")
-        if(!format) format = hison.const.dateFormat;
+        if(!format) format = hison.utils.defaults.dateFormat;
 
         datetimeObj.M = (datetimeObj.M || 1).toString().padStart(2, '0');
         datetimeObj.d = (datetimeObj.d || 1).toString().padStart(2, '0');
@@ -1494,7 +1492,7 @@ var hison ={};
         var dateObj = _isObject(dateObj_or_dateStr) ? dateObj_or_dateStr : _getDateObject(dateObj_or_dateStr);
         if(!_isDate(dateObj)) return hison.utils.errorHandler("ER0015", "Please enter a valid date.", "");
         
-        if(!dayType) dayType = hison.const.dayOfWeekFormat;
+        if(!dayType) dayType = hison.utils.defaults.dayOfWeekFormat;
         var date = new Date(dateObj.y, dateObj.M - 1, dateObj.d);
         var dayOfWeek = date.getDay();
     
@@ -1502,9 +1500,9 @@ var hison ={};
             case 'd':
                 return dayOfWeek.toString();    // 0 ~ 6
             case 'dy':
-                return ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'][dayOfWeek];
+                return ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][dayOfWeek];
             case 'day':
-                return ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'][dayOfWeek];
+                return ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][dayOfWeek];
             case 'kdy':
                 return ['일', '월', '화', '수', '목', '금', '토'][dayOfWeek];
             case 'kday':
@@ -1593,7 +1591,7 @@ var hison ={};
      * hison.utils.getSysYear('yy');
      */
     hison.utils.getSysYear = function(format) {
-        if(!format) format = hison.const.yearFormat;
+        if(!format) format = hison.utils.defaults.yearFormat;
         var currentDate = new Date();
         switch (format.toLowerCase()) {
             case 'yy':
@@ -1623,7 +1621,7 @@ var hison ={};
      * hison.utils.getSysMonth('MMM');
      */
     hison.utils.getSysMonth = function(format) {
-        if(!format) format = hison.const.monthFormat;
+        if(!format) format = hison.utils.defaults.monthFormat;
         var currentDate = new Date();
         var sysMonth = currentDate.getMonth() + 1;
         switch (format.toLowerCase()) {
@@ -1654,7 +1652,7 @@ var hison ={};
      * hison.utils.getSysYearMonth('yyyy/MM');
      */
     hison.utils.getSysYearMonth = function(format) {
-        if(!format) format = hison.const.yearMonthFormat;
+        if(!format) format = hison.utils.defaults.yearMonthFormat;
         var currentDate = new Date();
         return _getDateWithFormat({y:currentDate.getFullYear(),m:currentDate.getMonth() + 1}, format)
     };
@@ -1675,7 +1673,7 @@ var hison ={};
      * hison.utils.getSysDay();
      */
     hison.utils.getSysDay = function(format) {
-        if(!format) format = hison.const.dayFormat;
+        if(!format) format = hison.utils.defaults.dayFormat;
         var currentDate = new Date();
         switch (format.toLowerCase()) {
             case 'dd':
@@ -1702,7 +1700,7 @@ var hison ={};
      * hison.utils.getSysDayOfWeek('day');
      */
     hison.utils.getSysDayOfWeek = function(dayType) {
-        if(!dayType) dayType = hison.const.dayOfWeekFormat;
+        if(!dayType) dayType = hison.utils.defaults.dayOfWeekFormat;
         var currentDate = new Date();
         return _getDayOfWeek({y:currentDate.getFullYear(),m:currentDate.getMonth() + 1,d:currentDate.getDate()}, dayType);
     };
@@ -1723,7 +1721,7 @@ var hison ={};
      * hison.utils.getSysHour();
      */
     hison.utils.getSysHour = function(format) {
-        if(!format) format = hison.const.hourFormat;
+        if(!format) format = hison.utils.defaults.hourFormat;
         var currentDate = new Date();
         switch (format.toLowerCase()) {
             case 'hh':
@@ -1749,7 +1747,7 @@ var hison ={};
      * hison.utils.getSysHourMinute('hhmm');
      */
     hison.utils.getSysHourMinute = function(format) {
-        if(!format) format = hison.const.hourMinuteFormat;
+        if(!format) format = hison.utils.defaults.hourMinuteFormat;
         var currentDate = new Date();
         switch (format.toLowerCase()) {
             case 'hhmm':
@@ -1775,7 +1773,7 @@ var hison ={};
      * hison.utils.getSysMinute();
      */
     hison.utils.getSysMinute = function(format) {
-        if(!format) format = hison.const.minuteFormat;
+        if(!format) format = hison.utils.defaults.minuteFormat;
         var currentDate = new Date();
         switch (format.toLowerCase()) {
             case 'mm':
@@ -1801,7 +1799,7 @@ var hison ={};
      * hison.utils.getSysSecond();
      */
     hison.utils.getSysSecond = function(format) {
-        if(!format) format = hison.const.secondFormat;
+        if(!format) format = hison.utils.defaults.secondFormat;
         var currentDate = new Date();
         switch (format.toLowerCase()) {
             case 'ss':
@@ -1827,7 +1825,7 @@ var hison ={};
      * hison.utils.getSysTime('hhmmss');
      */
     hison.utils.getSysTime = function(format) {
-        if(!format) format = hison.const.timeFormat;
+        if(!format) format = hison.utils.defaults.timeFormat;
         var currentDate = new Date();
         switch (format.toLowerCase()) {
             case 'hhmmss':
@@ -1853,7 +1851,7 @@ var hison ={};
      * hison.utils.getSysDate('yyyy. MM. dd hh:mm');
      */
     hison.utils.getSysDate = function(format) {
-        if(!format) format = hison.const.datetimeFormat;
+        if(!format) format = hison.utils.defaults.datetimeFormat;
         var currentDate = new Date();
         return _getDateWithFormat(
             {
@@ -1992,7 +1990,7 @@ var hison ={};
      * hison.utils.getByteLength('안녕하세요.');
      *
      * Note: For users utilizing different encodings like EUC-KR, the byte values for character ranges can be modified
-     * in the hison.const fields: LESSOREQ_0X7FF_BYTE, LESSOREQ_0XFFFF_BYTE, GREATER_0XFFFF_BYTE.
+     * in the hison.utils.defaults fields: LESSOREQ_0X7FF_BYTE, LESSOREQ_0XFFFF_BYTE, GREATER_0XFFFF_BYTE.
      */
     hison.utils.getByteLength = function(str) {
         str = _getToString(str);
@@ -2002,11 +2000,11 @@ var hison ={};
             if (charCode <= 0x7F) {
                 byteLength += 1;
             } else if (charCode <= 0x7FF) {
-                byteLength += hison.const.LESSOREQ_0X7FF_BYTE;
+                byteLength += hison.utils.defaults.lessoreq0x7ffByte;
             } else if (charCode <= 0xFFFF) {
-                byteLength += hison.const.LESSOREQ_0XFFFF_BYTE;
+                byteLength += hison.utils.defaults.lessoreq0xffffByte;
             } else {
-                byteLength += hison.const.GREATER_0XFFFF_BYTE;
+                byteLength += hison.utils.defaults.greater0xffffByte;
             }
         }
         return byteLength;
@@ -2041,11 +2039,11 @@ var hison ={};
             if (charCode <= 0x7F) {
                 byteLength += 1;
             } else if (charCode <= 0x7FF) {
-                byteLength += hison.const.LESSOREQ_0X7FF_BYTE;
+                byteLength += hison.utils.defaults.lessoreq0x7ffByte;
             } else if (charCode <= 0xFFFF) {
-                byteLength += hison.const.LESSOREQ_0XFFFF_BYTE;
+                byteLength += hison.utils.defaults.lessoreq0xffffByte;
             } else {
-                byteLength += hison.const.GREATER_0XFFFF_BYTE;
+                byteLength += hison.utils.defaults.greater0xffffByte;
             }
             if (byteLength > cutByte) {
                 cutIndex = i;
@@ -2254,7 +2252,7 @@ var hison ={};
         if (!_isNumeric(value)) {
             return hison.utils.errorHandler("ER0021", "Invalid number", oriValue);
         }
-        format = format ? format : hison.const.numberFormat;
+        format = format ? format : hison.utils.defaults.numberFormat;
         var regex = /^(.*?)([#0,.]+)(.*?)$/;
         var matches = format.match(regex);
 
@@ -2688,7 +2686,7 @@ var hison ={};
         if (object === null || typeof object !== 'object') {
             return object;
         }
-        if (object.constructor !== Object && object.constructor !== Array) {
+        if (object.utils.defaultsructor !== Object && object.utils.defaultsructor !== Array) {
             if(object.isDataWrapper || object.isDataModel) {
                 return object.clone();
             }

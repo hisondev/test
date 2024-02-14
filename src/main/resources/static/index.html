@@ -4,17 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <script src="hison.js"></script>
-    <script src="dataModel.js"></script>
-    <script src="apiLink.js"></script>
-    <script src="shield.js"></script>
+    <script src="hisonPlatform.js"></script>
     <script>
-        console.log('1', hison.data.convertObject);
-        console.log('1', hison.link.domain);
-    </script>
-    <script>
-        hisonShield();
-        
+        // hisonShield();
         hison.data.convertObject = function(object) {
             if (object instanceof Date) {
                 var year = object.getFullYear();
@@ -33,8 +25,6 @@
             return object;
         }
         hison.link.domain = 'localhost:8081';
-        console.log('2', hison.data.convertObject);
-        console.log('2', hison.link.domain);
         hison.link.beforeCallbackWorked = function(result, response, callbackWorkedFunction) {
             if(result && result.isDataWrapper) {
                 if(result.containsKey("status") && result.getString("status") === "error") {

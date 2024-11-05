@@ -359,7 +359,7 @@ var newDataModel = (function() {
                 return object;
             }
             if (object.constructor !== Object && object.constructor !== Array) {
-                return Hison.data.convertObject ? Hison.data.convertObject(object) : object;
+                return hison.data.convertObject ? hison.data.convertObject(object) : object;
             }
             if (!visited) visited = [];
             for (var i = 0; i < visited.length; i++) {
@@ -1532,7 +1532,7 @@ var newDataModel = (function() {
 
 
 /******************************************
- * Global variable Hison
+ * Global variable hison
  ******************************************/
 /**
  * Provides a user-definable function for customizing the deep copy behavior of specific objects in DataModel.
@@ -1547,7 +1547,7 @@ var newDataModel = (function() {
  *
  * @example
  * // Overriding the function to handle Date objects
- * Hison.data.convertObject = function(object) {
+ * hison.data.convertObject = function(object) {
  *     if (object instanceof Date) {
  *         var year = object.getFullYear();
  *         var month = object.getMonth() + 1; // getMonth()는 0부터 시작
@@ -1559,8 +1559,8 @@ var newDataModel = (function() {
  *     return object; // Default behavior for other objects
  * };
  */
-if(!Hison) {
-    var Hison = {
+if(!hison) {
+    var hison = {
         data : {
             convertObject : function(object) {
                 return object;

@@ -8,7 +8,7 @@
  * The CachingModule class within handles WebSocket connections for real-time communication and provides an LRU (Least Recently Used) caching strategy.
  *
  * Key Components:
- * - WebSocket Integration: Manages a WebSocket connection using a URL derived from Hison.caching configuration.
+ * - WebSocket Integration: Manages a WebSocket connection using a URL derived from hison.caching configuration.
  * - LRU Cache Implementation: Offers methods for LRU cache operations such as get, put, remove, getAll, getKeys, and clear.
  * - WebSocket Event Handlers: Allows setting custom functions for WebSocket events (onopen, onmessage, onclose) and checking WebSocket connection status.
  * - Automatic Cache Clearing: The cache is automatically cleared upon receiving new messages through the WebSocket (in the onmessage event), ensuring data freshness and relevance.
@@ -77,8 +77,8 @@ var newCachingModule = (function() {
             }
         }
 
-        var _limit = Hison.caching.limit;
-        var _webSocketUrl = Hison.caching.protocol + Hison.link.domain + Hison.caching.wsEndPoint;
+        var _limit = hison.caching.limit;
+        var _webSocketUrl = hison.caching.protocol + hison.link.domain + hison.caching.wsEndPoint;
         var _webSocket = new WebSocket(_webSocketUrl);
 
         _webSocket.onopen = function(event) {};
@@ -397,18 +397,18 @@ var newApiLink = (function() {
          * Api Link
          ********************/
         var _cmd;
-        var _rootUrl = Hison.link.protocol + Hison.link.domain;
-        var _controllerPath = Hison.link.controllerPath;
-        var _timeout = Hison.link.timeout;
+        var _rootUrl = hison.link.protocol + hison.link.domain;
+        var _controllerPath = hison.link.controllerPath;
+        var _timeout = hison.link.timeout;
         var _doLogging = false;
         var _cachingModule = null;
-        var _beforeGetRequst = Hison.link.beforeGetRequst;
-        var _beforePostRequst = Hison.link.beforePostRequst;
-        var _beforePutRequst = Hison.link.beforePutRequst;
-        var _beforePatchRequst = Hison.link.beforePatchRequst;
-        var _beforeDeleteRequst = Hison.link.beforeDeleteRequst;
-        var _beforeCallbackWorked = Hison.link.beforeCallbackWorked;
-        var _callbackErrorFunc = Hison.link.beforeCallbackError;
+        var _beforeGetRequst = hison.link.beforeGetRequst;
+        var _beforePostRequst = hison.link.beforePostRequst;
+        var _beforePutRequst = hison.link.beforePutRequst;
+        var _beforePatchRequst = hison.link.beforePatchRequst;
+        var _beforeDeleteRequst = hison.link.beforeDeleteRequst;
+        var _beforeCallbackWorked = hison.link.beforeCallbackWorked;
+        var _callbackErrorFunc = hison.link.beforeCallbackError;
 
         if(options) {
             if (options.constructor !== Object) {
@@ -896,10 +896,10 @@ var newApiLink = (function() {
 })();
 
 /******************************************
- * Global variable Hison
+ * Global variable hison
  ******************************************/
 /**
- * The Hison object serves as a configuration hub for API interactions and caching mechanisms in web applications. 
+ * The hison object serves as a configuration hub for API interactions and caching mechanisms in web applications. 
  * It is a global object that provides essential settings and functions for managing API requests and WebSocket connections.
  *
  * @global
@@ -923,8 +923,8 @@ var newApiLink = (function() {
  *
  * Note: This configuration object should be defined before using newApiLink and newCachingModule functions to ensure proper functionality.
  */
-if(!Hison) {
-    var Hison = {
+if(!hison) {
+    var hison = {
         link : {
             protocol : 'http://',
             domain : 'localhost:8081',

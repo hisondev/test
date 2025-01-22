@@ -6,6 +6,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.common.api.controller.ApiLink;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/hison-api-link")
 public class ApiController extends ApiLink{
 }

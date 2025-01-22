@@ -22,23 +22,23 @@ var hison ={};
      ******************************************/
     hison.data = {};
     /**
-     * Converts special JavaScript objects into a predefined format before they are inserted into the DataModel.
-     * This function allows for custom handling of objects like Date, or other special object types, to ensure
-     * they are stored in the DataModel in a consistent and predictable format. By default, it returns the object as is.
+     * Converts special values into a predefined format before they are inserted into the DataModel.
+     * This function allows for custom handling of values like Date, or other special values, to ensure
+     * they are stored in the DataModel in a consistent and predictable format. By default, it returns the value as is.
      *
-     * @param {object} object - The object to be converted. This can be a special object like Date or any other object.
-     * @returns {object} Returns the converted object.
+     * @param {any} value - The value to be converted. This can be a special value like Date or any other value.
+     * @returns {any} Returns the converted value.
      *
      * @example
-     * // When set the hison.data.convertObject
-     * hison.data.convertObject = function(object) {
-     *     if (object instanceof Date) {
-     *          var year = object.getFullYear();
-     *          var month = object.getMonth() + 1;
-     *          var day = object.getDate();
-     *          var hour = object.getHours();
-     *          var minute = object.getMinutes();
-     *          var second = object.getSeconds();
+     * // When set the hison.data.convertValue
+     * hison.data.convertValue = function(value) {
+     *     if (value instanceof Date) {
+     *          var year = value.getFullYear();
+     *          var month = value.getMonth() + 1;
+     *          var day = value.getDate();
+     *          var hour = value.getHours();
+     *          var minute = value.getMinutes();
+     *          var second = value.getSeconds();
      *          month = month < 10 ? '0' + month : month;
      *          day = day < 10 ? '0' + day : day;
      *          hour = hour < 10 ? '0' + hour : hour;
@@ -46,19 +46,19 @@ var hison ={};
      *          second = second < 10 ? '0' + second : second;
      *          return year + '-' + month + '-' + day + " " + hour + ":" + minute + ":" + second;
      *     }
-     *     return object;
+     *     return value;
      * };
      * // Inserting a Date object into DataModel
      * const dm = newDataModel([{key:"key1",value:new Date()},{key:"key2",value:new Date()}]);
      * // The value will be in 'yyyy-MM-dd hh:mm:ss' format
      * 
      * Note: 
-     * 1. Special objects not processed by convertObject are stored in the DataModel as references. 
+     * 1. Special values not processed by convertValue are stored in the DataModel as references. 
      *    Changes to the original object will also reflect in the DataModel.
-     * 2. After customizing the handling of special objects, ensure to return the object for all other cases.
-     *    This ensures that undefined objects are still stored in the DataModel.
+     * 2. After customizing the handling of special values, ensure to return the object for all other cases.
+     *    This ensures that undefined values are still stored in the DataModel.
      */
-    hison.data.convertObject = function(object) {
+    hison.data.convertValue = function(object) {
         return object;
     }
 

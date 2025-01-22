@@ -359,7 +359,7 @@ var newDataModel = (function() {
                 return object;
             }
             if (object.constructor !== Object && object.constructor !== Array) {
-                return Hison.data.convertObject ? Hison.data.convertObject(object) : object;
+                return hison.data.convertValue ? hison.data.convertValue(object) : object;
             }
             if (!visited) visited = [];
             for (var i = 0; i < visited.length; i++) {
@@ -1532,38 +1532,38 @@ var newDataModel = (function() {
 
 
 /******************************************
- * Global variable Hison
+ * Global variable hison
  ******************************************/
 /**
- * Provides a user-definable function for customizing the deep copy behavior of specific objects in DataModel.
- * By default, this function returns the object as is, which means non-primitive objects (excluding plain objects and arrays) are not deeply copied.
- * Users can override this function to implement custom deep copy logic for certain object types that cannot be deeply copied by default.
+ * Provides a user-definable function for customizing the deep copy behavior of specific values in DataModel.
+ * By default, this function returns the value as is, which means non-primitive values (excluding plain values and arrays) are not deeply copied.
+ * Users can override this function to implement custom deep copy logic for certain value types that cannot be deeply copied by default.
  *
  * @global
  * @function
- * @param {Object} object - The object to be potentially transformed during deep copying.
- * @returns {Object} The transformed object. By default, returns the input object as is.
- *                   Users can override to handle specific object types, like converting Date objects to a formatted string.
+ * @param {any} value - The value to be potentially transformed during deep copying.
+ * @returns {any} The transformed value. By default, returns the input value as is.
+ *                   Users can override to handle specific value types, like converting Date values to a formatted string.
  *
  * @example
- * // Overriding the function to handle Date objects
- * Hison.data.convertObject = function(object) {
- *     if (object instanceof Date) {
- *         var year = object.getFullYear();
- *         var month = object.getMonth() + 1; // getMonth()는 0부터 시작
- *         var day = object.getDate();
+ * // Overriding the function to handle Date valuse
+ * hison.data.convertValue = function(value) {
+ *     if (value instanceof Date) {
+ *         var year = value.getFullYear();
+ *         var month = value.getMonth() + 1; // getMonth()는 0부터 시작
+ *         var day = value.getDate();
  *         month = month < 10 ? '0' + month : month;
  *         day = day < 10 ? '0' + day : day;
- *         return year + '. ' + month + '. ' + day; // Custom handling for Date objects
+ *         return year + '. ' + month + '. ' + day; // Custom handling for Date valuse
  *     }
- *     return object; // Default behavior for other objects
+ *     return value; // Default behavior for other valuse
  * };
  */
-if(!Hison) {
-    var Hison = {
+if(!hison) {
+    var hison = {
         data : {
-            convertObject : function(object) {
-                return object;
+            convertValue : function(value) {
+                return value;
             },
         },
     };

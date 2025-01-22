@@ -8,6 +8,7 @@
     <script src="dataModel.js"></script>
     <script src="apiLink.js"></script>
     <script>
+        const Hison = hison;
         Hison.data.convertObject = function(object) {
             if (object instanceof Date) {
                 var year = object.getFullYear();
@@ -25,6 +26,7 @@
             }
             return object;
         }
+        console.log(Hison.link);
         Hison.link.beforeCallbackWorked = function(result, response, callbackWorkedFunction) {
             if(result && result.isDataWrapper) {
                 if(result.containsKey("status") && result.getString("status") === "error") {
@@ -99,7 +101,12 @@
                 console.log("### post function error ###")
                 console.log("error is : ", error);
                 console.log("### post function error ###")
-            });
+            })
+            // .then(result => {
+            //     console.log('!!!!!!!!!!!!!!!!!!SDAFAVC!!!!!!!!', result);
+            //     return result;
+            // });
+            console.log(result);
             console.log(result.data.getObject());
             console.log(cachingModule.getAll());
             var t = cachingModule.getAll();
@@ -120,14 +127,20 @@
             var al = newApiLink("MemberService.justTest");
             al.onEventEmit("requestStarted_POST",(x, y)=>{console.log(x, y)});
             const dw = newDataWrapper("key1", "test1");
-            al.post(dw, 
+            const test = al.post(dw, 
             function(result, response) {
                 console.log("result : ",result);
                 console.log("response : ",response);
+                return result;
             },
             function(error) {
                 console.log("error : ",error);
             }, {timeout:1000})
+            .then(result => {   //al.post자체는 프로미스임
+                console.log('test1111111111', result);
+                return result;//리턴이 있어야 test에 리턴됨
+            });
+            console.log('test22222222',test);
         }
     </script>
 </head>

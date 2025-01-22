@@ -41,6 +41,8 @@ import com.example.demo.common.data.model.DataModel;
 @JsonSerialize(using = DataWrapperSerializer.class)
 public class DataWrapper implements Cloneable{
     private HashMap<String, Object> data;
+    private static final String VERIFICATION_KEY = "Are you isDataWrapper?";
+    private static final String VERIFICATION_VALUE = "Yes. I am DataWrapper!";
 
     private void validateType(Object value) {
         if (value != null && !(value instanceof String || value instanceof DataModel)) {
@@ -53,6 +55,7 @@ public class DataWrapper implements Cloneable{
      */
     public DataWrapper() {
         this.data = new HashMap<String, Object>();
+        this.data.put(VERIFICATION_KEY, VERIFICATION_VALUE);
     }
     
     public DataWrapper(String key, Object value) {
@@ -60,6 +63,7 @@ public class DataWrapper implements Cloneable{
         validateType(value);
         
         this.data.put(key, value);
+        this.data.put(VERIFICATION_KEY, VERIFICATION_VALUE);
     }
 
     /**
@@ -89,6 +93,9 @@ public class DataWrapper implements Cloneable{
      * @param value the String value to be associated with the specified key.
      */
     public void putString(String key, String value) {
+        if (VERIFICATION_KEY.equals(key)) {
+            throw new DataException("The DataWrapper's verification key cannot be modified.");
+        }
         data.put(key, value);
     }
 
@@ -118,6 +125,9 @@ public class DataWrapper implements Cloneable{
      * @param value the dataModel instance to be associated with the specified key.
      */
     public void putDataModel(String key, DataModel value) {
+        if (VERIFICATION_KEY.equals(key)) {
+            throw new DataException("The DataWrapper's verification key cannot be modified.");
+        }
         data.put(key, value);
     }
 
@@ -154,6 +164,9 @@ public class DataWrapper implements Cloneable{
      * @throws DataException if the value is of an invalid type.
      */
     public void put(String key, Object value) {
+        if (VERIFICATION_KEY.equals(key)) {
+            throw new DataException("The DataWrapper's verification key cannot be modified.");
+        }
         validateType(value);
         if (value == null) {
             this.data.put(key, null);
@@ -234,6 +247,7 @@ public class DataWrapper implements Cloneable{
      */
     public DataWrapper clear() {
         this.data.clear();
+        this.data.put(VERIFICATION_KEY, VERIFICATION_VALUE);
         return this;
     }
 
@@ -275,3 +289,6 @@ public class DataWrapper implements Cloneable{
         return r;
     }
 }
+//한번 넣은 키에대한 값 변경 불가??
+//변경할 수 없는 키를 지정??
+//불변성에 대해 좀더 고려해보기!!

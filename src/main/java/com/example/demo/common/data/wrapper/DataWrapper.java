@@ -43,7 +43,7 @@ public class DataWrapper implements Cloneable{
     private HashMap<String, Object> data;
     private Set<String> immutableKeys; // 변경할 수 없는 키를 저장
     private static final String VERIFICATION_KEY = "isDataWrapper";
-    private static final String VERIFICATION_VALUE = "Y";
+    private static final String VERIFICATION_VALUE = "true";
 
     private void validateType(Object value) {
         if (value != null && !(value instanceof String || value instanceof DataModel)) {

@@ -41,29 +41,48 @@ import com.example.demo.common.data.model.DataModel;
 @JsonSerialize(using = DataWrapperSerializer.class)
 public class DataWrapper implements Cloneable{
     private HashMap<String, Object> data;
-    private static final String VERIFICATION_KEY = "Are you isDataWrapper?";
-    private static final String VERIFICATION_VALUE = "Yes. I am DataWrapper!";
+    private Set<String> immutableKeys; // 변경할 수 없는 키를 저장
+    private static final String VERIFICATION_KEY = "isDataWrapper";
+    private static final String VERIFICATION_VALUE = "Y";
 
     private void validateType(Object value) {
         if (value != null && !(value instanceof String || value instanceof DataModel)) {
             throw new DataException("Value type must be a DataModel or String.");
         }
     }
+    
+    private void checkImmutableKey(String key) {
+        if (VERIFICATION_KEY.equals(key)) {
+            throw new DataException("The DataWrapper's verification key cannot be modified.");
+        }
+        if (immutableKeys.contains(key)) {
+            throw new DataException("The key '" + key + "' is immutable and cannot be modified.");
+        }
+    }
 
     /**
-     * Default constructor initializing the internal string and data model maps.
+     * Default constructor initializing the internal data structure and immutableKeys set.
+     * This constructor also adds the verification key-value pair to the data map.
      */
     public DataWrapper() {
         this.data = new HashMap<String, Object>();
+        this.immutableKeys = new HashSet<>();
         this.data.put(VERIFICATION_KEY, VERIFICATION_VALUE);
     }
     
+    /**
+     * Constructs a DataWrapper instance with the specified key-value pair.
+     * This constructor validates the type of the value and initializes the
+     * verification key-value pair.
+     *
+     * @param key   the key to be added to the data map.
+     * @param value the value associated with the specified key.
+     * @throws DataException if the value type is invalid.
+     */
     public DataWrapper(String key, Object value) {
-        this.data = new HashMap<String, Object>();
+        this();
         validateType(value);
-        
         this.data.put(key, value);
-        this.data.put(VERIFICATION_KEY, VERIFICATION_VALUE);
     }
 
     /**
@@ -93,9 +112,7 @@ public class DataWrapper implements Cloneable{
      * @param value the String value to be associated with the specified key.
      */
     public void putString(String key, String value) {
-        if (VERIFICATION_KEY.equals(key)) {
-            throw new DataException("The DataWrapper's verification key cannot be modified.");
-        }
+        checkImmutableKey(key);
         data.put(key, value);
     }
 
@@ -115,7 +132,7 @@ public class DataWrapper implements Cloneable{
         if (data.containsKey(key) && data.get(key) instanceof String) {
             return (String) data.get(key);
         }
-        throw new DataException("There is no inserted String in that key.");
+        return null;
     }
 
     /**
@@ -125,9 +142,7 @@ public class DataWrapper implements Cloneable{
      * @param value the dataModel instance to be associated with the specified key.
      */
     public void putDataModel(String key, DataModel value) {
-        if (VERIFICATION_KEY.equals(key)) {
-            throw new DataException("The DataWrapper's verification key cannot be modified.");
-        }
+        checkImmutableKey(key);
         data.put(key, value);
     }
 
@@ -147,7 +162,7 @@ public class DataWrapper implements Cloneable{
         if (data.containsKey(key) && data.get(key) instanceof DataModel) {
             return ((DataModel)data.get(key)).clone();
         }
-        throw new DataException("There is no inserted DataModel in that key.");
+        return null;
     }
 
     /**
@@ -164,9 +179,7 @@ public class DataWrapper implements Cloneable{
      * @throws DataException if the value is of an invalid type.
      */
     public void put(String key, Object value) {
-        if (VERIFICATION_KEY.equals(key)) {
-            throw new DataException("The DataWrapper's verification key cannot be modified.");
-        }
+        checkImmutableKey(key);
         validateType(value);
         if (value == null) {
             this.data.put(key, null);
@@ -215,6 +228,42 @@ public class DataWrapper implements Cloneable{
     }
 
     /**
+     * Removes the value associated with the specified key from this DataWrapper.
+     * If the key does not exist, this method returns null without throwing an exception.
+     * If the key is immutable, a DataException is thrown.
+     *
+     * @param key the key whose mapping is to be removed from the data map.
+     * @return the removed value, or null if the key did not exist. If the value is a DataModel, a clone of the value is returned.
+     * @throws DataException if the key is immutable.
+     */
+    public Object remove(String key) {
+        checkImmutableKey(key);
+        if (!data.containsKey(key)) {
+            return null;
+        }
+        Object removedValue = data.remove(key);
+        if (removedValue instanceof DataModel) {
+            return ((DataModel) removedValue).clone();
+        }
+        return removedValue;
+    }
+
+    /**
+     * Marks the specified key as immutable, preventing it from being modified.
+     * The key must already exist in the data map before it can be marked immutable.
+     *
+     * @param key the key to mark as immutable.
+     * @throws DataException if the key does not exist in the data map.
+     */
+    public void addImmutableKey(String key) {
+        if (data.containsKey(key)) {
+            immutableKeys.add(key);
+        } else {
+            throw new DataException("Cannot mark a non-existing key as immutable.");
+        }
+    }
+
+    /**
      * Creates and returns a deep copy of this DataWrapper.
      * 
      * This method performs a deep copy of both the 'strings' and 'dataModels' maps.
@@ -234,6 +283,7 @@ public class DataWrapper implements Cloneable{
                 newDataWrapper.putDataModel(key, ((DataModel)this.data.get(key)).clone());
             }
         }
+        newDataWrapper.immutableKeys.addAll(this.immutableKeys); // 복사 시 immutableKeys도 복사
         return newDataWrapper;
     }
 
@@ -247,6 +297,7 @@ public class DataWrapper implements Cloneable{
      */
     public DataWrapper clear() {
         this.data.clear();
+        this.immutableKeys.clear();
         this.data.put(VERIFICATION_KEY, VERIFICATION_VALUE);
         return this;
     }
@@ -289,6 +340,3 @@ public class DataWrapper implements Cloneable{
         return r;
     }
 }
-//한번 넣은 키에대한 값 변경 불가??
-//변경할 수 없는 키를 지정??
-//불변성에 대해 좀더 고려해보기!!

@@ -19,9 +19,9 @@ public class CustomApiHandler extends ApiHandlerDefault {
     @Override
     public DataModel beforeHandleRequest(DataWrapper dw, HttpServletRequest req) {
         String httpMethod = req.getMethod();
-        if ("PUT".equals(httpMethod) || "PATCH".equals(httpMethod) || "DELETE".equals(httpMethod)) {
-            throw new SecurityException("PUT, PATCH, and DELETE requests are not allowed for security reasons.");
-        }
+        // if ("PUT".equals(httpMethod) || "PATCH".equals(httpMethod) || "DELETE".equals(httpMethod)) {
+        //     throw new SecurityException("PUT, PATCH, and DELETE requests are not allowed for security reasons.");
+        // }
         return null;
     }
 
